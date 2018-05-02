@@ -14,5 +14,6 @@ int main(int argc, char *argv[]) {
 
     // TODO: Implement file system generation & copying of files here
     //Just to help understand git
+    // I still don't understand (g)it
     return 0;
 }
