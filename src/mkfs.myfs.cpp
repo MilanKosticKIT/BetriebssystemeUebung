@@ -10,21 +10,47 @@
 #include "blockdevice.h"
 #include "macros.h"
 
-#define SUPER_START 0
-#define DMAP_START 1
-#define FAT_START 17
-#define ROOT_START 273
-#define DATA_START 337
-
-#define SUPER_SIZE 1
-#define DMAP_SIZE = FAT_START - DMAP_START
-#define FAT_SIZE = ROOT_START - FAT_START
-#define ROOT_SIZE = DATA_START - ROOT_START
-#define DATA_SIZE 65536
-
 
 int main(int argc, char *argv[]) {
 
     // TODO: Implement file system generation & copying of files here
     return 0;
 }
+
+//MARK: - Our Methods
+
+//Called to say an Address got empty
+void clearPointInDMAP(u_int16_t deleteAddress) {
+    //TODO: Implement this.
+}
+
+//Called to say an Address was filled
+void setPointInDMAP(u_int16_t filledAddress) {
+    //TODO: Implement this.
+}
+
+//Called to check wehther an address is full
+bool getDMAP(u_int16_t askedAddress) {
+    //TODO: Implement this.
+}
+
+//Called to get the next address
+u_int16_t getAddress(u_int16_t currentAddress) {
+    //TODO: Implement this.
+}
+
+//Called to set the address for an datablock
+void setAddress(u_int16_t currentAddress, u_int16_t nextAddress) {
+    //TODO: Implement this.
+}
+
+//
+MetaData getMetaData(u_int8_t indexOfFile) {
+    //TODO: Implement this.
+}
+
+//Sets the
+void setMetaData(MetaData metaData) {
+    //TODO: Implement this.
+}
+
