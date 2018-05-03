@@ -10,6 +10,10 @@
 #include "blockdevice.h"
 #include "macros.h"
 
+void convertBlockToMetaData(MetaData* data, char* block);
+void convertMetaDataToBlock(MetaData* data, char* block);
+//TODO: Get these lines to a fitting header file.
+
 
 int main(int argc, char *argv[]) {
 
@@ -64,13 +68,31 @@ void setAddress(u_int16_t currentAddress, u_int16_t nextAddress) {
     //TODO: Implement this.
 }
 
-//
+//Returns the metaData of the file behind the index.
 MetaData getMetaData(u_int8_t indexOfFile) {
+    u_int32_t blockNo = ROOT_START + indexOfFile;
+    char* block;
+    BlockDevice::read(blockNo, block);
+    MetaData data;
+    convertBlockToMetaData(&data, block);       //TODO: Pls check deferensation, (and spelling).
+    return data;
+}
+
+//Sets the MetaData of an file, which is refrenced via the index.
+void setMetaData(MetaData metaData, u_int8_t indexOfFile) {
+    u_int32_t blockNo = ROOT_START + indexOfFile;
+    char* block;
+    convertBlockToMetaData(&metaData, block);   //TODO: Pls check deferensation, (and spelling).
+    BlockDevice::write(blockNo, block);
+}
+
+//Casts the given block to a given MetaData instance
+void convertBlockToMetaData(MetaData* data, char* block){
     //TODO: Implement this.
 }
 
-//Sets the
-void setMetaData(MetaData metaData) {
+//Converts the given MetaData into a block, formatted as char*/String
+void convertMetaDataToBlock(MetaData* data, char* block){
     //TODO: Implement this.
 }
 
