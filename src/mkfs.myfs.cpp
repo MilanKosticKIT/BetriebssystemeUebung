@@ -19,19 +19,39 @@ int main(int argc, char *argv[]) {
 
 //MARK: - Our Methods
 
+//Called to change the dmap bit of an address
+void changeDMAP(u_int16_t address, bool mode) {
+    u_int32_t blockNo = DMAP_START + (address + DMAP_SIZE);
+    char* block;
+    BlockDevice::read(blockNo, block);
+    int bit = address % BLOCK_SIZE;
+    char toChange = block[bit / sizeof(char)];
+    bit %= sizeof(char);
+    toChange = toChange & ~(1 << bit);     //Clear bit
+    toChange = toChange | (mode << bit);   //Set bit to mode
+    
+    //TODO: Check wether these operators fit.
+}
+
 //Called to say an Address got empty
 void clearPointInDMAP(u_int16_t deleteAddress) {
-    //TODO: Implement this.
+    changeDMAP(deleteAddress, 0);
 }
 
 //Called to say an Address was filled
 void setPointInDMAP(u_int16_t filledAddress) {
-    //TODO: Implement this.
+    changeDMAP(filledAddress, 1);
 }
 
 //Called to check wehther an address is full
 bool getDMAP(u_int16_t askedAddress) {
-    //TODO: Implement this.
+    u_int32_t blockNo = DMAP_START + (askedAddress + DMAP_SIZE);
+    char* block;
+    BlockDevice::read(blockNo, block);
+    int bit = askedAddress % BLOCK_SIZE;
+    char toChange = block[bit / sizeof(char)];
+    bit %= sizeof(char);
+    return bool (toChange & (1<< bit)); //0 if the bit of toChange was 0, !=0 otherwise
 }
 
 //Called to get the next address
