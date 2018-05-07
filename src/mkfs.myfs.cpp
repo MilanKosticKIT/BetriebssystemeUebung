@@ -60,12 +60,27 @@ bool getDMAP(u_int16_t askedAddress) {
 
 //Called to get the next address (from 0 to 65535)
 u_int16_t getAddress(u_int16_t currentAddress) {
-
+    u_int32_t blockNo, byteNo;
+    getBLockFromAddress(currentAddress, &blockNo, &byteNo);
+    blockNo += FAT_START;
+    char* buffer;
+    BlockDevice.read(blockNo, buffer);
+    u_int16_t* content = buffer;
+    return content[byteNo];
+    // TODO: Is probably wrong
 }
 
 //Called to set the address for an datablock (from 0 to 65535)
 void setAddress(u_int16_t currentAddress, u_int16_t nextAddress) {
-    //TODO: Implement this.
+    u_int32_t blockNo, byteNo;
+    getBLockFromAddress(currentAddress, &blockNo, &byteNo);
+    blockNo += FAT_START;
+    char* buffer;
+    BlockDevice.read(blockNo, buffer);
+    u_int16_t* content = buffer;
+    content[byteNo] = nextAddress;
+    BlockDevice.write(blockNo, buffer);
+    // TODO: Is probably wrong
 }
 
 //Returns the metaData of the file behind the index.
