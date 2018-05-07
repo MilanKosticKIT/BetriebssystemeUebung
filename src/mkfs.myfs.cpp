@@ -33,7 +33,7 @@ void changeDMAP(u_int16_t address, bool mode) {
     bit %= sizeof(char);
     toChange = toChange & ~(1 << bit);     //Clear bit
     toChange = toChange | (mode << bit);   //Set bit to mode
-    
+
     //TODO: Check wether these operators fit.
 }
 
@@ -58,12 +58,12 @@ bool getDMAP(u_int16_t askedAddress) {
     return bool (toChange & (1<< bit)); //0 if the bit of toChange was 0, !=0 otherwise
 }
 
-//Called to get the next address
+//Called to get the next address (from 0 to 65535)
 u_int16_t getAddress(u_int16_t currentAddress) {
-    //TODO: Implement this.
+
 }
 
-//Called to set the address for an datablock
+//Called to set the address for an datablock (from 0 to 65535)
 void setAddress(u_int16_t currentAddress, u_int16_t nextAddress) {
     //TODO: Implement this.
 }
@@ -96,3 +96,8 @@ void convertMetaDataToBlock(MetaData* data, char* block){
     //TODO: Implement this.
 }
 
+//Gets the block and the byte number of the given address
+void getBLockFromAddress(u_int32_t address, u_int32_t* blockNo, u_int32_t* byteNo) {
+    *blockNo = address / BLOCK_SIZE;
+    *byteNo = address % BLOCK_SIZE;
+}
