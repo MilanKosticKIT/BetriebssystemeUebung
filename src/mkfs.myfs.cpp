@@ -9,6 +9,8 @@
 #include "myfs.h"
 #include "blockdevice.h"
 #include "macros.h"
+#include "stdio.h"
+#include "stdlib.h"
 
 void convertBlockToMetaData(MetaData* data, char* block);
 void convertMetaDataToBlock(MetaData* data, char* block);
@@ -24,41 +26,43 @@ int main(int argc, char *argv[]) {
 
 //MARK: - Our Methods
 
-//Called to change the dmap bit of an address
-void changeDMAP(u_int16_t address, bool mode) {
-    u_int32_t blockNo = DMAP_START + (address + DMAP_SIZE);
-    char* block;
-    blockDevice.read(blockNo, block);
-    int bit = address % BLOCK_SIZE;
-    char toChange = block[bit / sizeof(char)];
-    bit %= sizeof(char);
-    toChange = toChange & ~(1 << bit);     //Clear bit
-    toChange = toChange | (mode << bit);   //Set bit to mode
-
-    //TODO: Check wether these operators fit.
-}
-
 //Called to say an Address got empty
-void clearPointInDMAP(u_int16_t deleteAddress) {
-    changeDMAP(deleteAddress, 0);
-    
-    
+void clearPointInDMAP(u_int16_t clearAddress) {
+    uint32_t blockNoDMAP = DMAP_START + (clearAddress / (BLOCK_SIZE * 8));
+    char* block = (char*) malloc(BLOCK_SIZE);
+    blockDevice.read(blockNoDMAP, block);
+    int bit = clearAddress % 8;
+    int byte = clearAddress % BLOCK_SIZE;
+    char* byteToChange = block + byte;
+    *byteToChange &= ~(1 << bit);
+    blockDevice.write(blockNoDMAP, block);
+    free(block);
 }
 
 //Called to say an Address was filled
-void setPointInDMAP(u_int16_t filledAddress) {
-    changeDMAP(filledAddress, 1);
+void setPointInDMAP(u_int16_t setAddress) {
+    uint32_t blockNoDMAP = DMAP_START + (setAddress / (BLOCK_SIZE * 8));
+    char* block = (char*) malloc(BLOCK_SIZE);
+    blockDevice.read(blockNoDMAP, block);
+    int bit = setAddress % 8;
+    int byte = setAddress % BLOCK_SIZE;
+    char* byteToChange = block + byte;
+    *byteToChange |= (1 << bit);
+    blockDevice.write(blockNoDMAP, block);
+    free(block);
 }
 
 //Called to check wehther an address is full
-bool getDMAP(u_int16_t askedAddress) {
-    u_int32_t blockNo = DMAP_START + (askedAddress + DMAP_SIZE);
-    char* block;
-    blockDevice.read(blockNo, block);
-    int bit = askedAddress % BLOCK_SIZE;
-    char toChange = block[bit / sizeof(char)];
-    bit %= sizeof(char);
-    return bool (toChange & (1<< bit)); //0 if the bit of toChange was 0, !=0 otherwise
+bool isAdressFull(u_int16_t blockNo) {
+    uint32_t blockNoDMAP = DMAP_START + (blockNo / (BLOCK_SIZE * 8));
+    char* block = (char*) malloc(BLOCK_SIZE);
+    blockDevice.read(blockNoDMAP, block);
+    int bit = blockNo % 8;
+    int byte = blockNo % BLOCK_SIZE;
+    char* byteToRead = block + byte;
+    bool isSet (*byteToRead & (1 << bit));
+    free(block);
+    return isSet;
 }
 
 //Called to get the next address (from 0 to 65535)
