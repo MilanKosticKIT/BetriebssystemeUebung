@@ -13,10 +13,11 @@
 void convertBlockToMetaData(MetaData* data, char* block);
 void convertMetaDataToBlock(MetaData* data, char* block);
 //TODO: Get these lines to a fitting header file.
-
+BlockDevice blockDevice = *new BlockDevice();
 
 int main(int argc, char *argv[]) {
-
+    
+    
     // TODO: Implement file system generation & copying of files here
     return 0;
 }
@@ -27,7 +28,7 @@ int main(int argc, char *argv[]) {
 void changeDMAP(u_int16_t address, bool mode) {
     u_int32_t blockNo = DMAP_START + (address + DMAP_SIZE);
     char* block;
-    BlockDevice::read(blockNo, block);
+    blockDevice.read(blockNo, block);
     int bit = address % BLOCK_SIZE;
     char toChange = block[bit / sizeof(char)];
     bit %= sizeof(char);
@@ -40,6 +41,8 @@ void changeDMAP(u_int16_t address, bool mode) {
 //Called to say an Address got empty
 void clearPointInDMAP(u_int16_t deleteAddress) {
     changeDMAP(deleteAddress, 0);
+    
+    
 }
 
 //Called to say an Address was filled
@@ -51,7 +54,7 @@ void setPointInDMAP(u_int16_t filledAddress) {
 bool getDMAP(u_int16_t askedAddress) {
     u_int32_t blockNo = DMAP_START + (askedAddress + DMAP_SIZE);
     char* block;
-    BlockDevice::read(blockNo, block);
+    blockDevice.read(blockNo, block);
     int bit = askedAddress % BLOCK_SIZE;
     char toChange = block[bit / sizeof(char)];
     bit %= sizeof(char);
@@ -64,7 +67,7 @@ u_int16_t getAddress(u_int16_t currentAddress) {
     getBLockFromAddress(currentAddress, &blockNo, &byteNo);
     blockNo += FAT_START;
     char* buffer;
-    BlockDevice.read(blockNo, buffer);
+    blockDevice.read(blockNo, buffer);
     u_int16_t* content = buffer;
     return content[byteNo];
     // TODO: Is probably wrong
@@ -76,10 +79,10 @@ void setAddress(u_int16_t currentAddress, u_int16_t nextAddress) {
     getBLockFromAddress(currentAddress, &blockNo, &byteNo);
     blockNo += FAT_START;
     char* buffer;
-    BlockDevice.read(blockNo, buffer);
+    blockDevice.read(blockNo, buffer);
     u_int16_t* content = buffer;
     content[byteNo] = nextAddress;
-    BlockDevice.write(blockNo, buffer);
+    blockDevice.write(blockNo, buffer);
     // TODO: Is probably wrong
 }
 
@@ -87,7 +90,7 @@ void setAddress(u_int16_t currentAddress, u_int16_t nextAddress) {
 MetaData getMetaData(u_int8_t indexOfFile) {
     u_int32_t blockNo = ROOT_START + indexOfFile;
     char* block;
-    BlockDevice::read(blockNo, block);
+    blockDevice.read(blockNo, block);
     MetaData data;
     convertBlockToMetaData(&data, block);       //TODO: Pls check deferensation, (and spelling).
     return data;
@@ -98,7 +101,7 @@ void setMetaData(MetaData metaData, u_int8_t indexOfFile) {
     u_int32_t blockNo = ROOT_START + indexOfFile;
     char* block;
     convertBlockToMetaData(&metaData, block);   //TODO: Pls check deferensation, (and spelling).
-    BlockDevice::write(blockNo, block);
+    blockDevice.write(blockNo, block);
 }
 
 //Casts the given block to a given MetaData instance
