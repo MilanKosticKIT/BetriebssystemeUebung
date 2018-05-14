@@ -66,6 +66,7 @@ bool isAdressFull(u_int16_t blockNo) {
 }
 
 //Called to get the next address (from 0 to 65535)
+/*
 u_int16_t getAddress(u_int16_t currentAddress) {
     u_int32_t blockNo, byteNo;
     getBLockFromAddress(currentAddress, &blockNo, &byteNo);
@@ -88,7 +89,7 @@ void setAddress(u_int16_t currentAddress, u_int16_t nextAddress) {
     content[byteNo] = nextAddress;
     blockDevice.write(blockNo, buffer);
     // TODO: Is probably wrong
-}
+}*/
 
 //Returns the metaData of the file behind the index.
 MetaData getMetaData(u_int8_t indexOfFile) {
