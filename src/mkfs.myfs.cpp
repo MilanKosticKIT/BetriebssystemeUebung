@@ -123,3 +123,78 @@ void getBLockFromAddress(u_int32_t address, u_int32_t* blockNo, u_int32_t* byteN
     *blockNo = address / BLOCK_SIZE;
     *byteNo = address % BLOCK_SIZE;
 }
+
+//Returns the Superblock for the data system
+void getSuperBlock(SuperBlock* superblock){
+    //    TODO: Implement this.
+    char* block = (char*) malloc(BLOCK_SIZE);
+    blockDevice.read(0, block);
+    
+    uint32_t* data = (uint32_t*) block;
+    superblock->fileSystemSize = *data;
+    data++;
+    superblock->emptySpaceSize = *data;
+    data++;
+    superblock->maximumStorageSize = *data;
+    data++;
+    superblock->dmapStart = *data;
+    data++;
+    superblock->fatStart = *data;
+    data++;
+    superblock->rootStart = *data;
+    data++;
+    superblock->dataStart = *data;
+    data++;
+    superblock->dmapSize = *data;
+    data++;
+    superblock->fatSize = *data;
+    data++;
+    superblock->rootSize = *data;
+    data++;
+    superblock->dataSize = *data;
+    free(data);
+}
+
+//Sets the emptySpaceSize arttibute in the superblock
+void setEmptySpaceSizeInSuperBlock(uint32_t emptySpaceSize){
+    char* block = (char*) malloc(BLOCK_SIZE);
+    uint32_t* data = (uint32_t*) block;
+    
+    data++;
+    *data = emptySpaceSize;
+    
+    blockDevice.write(0, block);
+    free(data);
+}
+
+//Writes the part of the filesystem for the superblock for the first time. In particular: The not changing values are written.
+void createSuperBlock(struct SuperBlock superBlock){
+    char* block = (char*) malloc(BLOCK_SIZE);
+    uint32_t* data = (uint32_t*) block;
+    
+    *data = superBlock.fileSystemSize;
+    data++;
+    *data = superBlock.emptySpaceSize;
+    data++;
+    *data = superBlock.maximumStorageSize;
+    data++;
+    *data = superBlock.dmapStart;
+    data++;
+    *data = superBlock.fatStart;
+    data++;
+    *data = superBlock.rootStart;
+    data++;
+    *data = superBlock.dataStart;
+    data++;
+    *data = superBlock.dmapSize;
+    data++;
+    *data = superBlock.fatSize;
+    data++;
+    *data = superBlock.rootSize;
+    data++;
+    *data = superBlock.dataSize;
+    data++;
+    
+    blockDevice.write(0, block);
+    free(data);
+}

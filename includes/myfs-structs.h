@@ -34,4 +34,19 @@ struct MetaData{
     //TODO: Discuss wether we implement this on our one or use stat()
 };
 
+struct SuperBlock{
+    uint32_t fileSystemSize;
+    uint32_t emptySpaceSize;
+    uint32_t maximumStorageSize;
+    uint32_t dmapStart;
+    uint32_t fatStart;
+    uint32_t rootStart;
+    uint32_t dataStart;
+    uint32_t dmapSize;
+    uint32_t fatSize;
+    uint32_t rootSize;
+    uint32_t dataSize;
+    
+};
+
 #endif /* myfs_structs_h */
