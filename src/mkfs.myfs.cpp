@@ -75,7 +75,6 @@ u_int16_t getAddress(u_int16_t currentAddress) {
     blockDevice.read(blockNo, buffer);
     u_int16_t* content = buffer;
     return content[byteNo];
-    // TODO: Is probably wrong
 }
 
 //Called to set the address for an datablock (from 0 to 65535)
@@ -88,7 +87,6 @@ void setAddress(u_int16_t currentAddress, u_int16_t nextAddress) {
     u_int16_t* content = buffer;
     content[byteNo] = nextAddress;
     blockDevice.write(blockNo, buffer);
-    // TODO: Is probably wrong
 }*/
 
 //Returns the metaData of the file behind the index.
