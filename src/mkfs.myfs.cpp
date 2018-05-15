@@ -34,7 +34,7 @@ void clearPointInDMAP(u_int16_t clearAddress) {
     int bit = clearAddress % 8;
     int byte = clearAddress % BLOCK_SIZE;
     char* byteToChange = block + byte;
-    *byteToChange &= ~(1 << bit);
+    *byteToChange &= ~(1 << (7 - bit));
     blockDevice.write(blockNoDMAP, block);
     free(block);
 }
@@ -47,7 +47,7 @@ void setPointInDMAP(u_int16_t setAddress) {
     int bit = setAddress % 8;
     int byte = setAddress % BLOCK_SIZE;
     char* byteToChange = block + byte;
-    *byteToChange |= (1 << bit);
+    *byteToChange |= (1 << (7 - bit));
     blockDevice.write(blockNoDMAP, block);
     free(block);
 }
@@ -60,7 +60,7 @@ bool isAdressFull(u_int16_t blockNo) {
     int bit = blockNo % 8;
     int byte = blockNo % BLOCK_SIZE;
     char* byteToRead = block + byte;
-    bool isSet (*byteToRead & (1 << bit));
+    bool isSet (*byteToRead & (1 << (7 - bit)));
     free(block);
     return isSet;
 }
