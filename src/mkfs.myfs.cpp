@@ -26,6 +26,43 @@ int main(int argc, char *argv[]) {
 
 //MARK: - Our Methods
 
+void initializeFAT(){
+
+    for (int32_t i = 0; i < systemdata; i++){
+
+        fat[i] = -2;
+    }
+
+    for (int32_t i = systemdata; i < datablocks; i++){
+
+        fat[i] = 0;
+    }
+}
+
+int iterateFAT(int firstBlock, std::list<int>* list){
+
+    int32_t nextBlock = firstBlock;
+    std::list<int> fileList; //creates a list to store all datablocks of a specific file
+
+
+
+    fileList.push_back(nextBlock);
+
+    while (fat[nextBlock] != -1){
+
+        fileList.push_back(fat[nextBlock]);
+        nextBlock = fat[nextBlock];
+
+
+    }
+
+    *list = fileList;
+    return 0;
+}
+
+
+
+
 //Called to say an Address got empty
 void clearPointInDMAP(u_int16_t clearAddress) {
     uint32_t blockNoDMAP = DMAP_START + (clearAddress / (BLOCK_SIZE * 8));
