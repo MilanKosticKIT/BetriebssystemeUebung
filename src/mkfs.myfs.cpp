@@ -26,6 +26,15 @@ int main(int argc, char *argv[]) {
 
 //MARK: - Our Methods
 
+
+// creates the FAT and initialises it with default values
+/*meaning behind values:
+ *
+ * -2 = systemdata (unavailable)
+ * -1 = terminator character
+ *  0 = free
+ */
+
 void initializeFAT(){
 
     for (int32_t i = 0; i < systemdata; i++){
@@ -39,6 +48,11 @@ void initializeFAT(){
     }
 }
 
+
+/* returns a list of all the datablocks used for a specific file in order
+*  param: firstBlock: first datablock of a file
+*         list: pointer to a list 
+*/
 int iterateFAT(int firstBlock, std::list<int>* list){
 
     int32_t nextBlock = firstBlock;
