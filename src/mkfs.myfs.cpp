@@ -12,8 +12,19 @@
 #include "stdio.h"
 #include "stdlib.h"
 
+bool checkSpace(uint64_t blockCount);
+void clearPointInDMAP(u_int16_t clearAddress);
+void setPointInDMAP(u_int16_t setAddress);
+bool isAdressFull(u_int16_t blockNo);
+int findFreeBlockDMAP(uint32_t* freeBlock);
+MetaData getMetaData(u_int8_t indexOfFile);
+void setMetaData(MetaData metaData, u_int8_t indexOfFile);
 void convertBlockToMetaData(MetaData* data, char* block);
 void convertMetaDataToBlock(MetaData* data, char* block);
+void getBLockFromAddress(u_int32_t address, u_int32_t* blockNo, u_int32_t* byteNo);
+void getSuperBlock(SuperBlock* superblock);
+void setEmptySpaceSizeInSuperBlock(uint32_t emptySpaceSize);
+void createSuperBlock(struct SuperBlock superBlock);
 //TODO: Get these lines to a fitting header file.
 BlockDevice blockDevice = *new BlockDevice();
 
@@ -25,6 +36,13 @@ int main(int argc, char *argv[]) {
 }
 
 //MARK: - Our Methods
+
+//Called to check if there is enough space (blockCount) in the fileSystem
+bool checkFreeSpace(uint64_t blockCount){
+    SuperBlock* superblock;
+    getSuperBlock(superblock);
+    return (*superblock).emptySpaceSize >= blockCount;
+}
 
 //Called to say an Address got empty
 void clearPointInDMAP(u_int16_t clearAddress) {
