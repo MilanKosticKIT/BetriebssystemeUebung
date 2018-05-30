@@ -11,6 +11,21 @@
 #include "macros.h"
 #include "stdio.h"
 #include "stdlib.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+typedef struct{
+std::string name;
+off_t size;
+uid_t userID;
+gid_t groupID;
+time_t last_time;
+time_t modi_time;
+time_t change_time;
+}fileStats;
+
+void update
 
 bool checkSpace(uint64_t blockCount);
 void clearPointInDMAP(u_int16_t clearAddress);
@@ -28,12 +43,45 @@ void createSuperBlock(struct SuperBlock superBlock);
 //TODO: Get these lines to a fitting header file.
 BlockDevice blockDevice = *new BlockDevice();
 
+
+void getStats(fileStats *status, char *filename, uint64_t *blockCount){
+struct stat sb;
+stat(filename,&sb);
+status.name( Path::GetFileName(filename));
+status.size = sb.st_size;
+status.userID = geteuid(); 
+status.groupID = getegid();
+status.modi_time = sb.st_mtime;
+status.last_time = time();
+status.change_time = time();
+blockCount = sb.st_blocks;
+}
+void updateRoot(fileStats *status){
+
+
+
+
+}
+
+
+
+
+
 int main(int argc, char *argv[]) {
     
     
     // TODO: Implement file system generation & copying of files here
     return 0;
 }
+
+
+
+
+
+
+
+
+
 
 //MARK: - Our Methods
 
