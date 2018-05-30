@@ -16,4 +16,37 @@
 
 // TODO: Add structures of your file system here
 
+
+#define SUPER_START 0
+#define DMAP_START 1
+#define FAT_START 17
+#define ROOT_START 273
+#define DATA_START 337
+
+#define SUPER_SIZE 1
+#define DMAP_SIZE = FAT_START - DMAP_START;
+#define FAT_SIZE = ROOT_START - FAT_START;
+#define ROOT_SIZE = DATA_START - ROOT_START;
+#define DATA_SIZE 65536
+
+
+struct MetaData{
+    //TODO: Discuss wether we implement this on our one or use stat()
+};
+
+struct SuperBlock{
+    uint32_t fileSystemSize;
+    uint32_t emptySpaceSize;
+    uint32_t maximumStorageSize;
+    uint32_t dmapStart;
+    uint32_t fatStart;
+    uint32_t rootStart;
+    uint32_t dataStart;
+    uint32_t dmapSize;
+    uint32_t fatSize;
+    uint32_t rootSize;
+    uint32_t dataSize;
+    
+};
+
 #endif /* myfs_structs_h */
