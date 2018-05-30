@@ -35,9 +35,9 @@ struct MetaData{
 };
 
 struct SuperBlock{
-    uint32_t fileSystemSize;
-    uint32_t emptySpaceSize;
-    uint32_t maximumStorageSize;
+    uint32_t fileSystemSize;        //In blocks / Number of blocks
+    uint32_t emptySpaceSize;        //In blocks / Number of blocks
+    uint32_t maximumStorageSize;    //In blocks / Number of blocks
     uint32_t dmapStart;
     uint32_t fatStart;
     uint32_t rootStart;

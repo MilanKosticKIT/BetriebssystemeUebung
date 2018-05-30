@@ -11,11 +11,61 @@
 #include "macros.h"
 #include "stdio.h"
 #include "stdlib.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
+typedef struct{
+std::string name;
+off_t size;
+uid_t userID;
+gid_t groupID;
+time_t last_time;
+time_t modi_time;
+time_t change_time;
+}fileStats;
+
+void update
+
+bool checkSpace(uint64_t blockCount);
+void clearPointInDMAP(u_int16_t clearAddress);
+void setPointInDMAP(u_int16_t setAddress);
+bool isAdressFull(u_int16_t blockNo);
+int findFreeBlockDMAP(uint32_t* freeBlock);
+MetaData getMetaData(u_int8_t indexOfFile);
+void setMetaData(MetaData metaData, u_int8_t indexOfFile);
 void convertBlockToMetaData(MetaData* data, char* block);
 void convertMetaDataToBlock(MetaData* data, char* block);
+void getBLockFromAddress(u_int32_t address, u_int32_t* blockNo, u_int32_t* byteNo);
+void getSuperBlock(SuperBlock* superblock);
+void setEmptySpaceSizeInSuperBlock(uint32_t emptySpaceSize);
+void createSuperBlock(struct SuperBlock superBlock);
 //TODO: Get these lines to a fitting header file.
 BlockDevice blockDevice = *new BlockDevice();
+
+
+void getStats(fileStats *status, char *filename, uint64_t *blockCount){
+struct stat sb;
+stat(filename,&sb);
+status.name( Path::GetFileName(filename));
+status.size = sb.st_size;
+status.userID = geteuid(); 
+status.groupID = getegid();
+status.modi_time = sb.st_mtime;
+status.last_time = time();
+status.change_time = time();
+blockCount = sb.st_blocks;
+}
+void updateRoot(fileStats *status){
+
+
+
+
+}
+
+
+
+
 
 int main(int argc, char *argv[]) {
     
@@ -23,6 +73,15 @@ int main(int argc, char *argv[]) {
     // TODO: Implement file system generation & copying of files here
     return 0;
 }
+
+
+
+
+
+
+
+
+
 
 //MARK: - Our Methods
 
@@ -75,7 +134,12 @@ int iterateFAT(int firstBlock, std::list<int>* list){
 }
 
 
-
+//Called to check if there is enough space (blockCount) in the fileSystem
+bool checkFreeSpace(uint64_t blockCount){
+    SuperBlock* superblock;
+    getSuperBlock(superblock);
+    return (*superblock).emptySpaceSize >= blockCount;
+}
 
 //Called to say an Address got empty
 void clearPointInDMAP(u_int16_t clearAddress) {
