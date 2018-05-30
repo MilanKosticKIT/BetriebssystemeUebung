@@ -49,7 +49,7 @@ struct stat sb;
 stat(filename,&sb);
 status.name( Path::GetFileName(filename));
 status.size = sb.st_size;
-status.userID = geteuid(); 
+status.userID = geteuid();
 status.groupID = getegid();
 status.modi_time = sb.st_mtime;
 status.last_time = time();
