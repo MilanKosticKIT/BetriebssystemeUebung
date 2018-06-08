@@ -16,7 +16,7 @@
 #include <unistd.h>
 
 typedef struct{
-std::string name;
+char[NAME_LENGTH] name;
 off_t size;
 uid_t userID;
 gid_t groupID;
@@ -25,7 +25,7 @@ time_t modi_time;
 time_t change_time;
 }fileStats;
 
-void update
+
 
 bool checkSpace(uint64_t blockCount);
 void clearPointInDMAP(u_int16_t clearAddress);
@@ -40,16 +40,16 @@ void getBLockFromAddress(u_int32_t address, u_int32_t* blockNo, u_int32_t* byteN
 void getSuperBlock(SuperBlock* superblock);
 void setEmptySpaceSizeInSuperBlock(uint32_t emptySpaceSize);
 void createSuperBlock(struct SuperBlock superBlock);
-//TODO: Get these lines to a fitting header file.
+//TODO: Get these lines to a fitting header file.ç
 BlockDevice blockDevice = *new BlockDevice();
 
 
 void getStats(fileStats *status, char *filename, uint64_t *blockCount){
 struct stat sb;
 stat(filename,&sb);
-status.name( Path::GetFileName(filename));
+status.name(Path::GetFileName(filename).c_str());
 status.size = sb.st_size;
-status.userID = geteuid();
+status.userID = geteuid(); 
 status.groupID = getegid();
 status.modi_time = sb.st_mtime;
 status.last_time = time();
@@ -57,18 +57,75 @@ status.change_time = time();
 blockCount = sb.st_blocks;
 }
 void updateRoot(fileStats *status){
+fileStats[NUM_DIR_ENTRIES] root;
 
 
 
 
 }
 
+#include <cstring>
+#include <type_traits>
+template <class T> void writeDevice(std::size_t block, const T& data) {
+	std::static_assert(std::is_trivially_copyable<T>::value);
 
+	char* rawData = std::reinterpret_cast<char*>(&data);
+	
+	static char buffer[BLOCK_SIZE];
+	std::size_t blockCount = sizeof(T) / BLOCK_SIZE;
+	std::size_t currentBlock = block;
+	for(; currentBlock < block + blockCount; ++currentBlock) {
+		BlockDevice::write(currentBlock, rawData + ((currentBlock - block) * BLOCK_SIZE));
+	}
+	std::memcpy(buffer, rawData + ((currentBlock - block) * BLOCK_SIZE), sizeof(T) % BLOCK_SIZE);
+	BlockDevice::write(currentBlock, buffer);
+}
+
+template <class T, std::size_t N> void writeDevice(std::size_t block, const T (&data)[N]) {
+	std::static_assert(std::is_trivially_copyable<T>::value);
+	std::static_assert(sizeof(T * N) <= BLOCK_SIZE);
+
+	static char buffer[BLOCK_SIZE];
+	std::memcpy(buffer, &data, sizeof(T * N));
+	BlockDevice::write(block, buffer);
+}
+
+template<class T> void readDevice(std::size_t block, T* data) {
+	std::static_assert(std::is_trivially_constructible<T>::value);
+	std::static_assert(sizeof(T) <= BLOCK_SIZE);
+
+	static char buffer[BLOCK_SIZE];
+	BlockDevice::read(block, buffer);
+	std::memcpy(data, buffer, sizeof(T));
+}
+
+template<class T> void readDevice(std::size_t block, T (*data)[N]) {
+	std::static_assert(std::is_trivially_constructible<T>::value);
+	std::static_assert(sizeof(T * N) <= BLOCK_SIZE);
+
+	static char buffer[BLOCK_SIZE];
+	BlockDevice::read(block, buffer);
+	std::memcpy(data, buffer, sizeof(T * N));
+}
 
 
 
 int main(int argc, char *argv[]) {
     
+	fileStats foobar;
+	foobar.size = 1024;
+	writeDevice(15, foobar);
+
+	fileStats bar;
+	readDevice(15, &bar);
+
+	std::cout << bar.size << std::endl;
+		
+int foo [5] = { 16, 2, 77, 40, 12071 }; 
+int fuu [5];
+writeDevice(10, foo);
+readDevice(10,fuu);
+std::cout << fuu << std::endl;
     
     // TODO: Implement file system generation & copying of files here
     return 0;
@@ -84,55 +141,6 @@ int main(int argc, char *argv[]) {
 
 
 //MARK: - Our Methods
-
-
-// creates the FAT and initialises it with default values
-/*meaning behind values:
- *
- * -2 = systemdata (unavailable)
- * -1 = terminator character
- *  0 = free
- */
-
-void initializeFAT(){
-
-    for (int32_t i = 0; i < systemdata; i++){
-
-        fat[i] = -2;
-    }
-
-    for (int32_t i = systemdata; i < datablocks; i++){
-
-        fat[i] = 0;
-    }
-}
-
-
-/* returns a list of all the datablocks used for a specific file in order
-*  param: firstBlock: first datablock of a file
-*         list: pointer to a list 
-*/
-int iterateFAT(int firstBlock, std::list<int>* list){
-
-    int32_t nextBlock = firstBlock;
-    std::list<int> fileList; //creates a list to store all datablocks of a specific file
-
-
-
-    fileList.push_back(nextBlock);
-
-    while (fat[nextBlock] != -1){
-
-        fileList.push_back(fat[nextBlock]);
-        nextBlock = fat[nextBlock];
-
-
-    }
-
-    *list = fileList;
-    return 0;
-}
-
 
 //Called to check if there is enough space (blockCount) in the fileSystem
 bool checkFreeSpace(uint64_t blockCount){
