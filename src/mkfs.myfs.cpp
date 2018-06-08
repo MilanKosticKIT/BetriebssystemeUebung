@@ -40,6 +40,10 @@ void getBLockFromAddress(u_int32_t address, u_int32_t* blockNo, u_int32_t* byteN
 void getSuperBlock(SuperBlock* superblock);
 void setEmptySpaceSizeInSuperBlock(uint32_t emptySpaceSize);
 void createSuperBlock(struct SuperBlock superBlock);
+void initializeFAT();
+int iterateFAT(int firstBlock, std::list<int>* list);
+int addToFAT(int32_t firstBlock, int32_t nextAddress);
+void addLastToFAT(int32_t lastAddress);
 //TODO: Get these lines to a fitting header file.ç
 BlockDevice blockDevice = *new BlockDevice();
 
