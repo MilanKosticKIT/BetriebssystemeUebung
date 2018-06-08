@@ -9,7 +9,7 @@
 #ifndef myfs_h
 #define myfs_h
 
-#include <fuse.h>
+#include </usr/local/include/osxfuse/fuse.h>
 #include <cmath>
 
 #include "blockdevice.h"
