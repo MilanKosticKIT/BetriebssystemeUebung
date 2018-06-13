@@ -14,9 +14,14 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <libgen.h>
+#include <string.h>
+#include <iostream>
+#include <cstring>
+#include <type_traits>
 
 typedef struct{
-char[NAME_LENGTH] name;
+char name[NAME_LENGTH];
 off_t size;
 uid_t userID;
 gid_t groupID;
@@ -44,78 +49,85 @@ void initializeFAT();
 int iterateFAT(int firstBlock, std::list<int>* list);
 int addToFAT(int32_t firstBlock, int32_t nextAddress);
 void addLastToFAT(int32_t lastAddress);
-//TODO: Get these lines to a fitting header file.ç
+//TODO: Get these lines to a fitting header file.
+
 BlockDevice blockDevice = *new BlockDevice();
 
 
-void getStats(fileStats *status, char *filename, uint64_t *blockCount){
+bool getStats(fileStats *status, char *path, blkcnt_t *blockCount){
 struct stat sb;
-stat(filename,&sb);
-status.name(Path::GetFileName(filename).c_str());
-status.size = sb.st_size;
-status.userID = geteuid(); 
-status.groupID = getegid();
-status.modi_time = sb.st_mtime;
-status.last_time = time();
-status.change_time = time();
-blockCount = sb.st_blocks;
+stat(path,&sb);
+    char* filename = basename(path);
+    if (strlen(filename) > NAME_LENGTH) {
+        return false;
+    }
+    strcpy(status->name, filename);//TODO: Pointer?!?!
+    status->size = sb.st_size;
+    status->userID = geteuid();
+    status->groupID = getegid();
+    status->modi_time = sb.st_mtime;
+    time(&(status->last_time));
+    time(&(status->change_time));
+    *blockCount = sb.st_blocks;
+    return true;
 }
 void updateRoot(fileStats *status){
-fileStats[NUM_DIR_ENTRIES] root;
+fileStats root[NUM_DIR_ENTRIES];
 
 
 
 
 }
 
-#include <cstring>
-#include <type_traits>
 template <class T> void writeDevice(std::size_t block, const T& data) {
-	std::static_assert(std::is_trivially_copyable<T>::value);
+    static_assert(std::is_trivially_copyable<T>::value, "Can't operate on complex types!");
 
-	char* rawData = std::reinterpret_cast<char*>(&data);
+	const char* rawData = reinterpret_cast<const char*>(&data);
 	
 	static char buffer[BLOCK_SIZE];
 	std::size_t blockCount = sizeof(T) / BLOCK_SIZE;
 	std::size_t currentBlock = block;
 	for(; currentBlock < block + blockCount; ++currentBlock) {
-		BlockDevice::write(currentBlock, rawData + ((currentBlock - block) * BLOCK_SIZE));
+
+        blockDevice.write(currentBlock, rawData + ((currentBlock - block) * BLOCK_SIZE));
 	}
 	std::memcpy(buffer, rawData + ((currentBlock - block) * BLOCK_SIZE), sizeof(T) % BLOCK_SIZE);
-	BlockDevice::write(currentBlock, buffer);
+    blockDevice.write(currentBlock, buffer);
 }
 
 template <class T, std::size_t N> void writeDevice(std::size_t block, const T (&data)[N]) {
-	std::static_assert(std::is_trivially_copyable<T>::value);
-	std::static_assert(sizeof(T * N) <= BLOCK_SIZE);
+	static_assert(std::is_trivially_copyable<T>::value, "Can't operate on complex types!");
+    static_assert(sizeof(T) * N <= BLOCK_SIZE, ""); //TODO sizeOF(T)*N or (T * N)
 
 	static char buffer[BLOCK_SIZE];
-	std::memcpy(buffer, &data, sizeof(T * N));
-	BlockDevice::write(block, buffer);
+	std::memcpy(buffer, &data, sizeof(T) * N);
+	blockDevice.write(block, buffer);
 }
 
 template<class T> void readDevice(std::size_t block, T* data) {
-	std::static_assert(std::is_trivially_constructible<T>::value);
-	std::static_assert(sizeof(T) <= BLOCK_SIZE);
+    static_assert(std::is_trivially_constructible<T>::value, "");
+	static_assert(sizeof(T) <= BLOCK_SIZE, "Can't operate on complex types!");
 
 	static char buffer[BLOCK_SIZE];
-	BlockDevice::read(block, buffer);
+	blockDevice.read(block, buffer);
 	std::memcpy(data, buffer, sizeof(T));
 }
 
-template<class T> void readDevice(std::size_t block, T (*data)[N]) {
-	std::static_assert(std::is_trivially_constructible<T>::value);
-	std::static_assert(sizeof(T * N) <= BLOCK_SIZE);
+template<class T, std::size_t N> void readDevice(std::size_t block, T (*data)[N]) {
+	static_assert(std::is_trivially_constructible<T>::value, "Can't operate on complex types!");
+    static_assert(sizeof(T) * N <= BLOCK_SIZE, "");
 
 	static char buffer[BLOCK_SIZE];
-	BlockDevice::read(block, buffer);
-	std::memcpy(data, buffer, sizeof(T * N));
+	blockDevice.read(block, buffer);
+	std::memcpy(data, buffer, sizeof(T) * N);
 }
 
 
 
 int main(int argc, char *argv[]) {
-    
+
+    blockDevice.create("/Users/milank/Documents/Studium/SS 2018/Betriebsysteme/Labor/BetriebssystemeUebung/Blockdevice.bin");
+
 	fileStats foobar;
 	foobar.size = 1024;
 	writeDevice(15, foobar);

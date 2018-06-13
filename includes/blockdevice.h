@@ -29,7 +29,7 @@ public:
     int create(const char* path);
     int close();
     int read(u_int32_t blockNo, char *buffer);
-    int write(u_int32_t blockNo, char *buffer);
+    int write(u_int32_t blockNo, const char *buffer);
     uint32_t getSize();
 };
 

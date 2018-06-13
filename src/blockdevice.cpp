@@ -97,7 +97,7 @@ int BlockDevice::read(u_int32_t blockNo, char *buffer) {
     return 0;
 }
 
-int BlockDevice::write(u_int32_t blockNo, char *buffer) {
+int BlockDevice::write(u_int32_t blockNo, const char *buffer) {
 #ifdef DEBUG
     fprintf(stderr, "BlockDevice: Writing block %d\n", blockNo);
 #endif
