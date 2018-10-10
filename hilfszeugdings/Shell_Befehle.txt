@@ -1,0 +1,41 @@
+Shell Befehle:
+
+pwd		--> Aktuelles Verzeichnis anzeigen.
+ls		--> Dateien im Verzeichnis anzeigen.
+ls -a		--> (all) Auch versteckte Dateien anzeigen.
+BEFEHL --help	--> Hilfe zum Befehl anzeigen. (man BEFEHL)
+man		--> Manual.
+man BEFEHL	--> Ausführlichere Beschreibung.
+ls *.sh		--> * ist beliebige Anzahl von Zeichen.
+ls VERZEICHNIS	--> Zeigt die Dateien des Verzeichnisses an.
+touch DATEINAME	--> "Berührt" die Datei, wodurch die letzte Zugriffszeit geändert wird. Wenn die Datei nicht existiert wird eine leere Datei erzeugt.
+rm DATEINAME	--> (remove) Löscht eine Datei oder Verzeichnis.
+ls -l		--> (long) Gibt mehr Informationen zu den Dateien.
+stat DATEINAME	--> Metadaten zur Datei anzeigen (Benutzer-/Gruppen-IDs, Änderungszeiten, ...).
+mkdir VERZ.NAME	--> (make directory) Verzeichnis anlegen.
+rmdir VERZ.NAME	--> (remove directory) Verzeichnis löschen, wenn leer.
+rm -r -f VERZ.NAME	--> (rekursiv, force) Auch löschen, wenn NICHT leer.
+chmod		--> Zugriffsrechte ändern (g: group/ o: other): [ugoa]*([-+=]([rwxXst]*|[ugo]))+|[-+=][0-7]+
+		    chmod o-rwx VERZ.NAME entfernt Rechte rwx für o.
+		    chmod o+rx VERZ.NAME fügt Rechte rx für o hinzu.
+cp QUELLDATEI ZIELNAME	--> (copy) Dateien kopieren.
+cat DATEI	--> Textdatei vollständig ausgeben.
+less DATEI	--> Textdatei ausgeben (mit scrollen). Mit q verlässt man die Ausgabe, mit /SUCHBEGRIFF kann man suchen. 
+head DATEI	--> Anfang der Datei anzeigen. (Mit -n ANZAHL kann man die Anzahl der Zeilen angeben (oder auch noch Anderes))
+tail DATEI	--> Ende der Datei anzeigen. (-f zeigt die Datei dauerhaft an. Änderungen werden direkt angezeigt)
+echo TEXT	--> Text ausgeben.
+echo TEXT > DATEI	--> Text in Datei ausgeben (Datei wird angelegt/überschrieben).
+echo TEXT >> DATEI	--> Text in Datei hinten anhängen.
+grep MUSTER DATEI	--> Muster in Datei suchen. (MUSTER ist Basic Regular Expression)
+diff DATEI1 DATEI2	--> Zwei Dateien vergleichen.
+
+
+
+drwx		--> directory/read/write/execute
+Rechte:
+ --- Besitzer
+    --- Gruppe
+       --- Alle anderen
+-rw-r--r--  1 ilha1011 fbi11       581 Oct 10 14:57 asdf.txt
+-rw-r--r--  1 ilha1011 fbi11   5345744 May  2 14:18 Betriebssysteme.pdf
+drwxr-xr-x  8 ilha1011 fbi11         0 Oct 10 14:25 BetriebssystemeUebung
