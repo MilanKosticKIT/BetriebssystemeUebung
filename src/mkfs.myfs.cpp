@@ -31,20 +31,23 @@ time_t change_time;
 }fileStats;
 
 
-
+//DMAP
 bool checkSpace(uint64_t blockCount);
 void clearPointInDMAP(u_int16_t clearAddress);
 void setPointInDMAP(u_int16_t setAddress);
 bool isAdressFull(u_int16_t blockNo);
 int findFreeBlockDMAP(uint32_t* freeBlock);
+//TODO: Root?
 MetaData getMetaData(u_int8_t indexOfFile);
 void setMetaData(MetaData metaData, u_int8_t indexOfFile);
 void convertBlockToMetaData(MetaData* data, char* block);
 void convertMetaDataToBlock(MetaData* data, char* block);
 void getBLockFromAddress(u_int32_t address, u_int32_t* blockNo, u_int32_t* byteNo);
+//Superblock
 void getSuperBlock(SuperBlock* superblock);
 void setEmptySpaceSizeInSuperBlock(uint32_t emptySpaceSize);
 void createSuperBlock(struct SuperBlock superBlock);
+//FAT
 void initializeFAT();
 int iterateFAT(int firstBlock, std::list<int>* list);
 int addToFAT(int32_t firstBlock, int32_t nextAddress);
