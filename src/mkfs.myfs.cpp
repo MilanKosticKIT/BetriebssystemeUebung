@@ -37,6 +37,7 @@ void clearPointInDMAP(u_int16_t clearAddress);
 void setPointInDMAP(u_int16_t setAddress);
 bool isAdressFull(u_int16_t blockNo);
 int findFreeBlockDMAP(uint32_t* freeBlock);
+int getFreeBlck(uint32_t* freeBlock);
 //TODO: Root?
 MetaData getMetaData(u_int8_t indexOfFile);
 void setMetaData(MetaData metaData, u_int8_t indexOfFile);
@@ -187,30 +188,29 @@ void setPointInDMAP(u_int16_t setAddress) {
     
     char* byteToChange = dMap + byte;
     //TODO: Or this version 2 is correct
-    //TODO: Or make version 3
     *byteToChange |= (1 << (7 - bit));
 }
 
 //Called to check wehther an address is full
 bool isAdressFull(u_int16_t blockNo) {
-    uint32_t blockNoDMAP = DMAP_START + (blockNo / (BLOCK_SIZE * 8));
-    char* block = (char*) malloc(BLOCK_SIZE);
-    blockDevice.read(blockNoDMAP, block);
+    int byte = blockNo / 8;
     int bit = blockNo % 8;
-    int byte = blockNo % BLOCK_SIZE;
-    char* byteToRead = block + byte;
+    
+    char* byteToChange = &dMap[byte];
+    //TODO: Or this version 3
     bool isSet (*byteToRead & (1 << (7 - bit)));
-    free(block);
     return isSet;
 }
 
 //Returns -1 when nothing found, >=0  when something found
 int findFreeBlockDMAP(uint32_t* freeBlock){
-    char* block = (char*) malloc(BLOCK_SIZE);
-    uint8_t currentByteChar;// = (char) malloc(1);
-    uint16_t currentBlock = 0;
+    //uint8_t currentByteChar;// = (char) malloc(1);
     uint16_t currentByte = 0;
     uint8_t currentBit = 0;
+    
+    
+    
+    
     
     //TODO: Change 16 to DMAP_SIZE when working
     while (currentBlock < 16) {//run over blocks
@@ -234,6 +234,18 @@ int findFreeBlockDMAP(uint32_t* freeBlock){
         currentBlock++;
     }
     return -1;
+}
+
+//TODO: Write Comment
+//Returns the first empty block.
+//When an error occurs -1 is returned, else 0.
+int getFreeBlock(uint32_t* freeBlock){
+    if (nextFreeBlock <= MAX_FILE_SYSTEM_SIZE) {// TODO: MAX_SIZE = numer of blocks in file system
+        *freeBlock = nextFreeBlock;
+        return 0;
+    } else {
+        return -1;
+    }
 }
 
 //MARK: - Root
