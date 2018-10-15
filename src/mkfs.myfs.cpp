@@ -203,35 +203,24 @@ bool isAdressFull(u_int16_t blockNo) {
 }
 
 //Returns -1 when nothing found, >=0  when something found
-int findFreeBlockDMAP(uint32_t* freeBlock){
+//Starting search for new freeBlock at startAddress
+int findFreeBlockDMAP(uint32_t startAddress){
     //uint8_t currentByteChar;// = (char) malloc(1);
-    uint16_t currentByte = 0;
-    uint8_t currentBit = 0;
+    //For not read only Version:
+    uint16_t currentByte = startAddress / 8;
+    uint8_t currentBit;
     
-    
-    
-    
-    
-    //TODO: Change 16 to DMAP_SIZE when working
-    while (currentBlock < 16) {//run over blocks
-        blockDevice.read(DMAP_START + currentBlock, block);
-        currentByte = 0;
-        //TODO: Change 512 to BLOCK_SIZE when working
-        while (currentByte < 512) {//run over byte
-            currentByteChar = block[currentByte];
-            currentBit = 0;
-            if (currentByteChar != 0xFF) {
-                while (currentBit < 8) {//run over bit
-                    if (~(currentByteChar | (1 << (7 - currentBit)))) {
-                        *freeBlock = currentBlock * 512 + currentByte * 8 + currentBit;
-                        return 0;
-                    }
-                    currentBit++;
+    for (; currentByte * 8 <= MAX_FILE_SYSTEM_SIZE; currentByte++) {// TODO: MAX_SIZE = number of blocks in file system
+        currentBit = 0;
+        if (dMap[currentByte] != 0xFF) {
+            while (currentBit < 8) {//run over bit
+                if (~(dMap[currentByte] | (1 << (7 - currentBit)))) {
+                    nextFreeBlock = currentByte * 8 + currentBit;
+                    return 0;
                 }
+                currentBit++;
             }
-            currentByte++;
         }
-        currentBlock++;
     }
     return -1;
 }
@@ -240,7 +229,7 @@ int findFreeBlockDMAP(uint32_t* freeBlock){
 //Returns the first empty block.
 //When an error occurs -1 is returned, else 0.
 int getFreeBlock(uint32_t* freeBlock){
-    if (nextFreeBlock <= MAX_FILE_SYSTEM_SIZE) {// TODO: MAX_SIZE = numer of blocks in file system
+    if (nextFreeBlock <= MAX_FILE_SYSTEM_SIZE) {// TODO: MAX_SIZE = number of blocks in file system
         *freeBlock = nextFreeBlock;
         return 0;
     } else {
