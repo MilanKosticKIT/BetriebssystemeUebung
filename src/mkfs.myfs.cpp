@@ -30,7 +30,7 @@ time_t modi_time;
 time_t change_time;
 }fileStats;
 
-
+//MARK: - Methodenheader
 //DMAP
 bool checkSpace(uint64_t blockCount);
 void clearPointInDMAP(u_int16_t clearAddress);
@@ -53,6 +53,7 @@ int iterateFAT(int firstBlock, std::list<int>* list);
 int addToFAT(int32_t firstBlock, int32_t nextAddress);
 void addLastToFAT(int32_t lastAddress);
 //TODO: Get these lines to a fitting header file.
+//MARK: -
 
 BlockDevice blockDevice = *new BlockDevice();
 
@@ -161,6 +162,7 @@ std::cout << fuu << std::endl;
 
 //MARK: - Our Methods
 
+//MARK: - DMAP
 //Called to check if there is enough space (blockCount) in the fileSystem
 bool checkFreeSpace(uint64_t blockCount){
     SuperBlock* superblock;
@@ -168,30 +170,25 @@ bool checkFreeSpace(uint64_t blockCount){
     return (*superblock).emptySpaceSize >= blockCount;
 }
 
-//Called to say an Address got empty
+//Marks an address as empty.
 void clearPointInDMAP(u_int16_t clearAddress) {
-    uint32_t blockNoDMAP = DMAP_START + (clearAddress / (BLOCK_SIZE * 8));
-    char* block = (char*) malloc(BLOCK_SIZE);
-    blockDevice.read(blockNoDMAP, block);
+    int byte = clearAddress / 8;
     int bit = clearAddress % 8;
-    int byte = clearAddress % BLOCK_SIZE;
-    char* byteToChange = block + byte;
+    
+    char* byteToChange = dMap[byte];
+    //TODO: Check whether this version 1
     *byteToChange &= ~(1 << (7 - bit));
-    blockDevice.write(blockNoDMAP, block);
-    free(block);
 }
 
-//Called to say an Address was filled
+//Marks an address as full
 void setPointInDMAP(u_int16_t setAddress) {
-    uint32_t blockNoDMAP = DMAP_START + (setAddress / (BLOCK_SIZE * 8));
-    char* block = (char*) malloc(BLOCK_SIZE);
-    blockDevice.read(blockNoDMAP, block);
+    int byte = setAddress / 8;
     int bit = setAddress % 8;
-    int byte = setAddress % BLOCK_SIZE;
-    char* byteToChange = block + byte;
+    
+    char* byteToChange = dMap + byte;
+    //TODO: Or this version 2 is correct
+    //TODO: Or make version 3
     *byteToChange |= (1 << (7 - bit));
-    blockDevice.write(blockNoDMAP, block);
-    free(block);
 }
 
 //Called to check wehther an address is full
@@ -239,30 +236,7 @@ int findFreeBlockDMAP(uint32_t* freeBlock){
     return -1;
 }
 
-//Called to get the next address (from 0 to 65535)
-/*
-u_int16_t getAddress(u_int16_t currentAddress) {
-    u_int32_t blockNo, byteNo;
-    getBLockFromAddress(currentAddress, &blockNo, &byteNo);
-    blockNo += FAT_START;
-    char* buffer;
-    blockDevice.read(blockNo, buffer);
-    u_int16_t* content = buffer;
-    return content[byteNo];
-}
-
-//Called to set the address for an datablock (from 0 to 65535)
-void setAddress(u_int16_t currentAddress, u_int16_t nextAddress) {
-    u_int32_t blockNo, byteNo;
-    getBLockFromAddress(currentAddress, &blockNo, &byteNo);
-    blockNo += FAT_START;
-    char* buffer;
-    blockDevice.read(blockNo, buffer);
-    u_int16_t* content = buffer;
-    content[byteNo] = nextAddress;
-    blockDevice.write(blockNo, buffer);
-}*/
-
+//MARK: - Root
 //Returns the metaData of the file behind the index.
 MetaData getMetaData(u_int8_t indexOfFile) {
     u_int32_t blockNo = ROOT_START + indexOfFile;
@@ -293,11 +267,12 @@ void convertMetaDataToBlock(MetaData* data, char* block){
 
 //Gets the block and the byte number of the given address
 void getBLockFromAddress(u_int32_t address, u_int32_t* blockNo, u_int32_t* byteNo) {
+    //TODO: Check whether needed
     *blockNo = address / BLOCK_SIZE;
     *byteNo = address % BLOCK_SIZE;
 }
 
-
+//MARK: - FAT
 /* creates the FAT and initialises it with default values
  *  meaning behind values:
  * -2 = systemdata (unavailable)
@@ -342,7 +317,7 @@ void addLastToFAT(int32_t lastAddress){
     fat[lastAddress] = -1;
 }
 
-
+//MARK: - Superblock
 //Returns the Superblock for the data system
 void getSuperBlock(SuperBlock* superblock){
     //    TODO: Implement this.
