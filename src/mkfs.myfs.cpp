@@ -196,10 +196,9 @@ bool isAdressFull(u_int16_t blockNo) {
     int byte = blockNo / 8;
     int bit = blockNo % 8;
     
-    char* byteToChange = &dMap[byte];
+    char* byteToRead = &dMap[byte];
     //TODO: Or this version 3
-    bool isSet (*byteToRead & (1 << (7 - bit)));
-    return isSet;
+    return (*byteToRead & (1 << (7 - bit)));
 }
 
 //Returns -1 when nothing found, >=0  when something found
