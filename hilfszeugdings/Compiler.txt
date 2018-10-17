@@ -53,7 +53,7 @@ clean:
 
 Platzhalter:
 In target/dependencies: %
-In der Anweisung: $<
+In der Anweisung: $<	--> 1.Dependency
 --------------------------------
 |CPPFLAGS = -Wall -g           |
 | %.o: %.cc	               |
