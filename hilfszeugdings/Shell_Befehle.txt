@@ -1,5 +1,4 @@
 Shell Befehle:
-
 pwd		--> Aktuelles Verzeichnis anzeigen.
 ls		--> Dateien im Verzeichnis anzeigen.
 ls -a		--> (all) Auch versteckte Dateien anzeigen.
@@ -19,6 +18,7 @@ chmod		--> Zugriffsrechte ändern (g: group/ o: other): [ugoa]*([-+=]([rwxXst]*|
 		    chmod o-rwx VERZ.NAME entfernt Rechte rwx für o.
 		    chmod o+rx VERZ.NAME fügt Rechte rx für o hinzu.
 cp QUELLDATEI ZIELNAME	--> (copy) Dateien kopieren.
+mv QUELLE ZIEL	--> Dateien verschieben bzw. umbenennen.
 cat DATEI	--> Textdatei vollständig ausgeben.
 less DATEI	--> Textdatei ausgeben (mit scrollen). Mit q verlässt man die Ausgabe, mit /SUCHBEGRIFF kann man suchen. 
 head DATEI	--> Anfang der Datei anzeigen. (Mit -n ANZAHL kann man die Anzahl der Zeilen angeben (oder auch noch Anderes))
@@ -28,14 +28,23 @@ echo TEXT > DATEI	--> Text in Datei ausgeben (Datei wird angelegt/überschrieben
 echo TEXT >> DATEI	--> Text in Datei hinten anhängen.
 grep MUSTER DATEI	--> Muster in Datei suchen. (MUSTER ist Basic Regular Expression)
 diff DATEI1 DATEI2	--> Zwei Dateien vergleichen.
+clear		--> Ausgaben löschen
 
 
-
-drwx		--> directory/read/write/execute
 Rechte:
+drwx		--> directory/read/write/execute
  --- Besitzer
     --- Gruppe
        --- Alle anderen
 -rw-r--r--  1 ilha1011 fbi11       581 Oct 10 14:57 asdf.txt
 -rw-r--r--  1 ilha1011 fbi11   5345744 May  2 14:18 Betriebssysteme.pdf
 drwxr-xr-x  8 ilha1011 fbi11         0 Oct 10 14:25 BetriebssystemeUebung
+
+
+Texteditoren:
+nano
+vi
+vim
+
+
+

@@ -1,0 +1,78 @@
+g++ DATEINAME		--> Datei compilieren (--> a.out wird erstellt)
+./DATEINAME		--> Erstellte Datei ausfüheren
+g++ DATEINAME -o NAME	--> Datei compilieren und unter NAME speichern
+
+
+Schritte des Compilers:
+1. Übersetzen (compile, einmal pro Datei)
+	- verschiebbarer Maschinencode
+	- Platzhalter für Variablen und Fkt
+2. Binden (link, einmal pro Programm)
+	- Platzhalter aufgelöst
+	==> ausführbares Programm
+
+g++ -c DATEINAME	--> Compiliert die Datei (zu DATEI.o)
+g++ DATEINAME		--> Bindet die angegebene *.o Datei
+
+
+Typische Fehler:
+1. ... was not declared in this scope:
+		- Deklaration nicht vorhanden
+		- Include-Datei nicht eingebunden
+2. undefinded reference to ...:
+		- Objektdatei fehlt
+
+
+Make:
+Standard-Steuerdatei: Makefile
+Aufruf mit Befehl:
+make		--> Das erste Target wird aufgerufen
+make TARGET	--> Das angegebene Target wird aufgerufen (z.B. Im Beispiel unten: make clean)
+
+Inhalte:
+- Ziel (target)
+- Abhängigkeiten (dependencies)
+- Anweisungen, um Ziel zu erzeugen
+------------------------
+| target: dependencies |
+|	Anweisung      |
+------------------------
+
+Beispiel:
+helloworld: helloworld.o printhelloworld.o
+	g++ helloworld.o printhelloworld.o -o helloworld
+	
+helloworld.o: helloworld.cc
+	g++ -c helloworld.cc
+	
+printhelloworld.o: printhelloworld.cc
+	g++ -c printhelloworld.cc
+	
+clean:
+	rm -f helloworld *.o
+
+Platzhalter:
+In target/dependencies: %
+In der Anweisung: $<
+--------------------------------
+|CPPFLAGS = -Wall -g           |
+| %.o: %.cc	               |
+|	g++ $(CPPFLAGS) -c $<  |
+--------------------------------
+
+Beispiel:
+CPPFLAGS = -Wall -g
+LINKFLAGS = -lm
+
+OBJS = helloworld.o printhelloworld.o
+
+helloworld: $(OBJS)
+	g++ $(LINKFLAGS) $(OBJS) -o helloworld
+	
+%.o: %.cc
+	g++ $(CPPFLAGS) -c $<
+	
+clean:
+	rm -f helloworld *.o
+
+
