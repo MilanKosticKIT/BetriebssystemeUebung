@@ -48,11 +48,7 @@ void getBLockFromAddress(u_int32_t address, u_int32_t* blockNo, u_int32_t* byteN
 void getSuperBlock(SuperBlock* superblock);
 void setEmptySpaceSizeInSuperBlock(uint32_t emptySpaceSize);
 void createSuperBlock(struct SuperBlock superBlock);
-//FAT
-void initializeFAT();
-int iterateFAT(int firstBlock, std::list<int>* list);
-int addToFAT(int32_t firstBlock, int32_t nextAddress);
-void addLastToFAT(int32_t lastAddress);
+
 //TODO: Get these lines to a fitting header file.
 //MARK: -
 
@@ -272,50 +268,7 @@ void getBLockFromAddress(u_int32_t address, u_int32_t* blockNo, u_int32_t* byteN
     *byteNo = address % BLOCK_SIZE;
 }
 
-//MARK: - FAT
-/* creates the FAT and initialises it with default values
- *  meaning behind values:
- * -2 = systemdata (unavailable)
- * -1 = terminator character
- *  0 = free
- */
-void initializeFAT(){
-    for (int32_t i = 0; i < systemdata; i++){
-        fat[i] = -2;
-    }
-    for (int32_t i = systemdata; i < datablocks; i++){
-        fat[i] = 0;
-    }
-}
 
-
-/* returns a list of all the datablocks used for a specific file in order
-*  param: firstBlock: first datablock of a file
-*         list: pointer to a list 
-*/
-int iterateFAT(int firstBlock, std::list<int>* list){
-    int32_t nextBlock = firstBlock;
-    std::list<int> fileList; //creates a list to store all datablocks of a specific file
-    fileList.push_back(nextBlock);
-    while (fat[nextBlock] != -1){
-        fileList.push_back(fat[nextBlock]);
-        nextBlock = fat[nextBlock];
-    }
-    *list = fileList;
-    return 0;
-}
-
-//add the next address of a file to the FAT
-int addToFAT(int32_t firstBlock, int32_t nextAddress){
-    std::list<int> *fatList;
-    iterateFAT(firstBlock, fatList);
-    fat[fatList->back()] = nextAddress;
-}
-
-//add the last block of a file to FAT
-void addLastToFAT(int32_t lastAddress){
-    fat[lastAddress] = -1;
-}
 
 //MARK: - Superblock
 //Returns the Superblock for the data system
