@@ -32,12 +32,6 @@ time_t change_time;
 
 //MARK: - Methodenheader
 //DMAP
-bool checkSpace(uint64_t blockCount);
-void clearPointInDMAP(u_int16_t clearAddress);
-void setPointInDMAP(u_int16_t setAddress);
-bool isAdressFull(u_int16_t blockNo);
-int findFreeBlockDMAP(uint32_t* freeBlock);
-int getFreeBlck(uint32_t* freeBlock);
 //TODO: Root?
 MetaData getMetaData(u_int8_t indexOfFile);
 void setMetaData(MetaData metaData, u_int8_t indexOfFile);
@@ -160,77 +154,6 @@ std::cout << fuu << std::endl;
 //MARK: - Our Methods
 
 //MARK: - DMAP
-//Called to check if there is enough space (blockCount) in the fileSystem
-bool checkFreeSpace(uint64_t blockCount){
-    SuperBlock* superblock;
-    getSuperBlock(superblock);
-    return (*superblock).emptySpaceSize >= blockCount;
-}
-
-//Marks an address as empty.
-void clearPointInDMAP(u_int16_t clearAddress) {
-    int byte = clearAddress / 8;
-    int bit = clearAddress % 8;
-    
-    char* byteToChange = dMap[byte];
-    //TODO: Check whether this version 1
-    *byteToChange &= ~(1 << (7 - bit));
-}
-
-//Marks an address as full
-void setPointInDMAP(u_int16_t setAddress) {
-    int byte = setAddress / 8;
-    int bit = setAddress % 8;
-    
-    char* byteToChange = dMap + byte;
-    //TODO: Or this version 2 is correct
-    *byteToChange |= (1 << (7 - bit));
-}
-
-//Called to check wehther an address is full
-bool isAdressFull(u_int16_t blockNo) {
-    int byte = blockNo / 8;
-    int bit = blockNo % 8;
-    
-    char* byteToRead = &dMap[byte];
-    //TODO: Or this version 3
-    return (*byteToRead & (1 << (7 - bit)));
-}
-
-//Returns -1 when nothing found, >=0  when something found
-//Starting search for new freeBlock at startAddress
-int findFreeBlockDMAP(uint32_t startAddress){
-    //uint8_t currentByteChar;// = (char) malloc(1);
-    //For not read only Version:
-    uint16_t currentByte = startAddress / 8;
-    uint8_t currentBit;
-    
-    for (; currentByte * 8 <= MAX_FILE_SYSTEM_SIZE; currentByte++) {// TODO: MAX_SIZE = number of blocks in file system
-        currentBit = 0;
-        if (dMap[currentByte] != 0xFF) {
-            while (currentBit < 8) {//run over bit
-                if (~(dMap[currentByte] | (1 << (7 - currentBit)))) {
-                    nextFreeBlock = currentByte * 8 + currentBit;
-                    return 0;
-                }
-                currentBit++;
-            }
-        }
-    }
-    return -1;
-}
-
-//TODO: Write Comment
-//Returns the first empty block.
-//When an error occurs -1 is returned, else 0.
-int getFreeBlock(uint32_t* freeBlock){
-    if (nextFreeBlock <= MAX_FILE_SYSTEM_SIZE) {// TODO: MAX_SIZE = number of blocks in file system
-        *freeBlock = nextFreeBlock;
-        return 0;
-    } else {
-        return -1;
-    }
-}
 
 //MARK: - Root
 //Returns the metaData of the file behind the index.
