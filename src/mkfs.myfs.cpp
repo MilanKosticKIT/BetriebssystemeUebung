@@ -121,7 +121,7 @@ template<class T, std::size_t N> void readDevice(std::size_t block, T (*data)[N]
 
 int main(int argc, char *argv[]) {
 
-    blockDevice.create("/Users/milank/Documents/Studium/SS 2018/Betriebsysteme/Labor/BetriebssystemeUebung/Blockdevice.bin");
+    blockDevice.open("./Blockdevice.bin");
 
 	fileStats foobar;
 	foobar.size = 1024;
@@ -132,11 +132,16 @@ int main(int argc, char *argv[]) {
 
 	std::cout << bar.size << std::endl;
 		
-int foo [5] = { 16, 2, 77, 40, 12071 }; 
-int fuu [5];
-writeDevice(10, foo);
-readDevice(10,fuu);
-std::cout << fuu << std::endl;
+    int foo [5] = { 16, 2, 77, 40, 12071 };
+    int fuu [5];
+    writeDevice(10, foo);
+readDevice(10, fuu);
+    for (int i = 0; i < 5; i++) {
+        std::cout << foo[i] << std::endl;
+    }
+    for (int i = 0; i < 5; i++) {
+        std::cout << fuu[i] << std::endl;
+    }
     
     // TODO: Implement file system generation & copying of files here
     return 0;
