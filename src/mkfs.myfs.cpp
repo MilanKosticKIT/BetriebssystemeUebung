@@ -83,7 +83,6 @@ template <class T> void writeDevice(std::size_t block, const T& data) {
     std::size_t blockCount = sizeof(T) / BLOCK_SIZE;
     std::size_t currentBlock = block;
     for(; currentBlock < block + blockCount; ++currentBlock) {
-        
         blockDevice.write(currentBlock, rawData + ((currentBlock - block) * BLOCK_SIZE));
     }
     std::memcpy(buffer, rawData + ((currentBlock - block) * BLOCK_SIZE), sizeof(T) % BLOCK_SIZE);
@@ -92,12 +91,7 @@ template <class T> void writeDevice(std::size_t block, const T& data) {
 
 template <class T, std::size_t N> void writeDevice(std::size_t block, const T (&data)[N]) {
     static_assert(std::is_trivially_copyable<T>::value, "Can't operate on complex types!");
-    static_assert(sizeof(T) * N <= BLOCK_SIZE, ""); //TODO sizeOF(T)*N or (T * N)
-    
-    std::cout << "write: sizeof(T): " << sizeof(T) << std::endl;
-    std::cout << "write: sizeof(T) * N: " << sizeof(T) * N << std::endl;
-    std::cout << "write: *data " << *data << std::endl;
-    std::cout << "write: *data++ " << data[1] << std::endl;
+    static_assert(sizeof(T) * N <= BLOCK_SIZE, "");
     
     static char buffer[BLOCK_SIZE];
     std::memcpy(buffer, data, sizeof(T) * N);
@@ -105,8 +99,8 @@ template <class T, std::size_t N> void writeDevice(std::size_t block, const T (&
 }
 
 template<class T> void readDevice(std::size_t block, T& data) {
-    static_assert(std::is_trivially_constructible<T>::value, "");
-    static_assert(sizeof(T) <= BLOCK_SIZE, "Can't operate on complex types!");
+    static_assert(std::is_trivially_constructible<T>::value, "Can't operate on complex types!");
+    static_assert(sizeof(T) <= BLOCK_SIZE, "");
     
     static char buffer[BLOCK_SIZE];
     blockDevice.read(block, buffer);
@@ -116,8 +110,6 @@ template<class T> void readDevice(std::size_t block, T& data) {
 template<class T, std::size_t N> void readDevice(std::size_t block, T (&data)[N]) {
     static_assert(std::is_trivially_constructible<T>::value, "Can't operate on complex types!");
     static_assert(sizeof(T) * N <= BLOCK_SIZE, "");
-    
-    std::cout << "read sizeof(T): " << sizeof(T) << std::endl;
     
     static char buffer[BLOCK_SIZE];
     blockDevice.read(block, buffer);
