@@ -104,7 +104,7 @@ template <class T, std::size_t N> void writeDevice(std::size_t block, const T (&
     blockDevice.write(block, buffer);
 }
 
-template<class T> void readDevice(std::size_t block, T* data) {
+template<class T> void readDevice(std::size_t block, T& data) {
     static_assert(std::is_trivially_constructible<T>::value, "");
     static_assert(sizeof(T) <= BLOCK_SIZE, "Can't operate on complex types!");
     
@@ -113,7 +113,7 @@ template<class T> void readDevice(std::size_t block, T* data) {
     std::memcpy(data, buffer, sizeof(T));
 }
 
-template<class T, std::size_t N> void readDevice(std::size_t block, T (*data)[N]) {
+template<class T, std::size_t N> void readDevice(std::size_t block, T (&data)[N]) {
     static_assert(std::is_trivially_constructible<T>::value, "Can't operate on complex types!");
     static_assert(sizeof(T) * N <= BLOCK_SIZE, "");
     
@@ -121,7 +121,7 @@ template<class T, std::size_t N> void readDevice(std::size_t block, T (*data)[N]
     
     static char buffer[BLOCK_SIZE];
     blockDevice.read(block, buffer);
-    std::memcpy(data, buffer, sizeof(T));
+    std::memcpy(data, buffer, sizeof(T) * N);
 }
 
 
@@ -129,6 +129,7 @@ template<class T, std::size_t N> void readDevice(std::size_t block, T (*data)[N]
 int main(int argc, char *argv[]) {
     
     blockDevice.open("./Blockdevice.bin");
+    
     /*
     fileStats foobar;
     foobar.size = 1024;
@@ -137,21 +138,30 @@ int main(int argc, char *argv[]) {
     fileStats bar;
     readDevice(15, &bar);
     
-    std::cout << bar.size << std::endl;*/
+    std::cout << bar.size << std::endl;
+     */
     
-    int foo [5] = { 16, 2, 77, 40, 12071 };
-    int fuu [5];
-    writeDevice(10, *foo);
-    readDevice(10, &fuu);
-    for (int i = 0; i < 5; i++) {
-        std::cout << foo[i] << std::endl;
+    /*
+    char input[6] = {'a', 'b', 'c', 'd', 'e', '\0'};
+    char putput[BLOCK_SIZE];
+    char output[6];
+    char* outputString = (char*) output;
+    */
+    int input[6] = {0, 1, 2, 3, 4, 5};
+    int output[6];
+    
+    writeDevice(10, input);
+    readDevice(10, output);
+    for(int i = 0; i< 6; i++){
+        std::cout << input[i] << std::endl;
     }
-    for (int i = 0; i < 5; i++) {
-        std::cout << fuu[i] << std::endl;
+    for(int i = 0; i< 6; i++){
+        std::cout << output[i] << std::endl;
     }
     
     // TODO: Implement file system generation & copying of files here
     return 0;
+    
 }
 
 
