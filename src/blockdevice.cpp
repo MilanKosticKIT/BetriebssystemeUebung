@@ -17,9 +17,11 @@
 #include <sys/types.h>
 #include "macros.h"
 
+#include <iostream>
+
 #include "blockdevice.h"
 
-#undef DEBUG
+//#undef DEBUG
 
 BlockDevice::BlockDevice(u_int32_t blockSize) {
     assert(blockSize % 512 == 0);
@@ -93,7 +95,6 @@ int BlockDevice::read(u_int32_t blockNo, char *buffer) {
     int size = (this->blockSize);
     if (::read (this->contFile, buffer, size) != size)
         return -1;
-
     return 0;
 }
 

@@ -21,13 +21,13 @@
 #include <type_traits>
 
 typedef struct{
-char name[NAME_LENGTH];
-off_t size;
-uid_t userID;
-gid_t groupID;
-time_t last_time;
-time_t modi_time;
-time_t change_time;
+    char name[NAME_LENGTH];
+    off_t size;
+    uid_t userID;
+    gid_t groupID;
+    time_t last_time;
+    time_t modi_time;
+    time_t change_time;
 }fileStats;
 
 //MARK: - Methodenheader
@@ -50,8 +50,8 @@ BlockDevice blockDevice = *new BlockDevice();
 
 
 bool getStats(fileStats *status, char *path, blkcnt_t *blockCount){
-struct stat sb;
-stat(path,&sb);
+    struct stat sb;
+    stat(path,&sb);
     char* filename = basename(path);
     if (strlen(filename) > NAME_LENGTH) {
         return false;
@@ -67,75 +67,82 @@ stat(path,&sb);
     return true;
 }
 void updateRoot(fileStats *status){
-fileStats root[NUM_DIR_ENTRIES];
-
-
-
-
+    fileStats root[NUM_DIR_ENTRIES];
+    
+    
+    
+    
 }
 
 template <class T> void writeDevice(std::size_t block, const T& data) {
     static_assert(std::is_trivially_copyable<T>::value, "Can't operate on complex types!");
-
-	const char* rawData = reinterpret_cast<const char*>(&data);
-	
-	static char buffer[BLOCK_SIZE];
-	std::size_t blockCount = sizeof(T) / BLOCK_SIZE;
-	std::size_t currentBlock = block;
-	for(; currentBlock < block + blockCount; ++currentBlock) {
-
+    
+    const char* rawData = reinterpret_cast<const char*>(&data);
+    
+    static char buffer[BLOCK_SIZE];
+    std::size_t blockCount = sizeof(T) / BLOCK_SIZE;
+    std::size_t currentBlock = block;
+    for(; currentBlock < block + blockCount; ++currentBlock) {
+        
         blockDevice.write(currentBlock, rawData + ((currentBlock - block) * BLOCK_SIZE));
-	}
-	std::memcpy(buffer, rawData + ((currentBlock - block) * BLOCK_SIZE), sizeof(T) % BLOCK_SIZE);
+    }
+    std::memcpy(buffer, rawData + ((currentBlock - block) * BLOCK_SIZE), sizeof(T) % BLOCK_SIZE);
     blockDevice.write(currentBlock, buffer);
 }
 
 template <class T, std::size_t N> void writeDevice(std::size_t block, const T (&data)[N]) {
-	static_assert(std::is_trivially_copyable<T>::value, "Can't operate on complex types!");
+    static_assert(std::is_trivially_copyable<T>::value, "Can't operate on complex types!");
     static_assert(sizeof(T) * N <= BLOCK_SIZE, ""); //TODO sizeOF(T)*N or (T * N)
-
-	static char buffer[BLOCK_SIZE];
-	std::memcpy(buffer, &data, sizeof(T) * N);
-	blockDevice.write(block, buffer);
+    
+    std::cout << "write: sizeof(T): " << sizeof(T) << std::endl;
+    std::cout << "write: sizeof(T) * N: " << sizeof(T) * N << std::endl;
+    std::cout << "write: *data " << *data << std::endl;
+    std::cout << "write: *data++ " << data[1] << std::endl;
+    
+    static char buffer[BLOCK_SIZE];
+    std::memcpy(buffer, data, sizeof(T) * N);
+    blockDevice.write(block, buffer);
 }
 
 template<class T> void readDevice(std::size_t block, T* data) {
     static_assert(std::is_trivially_constructible<T>::value, "");
-	static_assert(sizeof(T) <= BLOCK_SIZE, "Can't operate on complex types!");
-
-	static char buffer[BLOCK_SIZE];
-	blockDevice.read(block, buffer);
-	std::memcpy(data, buffer, sizeof(T));
+    static_assert(sizeof(T) <= BLOCK_SIZE, "Can't operate on complex types!");
+    
+    static char buffer[BLOCK_SIZE];
+    blockDevice.read(block, buffer);
+    std::memcpy(data, buffer, sizeof(T));
 }
 
 template<class T, std::size_t N> void readDevice(std::size_t block, T (*data)[N]) {
-	static_assert(std::is_trivially_constructible<T>::value, "Can't operate on complex types!");
+    static_assert(std::is_trivially_constructible<T>::value, "Can't operate on complex types!");
     static_assert(sizeof(T) * N <= BLOCK_SIZE, "");
-
-	static char buffer[BLOCK_SIZE];
-	blockDevice.read(block, buffer);
-	std::memcpy(data, buffer, sizeof(T) * N);
+    
+    std::cout << "read sizeof(T): " << sizeof(T) << std::endl;
+    
+    static char buffer[BLOCK_SIZE];
+    blockDevice.read(block, buffer);
+    std::memcpy(data, buffer, sizeof(T));
 }
 
 
 
 int main(int argc, char *argv[]) {
-
+    
     blockDevice.open("./Blockdevice.bin");
-
-	fileStats foobar;
-	foobar.size = 1024;
-	writeDevice(15, foobar);
-
-	fileStats bar;
-	readDevice(15, &bar);
-
-	std::cout << bar.size << std::endl;
-		
+    /*
+    fileStats foobar;
+    foobar.size = 1024;
+    writeDevice(15, foobar);
+    
+    fileStats bar;
+    readDevice(15, &bar);
+    
+    std::cout << bar.size << std::endl;*/
+    
     int foo [5] = { 16, 2, 77, 40, 12071 };
     int fuu [5];
-    writeDevice(10, foo);
-readDevice(10, fuu);
+    writeDevice(10, *foo);
+    readDevice(10, &fuu);
     for (int i = 0; i < 5; i++) {
         std::cout << foo[i] << std::endl;
     }
