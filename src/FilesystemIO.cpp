@@ -2,7 +2,11 @@
 // Created by hannes on 30.10.18.
 //
 
-#include "../includes/FilesystemIO.h"
+#include "FilesystemIO.h"
+
+FilesystemIO::FilesystemIO() {
+    // todo ticket #17: create blockdevice or get blockdevice/path parameter?
+}
 
 void FilesystemIO::writeDevice(std::size_t block, const T &data) {
     static_assert(std::is_trivially_copyable<T>::value, "Can't operate on complex types!");

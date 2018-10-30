@@ -10,25 +10,46 @@ private:
     Blockdevice blockdevice;
 
 public:
-    /*
-     * Write trivially copyable data to the given block. If the data doesn't fit into a single block, the next blocks are used for the remaining data.
+    // todo ticket #17: create blockdevice or get blockdevice/path parameter?
+    /**
+     * Creates a new IO-Interface for a blockdevice.
+     */
+    FilesystemIO();
+
+    /**
+     * todo
+     * @tparam T
+     * @param block
+     * @param data
      */
     template<class T>
     void writeDevice(std::size_t block, const T &data);
 
-    /*
-     * Read trivially copyable data from a single block and store it to "data". todo description
+    /**
+     * todo
+     * @tparam T
+     * @param block
+     * @param data
      */
     template<class T>
     void readDevice(std::size_t block, T &data);
 
-    /*
-     * Write an array of data to the given block. todo description
+    /**
+     * todo
+     * @tparam T
+     * @tparam N
+     * @param block
+     * @param data
      */
     template<class T, std::size_t N>
     void writeDevice(std::size_t block, const T (&data)[N]);
-    /*
-     * todo description
+
+    /**
+     * todo
+     * @tparam T
+     * @tparam N
+     * @param block
+     * @param data
      */
     template<class T, std::size_t N>
     void readDevice(std::size_t block, T (&data)[N]);
