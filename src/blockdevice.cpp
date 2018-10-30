@@ -24,7 +24,7 @@
 //#undef DEBUG
 
 BlockDevice::BlockDevice(u_int32_t blockSize) {
-    assert(blockSize % 512 == 0);
+    assert(blockSize % 512 == 0); //wrong number? konstante nutzen?
     this->blockSize= blockSize;
 }
 
