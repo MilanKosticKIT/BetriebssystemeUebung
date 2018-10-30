@@ -1,7 +1,7 @@
 //FAT
 void initializeFAT();
-int iterateFAT(int firstBlock, std::list<int>* list);
-int addToFAT(int32_t firstBlock, int32_t nextAddress);
+int32_t iterateFAT(int firstBlock, std::list<int>* list);
+int32_t addToFAT(int32_t firstBlock, int32_t nextAddress);
 void addLastToFAT(int32_t lastAddress);
 
 
@@ -37,7 +37,7 @@ FAT::FAT() {
 *  param: firstBlock: first datablock of a file
 *         list: pointer to a list
 */
-int FAT::iterateFAT(int firstBlock, std::list<int>* list) {
+int32_t FAT::iterateFAT(int32_t firstBlock, std::list<int>* list) {
 	int32_t nextBlock = firstBlock;
 	std::list<int> fileList; //creates a list to store all datablocks of a specific file
 	fileList.push_back(nextBlock);
@@ -50,7 +50,7 @@ int FAT::iterateFAT(int firstBlock, std::list<int>* list) {
 }
 
 //add the next address of a file to the FAT
-int FAT::addToFAT(int32_t firstBlock, int32_t nextAddress) {
+int32_t FAT::addToFAT(int32_t firstBlock, int32_t nextAddress) {
 	std::list<int> *fatList;
 	iterateFAT(firstBlock, fatList);
 	fat[fatList->back()] = nextAddress;
