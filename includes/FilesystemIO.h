@@ -4,10 +4,12 @@
 
 #ifndef CLIONPROJECTS_FILESYSTEMIO_H
 #define CLIONPROJECTS_FILESYSTEMIO_H
+#include <stdlib.h>
+#include "blockdevice.h"
 
 class FilesystemIO {
 private:
-    Blockdevice blockdevice;
+    BlockDevice blockdevice;
 
 public:
     // todo ticket #17: create blockdevice or get blockdevice/path parameter?
@@ -23,7 +25,7 @@ public:
      * @param data
      */
     template<class T>
-    void writeDevice(std::size_t block, const T &data);
+    void writeDevice(size_t block, const T &data);
 
     /**
      * todo
@@ -32,7 +34,7 @@ public:
      * @param data
      */
     template<class T>
-    void readDevice(std::size_t block, T &data);
+    void readDevice(size_t block, T &data);
 
     /**
      * todo
@@ -41,8 +43,8 @@ public:
      * @param block
      * @param data
      */
-    template<class T, std::size_t N>
-    void writeDevice(std::size_t block, const T (&data)[N]);
+    template<class T, size_t N>
+    void writeDevice(size_t block, const T (&data)[N]);
 
     /**
      * todo
@@ -51,8 +53,8 @@ public:
      * @param block
      * @param data
      */
-    template<class T, std::size_t N>
-    void readDevice(std::size_t block, T (&data)[N]);
+    template<class T, size_t N>
+    void readDevice(size_t block, T (&data)[N]);
 
 };
 
