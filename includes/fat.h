@@ -4,6 +4,7 @@
 #define fat_h
 
 #include <stdio.h>
+#include <stdint.h>
 #include <cstdint>
 
 
@@ -14,7 +15,7 @@ private:
 
 public:
 	FAT();
-	int iterateFAT(int firstBlock, std::list<int>* list);
+    int iterateFAT(int firstBlock, list<int>* list);
 	int addToFAT(int32_t firstBlock, int32_t nextAddress);
 	void addLastToFAT(int32_t lastAddress);
 

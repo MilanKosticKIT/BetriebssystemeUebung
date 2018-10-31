@@ -1,6 +1,6 @@
 //FAT
 void initializeFAT();
-uint16_t iterateFAT(int firstBlock, std::list<int>* list);
+uint16_t iterateFAT(int firstBlock, list<int>* list);
 uint16_t addToFAT(uint16_t firstBlock, uint16_t nextAddress);
 void addLastToFAT(uint16_t lastAddress);
 
