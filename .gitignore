@@ -1,0 +1,6 @@
+.vs
+*.xcodeproj
+.idea
+*.iml
+*.bin
+.DS_Store
