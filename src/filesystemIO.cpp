@@ -3,7 +3,6 @@
 //
 
 #include "filesystemIO.h"
-#include "constants.h"
 
 FilesystemIO::FilesystemIO() {
     // todo ticket #17: create blockdevice or get blockdevice/path parameter?
@@ -11,7 +10,7 @@ FilesystemIO::FilesystemIO() {
 
 template<class T>
 void FilesystemIO::writeDevice(size_t block, const T &data) {
-    static_assert(std::is_trivially_copyable<T>::value, "Can't operate on complex types!");
+    //static_assert(std::is_trivially_copyable<T>::value, "Can't operate on complex types!");
 
     const char *rawData = reinterpret_cast<const char *>(&data);
 
@@ -27,7 +26,7 @@ void FilesystemIO::writeDevice(size_t block, const T &data) {
 
 template<class T, size_t N>
 void FilesystemIO::writeDevice(size_t block, const T (&data)[N]) {
-    static_assert(std::is_trivially_copyable<T>::value, "Can't operate on complex types!");
+    //static_assert(std::is_trivially_copyable<T>::value, "Can't operate on complex types!");
 
     const char *rawData = reinterpret_cast<const char *>(&data);
 
@@ -43,7 +42,7 @@ void FilesystemIO::writeDevice(size_t block, const T (&data)[N]) {
 
 template<class T>
 void FilesystemIO::readDevice(size_t block, T &data) {
-    static_assert(std::is_trivially_constructible<T>::value, "Can't operate on complex types!");
+    //static_assert(std::is_trivially_constructible<T>::value, "Can't operate on complex types!");
 
     char *rawData = reinterpret_cast<char *>(&data);
     static char buffer[BLOCK_SIZE];
@@ -58,7 +57,7 @@ void FilesystemIO::readDevice(size_t block, T &data) {
 
 template<class T, size_t N>
 void FilesystemIO::readDevice(std::size_t block, T (&data)[N]) {
-    static_assert(std::is_trivially_constructible<T>::value, "Can't operate on complex types!");
+    //static_assert(std::is_trivially_constructible<T>::value, "Can't operate on complex types!");
 
     char *rawData = reinterpret_cast<char *>(&data);
     static char buffer[BLOCK_SIZE];

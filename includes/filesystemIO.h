@@ -8,7 +8,9 @@
 #include <stdlib.h>
 #include <type_traits> //Neccessary for is_trivially_copyable
 #include <string.h> //Neccessary for memcopy
+
 #include "blockdevice.h"
+#include "constants.h"
 
 class FilesystemIO {
 private:

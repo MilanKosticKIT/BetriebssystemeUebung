@@ -1,0 +1,29 @@
+gdb - GNU Debugger
+
+1. Compile-Flag -g
+2. Kontext-Menü -> Debug as -> Local...
+
+
+
+Valgrind - Speicher-Debugging
+
+> valgrind PROGRAMM
+
+
+
+gprof - Profiling
+
+1. Linker-Option -pg
+2. Profile wird in gmon.out gespeichert
+3. gprof PROGRAMM
+
+
+
+catch - Unittests
+
+#define CATCH_CONFIG_MAIN
+
+#include "catch.hpp"
+REQUIRE(boolescher Ausdruck);
+
+weiteres in Beispieldateien (Warmup-4)
