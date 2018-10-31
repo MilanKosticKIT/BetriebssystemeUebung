@@ -1,0 +1,21 @@
+open		--> open(Pfad + Dateiname, Zugriffsmodus)
+		    Zugriffsmodus: O_RDONLY oder O_WRONLY oder O_RDWR muss angegeben werden
+		    Rückgabewert von open(): FileDescriptor (int) kann bzw. muss später verwendet werden.
+close		--> close(FileDescriptor)
+
+
+Fehlerprüfung für open:
+	fd == -1 ==> Fehler
+	In diesem Fall enthält "errno" den Fehlercode. (--> errno.h)
+
+
+read		--> ret = read(fileDescriptor, buffer, count);
+		    ret == -1: Fehler (siehe errno)
+		    ret == count: Alle Zeichen gelesen
+		    ret < count: Datei zu Ende, ohne dass count Zeichen gelesen wurden (ret Zeichen gelesen)
+
+
+
+
+
+write(fd, &struct, sizeof(S));
