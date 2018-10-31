@@ -1,21 +1,18 @@
 //FAT
 void initializeFAT();
-int32_t iterateFAT(int firstBlock, std::list<int>* list);
-int32_t addToFAT(int32_t firstBlock, int32_t nextAddress);
-void addLastToFAT(int32_t lastAddress);
+uint16_t iterateFAT(int firstBlock, std::list<int>* list);
+uint16_t addToFAT(uint16_t firstBlock, uint16_t nextAddress);
+void addLastToFAT(uint16_t lastAddress);
 
-
+#include <constants.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <fat.h>
 
 
 FAT::FAT() {
-	int32_t fat[SYSTEM_BLOCKS];
-	for (int32_t i = 0; i < SYSTEM_BLOCKS; i++) {
-		fat[i] = -2;
-	}
-	for (int32_t i = SYSTEM_BLOCKS; i < DATA_BLOCKS; i++) {
+	uint16_t fat[DATA_BLOCKS];
+	for (uint16_t i = 0; i < DATA_BLOCKS; i++) {
 		fat[i] = 0;
 	}
 }
@@ -26,7 +23,6 @@ FAT::FAT() {
 //MARK: - FAT
 /* creates the FAT and initialises it with default values
 *  meaning behind values:
-* -2 = systemdata (unavailable)
 * -1 = terminator character
 *  0 = free
 */
@@ -37,8 +33,8 @@ FAT::FAT() {
 *  param: firstBlock: first datablock of a file
 *         list: pointer to a list
 */
-int32_t FAT::iterateFAT(int32_t firstBlock, std::list<int>* list) {
-	int32_t nextBlock = firstBlock;
+uint16_t FAT::iterateFAT(uint16_t firstBlock, std::list<int>* list) {
+	uint16_t nextBlock = firstBlock;
 	std::list<int> fileList; //creates a list to store all datablocks of a specific file
 	fileList.push_back(nextBlock);
 	while (fat[nextBlock] != -1) {
@@ -50,13 +46,13 @@ int32_t FAT::iterateFAT(int32_t firstBlock, std::list<int>* list) {
 }
 
 //add the next address of a file to the FAT
-int32_t FAT::addToFAT(int32_t firstBlock, int32_t nextAddress) {
+uint16_t FAT::addToFAT(uint16_t firstBlock, uint16_t nextAddress) {
 	std::list<int> *fatList;
 	iterateFAT(firstBlock, fatList);
 	fat[fatList->back()] = nextAddress;
 }
 
 //add the last block of a file to FAT
-void FAT::addLastToFAT(int32_t lastAddress) {
+void FAT::addLastToFAT(uint16_t lastAddress) {
 	fat[lastAddress] = -1;
 }
