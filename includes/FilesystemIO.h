@@ -4,12 +4,15 @@
 
 #ifndef CLIONPROJECTS_FILESYSTEMIO_H
 #define CLIONPROJECTS_FILESYSTEMIO_H
+#include <stdint.h>
 #include <stdlib.h>
+#include <type_traits> //Neccessary for is_trivially_copyable
+#include <string.h> //Neccessary for memcopy
 #include "blockdevice.h"
 
 class FilesystemIO {
 private:
-    BlockDevice blockdevice;
+    BlockDevice blockDevice;
 
 public:
     // todo ticket #17: create blockdevice or get blockdevice/path parameter?
