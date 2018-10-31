@@ -21,3 +21,5 @@
 #define DMAP_SIZE = FAT_START - DMAP_START;
 #define FAT_SIZE = ROOT_START - FAT_START;
 #define ROOT_SIZE = DATA_START - ROOT_START;
+
+#endif

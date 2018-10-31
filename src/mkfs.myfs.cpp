@@ -20,7 +20,7 @@
 #include <cstring>
 #include <type_traits>
 #include <stdint.h>
-#include <constants.h>
+#include "constants.h"
 
 typedef struct {
     char name[NAME_LENGTH];
@@ -42,15 +42,6 @@ void setMetaData(MetaData metaData, u_int8_t indexOfFile);
 void convertBlockToMetaData(MetaData *data, char *block);
 
 void convertMetaDataToBlock(MetaData *data, char *block);
-
-void getBLockFromAddress(u_int32_t address, u_int32_t *blockNo, u_int32_t *byteNo);
-
-//Superblock
-void getSuperBlock(SuperBlock *superblock);
-
-void setEmptySpaceSizeInSuperBlock(uint32_t emptySpaceSize);
-
-void createSuperBlock(struct SuperBlock superBlock);
 
 //TODO: Get these lines to a fitting header file.
 //MARK: -
@@ -81,69 +72,6 @@ void updateRoot(fileStats *status) {
 
 
 }
-
-template<class T>
-void writeDevice(std::size_t block, const T &data) {
-    static_assert(std::is_trivially_copyable<T>::value, "Can't operate on complex types!");
-
-    const char *rawData = reinterpret_cast<const char *>(&data);
-
-    static char buffer[BLOCK_SIZE];
-    std::size_t blockCount = sizeof(T) / BLOCK_SIZE;
-    std::size_t currentBlock = block;
-    for (; currentBlock < block + blockCount; ++currentBlock) {
-        blockDevice.write(currentBlock, rawData + ((currentBlock - block) * BLOCK_SIZE));
-    }
-    std::memcpy(buffer, rawData + ((currentBlock - block) * BLOCK_SIZE), sizeof(T) % BLOCK_SIZE);
-    blockDevice.write(currentBlock, buffer);
-}
-
-template<class T, std::size_t N>
-void writeDevice(std::size_t block, const T (&data)[N]) {
-    static_assert(std::is_trivially_copyable<T>::value, "Can't operate on complex types!");
-
-    const char *rawData = reinterpret_cast<const char *>(&data);
-
-    static char buffer[BLOCK_SIZE];
-    std::size_t blockCount = (sizeof(T) * N)/ BLOCK_SIZE;
-    std::size_t currentBlock = block;
-    for (; currentBlock < block + blockCount; ++currentBlock) {
-        blockDevice.write(currentBlock, rawData + ((currentBlock - block) * BLOCK_SIZE));
-    }
-    std::memcpy(buffer, rawData + ((currentBlock - block) * BLOCK_SIZE), (sizeof(T) * N) % BLOCK_SIZE);
-    blockDevice.write(currentBlock, buffer);
-}
-
-template<class T>
-void readDevice(std::size_t block, T &data) {
-    static_assert(std::is_trivially_constructible<T>::value, "Can't operate on complex types!");
-
-    char *rawData = reinterpret_cast<char *>(&data);
-    static char buffer[BLOCK_SIZE];
-    std::size_t blockCount = sizeof(T) / BLOCK_SIZE;
-    std::size_t currentBlock = block;
-    for (; currentBlock < block + blockCount; ++currentBlock) {
-        blockDevice.read(currentBlock, rawData + ((currentBlock - block) * BLOCK_SIZE));
-    }
-    blockDevice.read(currentBlock, buffer);
-    std::memcpy(rawData + ((currentBlock - block) * BLOCK_SIZE), buffer, sizeof(T) % BLOCK_SIZE);
-}
-
-template<class T, std::size_t N>
-void readDevice(std::size_t block, T (&data)[N]) {
-    static_assert(std::is_trivially_constructible<T>::value, "Can't operate on complex types!");
-
-    char *rawData = reinterpret_cast<char *>(&data);
-    static char buffer[BLOCK_SIZE];
-    std::size_t blockCount = (sizeof(T) * N) / BLOCK_SIZE;
-    std::size_t currentBlock = block;
-    for (; currentBlock < block + blockCount; ++currentBlock) {
-        blockDevice.read(currentBlock, rawData + ((currentBlock - block) * BLOCK_SIZE));
-    }
-    blockDevice.read(currentBlock, buffer);
-    std::memcpy(rawData + ((currentBlock - block) * BLOCK_SIZE), buffer, (sizeof(T) * N) % BLOCK_SIZE);
-}
-
 
 
 int main(int argc, char *argv[]) {
@@ -261,14 +189,6 @@ typedef struct {
 }
 
 
-
-
-
-
-
-
-
-
 //MARK: - Our Methods
 
 //MARK: - DMAP
@@ -300,88 +220,4 @@ void convertBlockToMetaData(MetaData *data, char *block) {
 //Converts the given MetaData into a block, formatted as char*/String
 void convertMetaDataToBlock(MetaData *data, char *block) {
     //TODO: Implement this.
-}
-
-//Gets the block and the byte number of the given address
-void getBLockFromAddress(u_int32_t address, u_int32_t *blockNo, u_int32_t *byteNo) {
-    //TODO: Check whether needed
-    *blockNo = address / BLOCK_SIZE;
-    *byteNo = address % BLOCK_SIZE;
-}
-
-
-//MARK: - Superblock
-//Returns the Superblock for the data system
-void getSuperBlock(SuperBlock *superblock) {
-    //    TODO: Implement this.
-    char *block = (char *) malloc(BLOCK_SIZE);
-    blockDevice.read(0, block);
-
-    uint32_t *data = (uint32_t *) block;
-    superblock->fileSystemSize = *data;
-    data++;
-    superblock->emptySpaceSize = *data;
-    data++;
-    superblock->maximumStorageSize = *data;
-    data++;
-    superblock->dmapStart = *data;
-    data++;
-    superblock->fatStart = *data;
-    data++;
-    superblock->rootStart = *data;
-    data++;
-    superblock->dataStart = *data;
-    data++;
-    superblock->dmapSize = *data;
-    data++;
-    superblock->fatSize = *data;
-    data++;
-    superblock->rootSize = *data;
-    data++;
-    superblock->dataSize = *data;
-    free(data);
-}
-
-//Sets the emptySpaceSize arttibute in the superblock
-void setEmptySpaceSizeInSuperBlock(uint32_t emptySpaceSize) {
-    char *block = (char *) malloc(BLOCK_SIZE);
-    uint32_t *data = (uint32_t *) block;
-
-    data++;
-    *data = emptySpaceSize;
-
-    blockDevice.write(0, block);
-    free(data);
-}
-
-//Writes the part of the filesystem for the superblock for the first time. In particular: The not changing values are written.
-void createSuperBlock(struct SuperBlock superBlock) {
-    char *block = (char *) malloc(BLOCK_SIZE);
-    uint32_t *data = (uint32_t *) block;
-
-    *data = superBlock.fileSystemSize;
-    data++;
-    *data = superBlock.emptySpaceSize;
-    data++;
-    *data = superBlock.maximumStorageSize;
-    data++;
-    *data = superBlock.dmapStart;
-    data++;
-    *data = superBlock.fatStart;
-    data++;
-    *data = superBlock.rootStart;
-    data++;
-    *data = superBlock.dataStart;
-    data++;
-    *data = superBlock.dmapSize;
-    data++;
-    *data = superBlock.fatSize;
-    data++;
-    *data = superBlock.rootSize;
-    data++;
-    *data = superBlock.dataSize;
-    data++;
-
-    blockDevice.write(0, block);
-    free(data);
 }
