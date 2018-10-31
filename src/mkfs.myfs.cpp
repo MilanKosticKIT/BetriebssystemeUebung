@@ -20,6 +20,7 @@
 #include <cstring>
 #include <type_traits>
 #include <stdint.h>
+#include <constants.h>
 
 typedef struct {
     char name[NAME_LENGTH];

@@ -7,6 +7,7 @@
 //
 
 #include "DMap.hpp"
+#include <constants.h>
 
 DMap::DMap(){
     

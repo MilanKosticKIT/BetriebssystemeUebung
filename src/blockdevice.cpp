@@ -16,7 +16,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include "macros.h"
-
+#include <constants.h>
 #include <iostream>
 
 #include "blockdevice.h"
