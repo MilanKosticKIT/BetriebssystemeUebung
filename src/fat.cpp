@@ -1,5 +1,4 @@
 //FAT
-void initializeFAT();
 
 #include "constants.h"
 #include "fat.h"
