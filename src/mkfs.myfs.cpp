@@ -48,29 +48,6 @@ void convertMetaDataToBlock(MetaData *data, char *block);
 BlockDevice blockDevice = BlockDevice();
 
 
-bool getStats(fileStats *status, char *path, blkcnt_t *blockCount) {
-    struct stat sb;
-    stat(path, &sb);
-    char *filename = basename(path);
-    if (strlen(filename) > NAME_LENGTH) {
-        return false;
-    }
-    strcpy(status->name, filename);//TODO: Pointer?!?!
-    status->size = sb.st_size;
-    status->userID = geteuid();
-    status->groupID = getegid();
-    status->modi_time = sb.st_mtime;
-    time(&(status->last_time));
-    time(&(status->change_time));
-    *blockCount = sb.st_blocks;
-    return true;
-}
-
-void updateRoot(fileStats *status) {
-    fileStats root[NUM_DIR_ENTRIES];
-
-
-}
 
 
 int main(int argc, char *argv[]) {
@@ -78,7 +55,7 @@ int main(int argc, char *argv[]) {
     blockDevice.open("./Blockdevice.bin");
 
     /*
-    fileStats foobar;
+    fileStts foobar;
     foobar.size = 1024;
     writeDevice(15, foobar);
     
