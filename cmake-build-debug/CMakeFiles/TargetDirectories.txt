@@ -1,0 +1,5 @@
+C:/GitHub/cmake-build-debug/CMakeFiles/mount.myfs.dir
+C:/GitHub/cmake-build-debug/CMakeFiles/mkfs.myfs.dir
+C:/GitHub/cmake-build-debug/CMakeFiles/unittest.dir
+C:/GitHub/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/GitHub/cmake-build-debug/CMakeFiles/rebuild_cache.dir
