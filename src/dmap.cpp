@@ -6,7 +6,7 @@
 //  Copyright © 2018 Oliver Waldhorst. All rights reserved.
 //
 
-#include "dmap.hpp"
+#include "dmap.h"
 #include "constants.h"
 
 DMap::DMap(){

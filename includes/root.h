@@ -20,11 +20,11 @@ private:
     filestats rootArray[];
 public:
     root();
-    fileStats[] getAll();
-    void initialize(fileStats[]);
-    fileStats get (uint16_t);
-    bool set (uint16_t, cahr*);
-    fileStats getStats(char)
+    fileStats[]* getAll();
+    void initialize(fileStats[]*);
+    fileStats* get (uint16_t);
+    uint16_t set (uint16_t, cahr*);
+
 };
 
 
