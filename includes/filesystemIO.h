@@ -36,7 +36,7 @@ public:
      * Reads a generic type of data from the blockdevice. The position which should be read from is block.
      * @tparam T The generic type of the data that should be read.
      * @param block The number of the block where the data should be read from.
-     * @param data The data that should be read.
+     * @param data Return parameter,the data that was be read.
      */
     template<class T>
     void readDevice(size_t block, T &data);
@@ -56,7 +56,7 @@ public:
      * @tparam T The generic type of the data should be read.
      * @tparam N The size of the data array, that should be read.
      * @param block The number of the block where the data should be read from.
-     * @param data The data, an array, that should be read.
+     * @param data Return parameter, the data, an array, that was be read.
      */
     template<class T, size_t N>
     void readDevice(size_t block, T (&data)[N]);
