@@ -21,7 +21,7 @@ public:
     /**
      * Creates a new IO-Interface for a blockdevice.
      */
-    FilesystemIO(BlockDevice blockdevice);
+    FilesystemIO(BlockDevice* blockdevice);
 
     /**
      * Writes a generic type of data into the blockdevice. Writes to the position block sets.
