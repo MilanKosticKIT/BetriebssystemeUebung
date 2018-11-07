@@ -82,3 +82,11 @@ int DMap::getFreeBlock(uint32_t* freeBlock){
         return -1;
     }
 }
+
+void DMap::getAll(char* p) {
+    p = (char *)dMapValues;
+}
+
+void DMap::setAll(char* p) {
+    dMapValues = (uint8_t*) p;
+}

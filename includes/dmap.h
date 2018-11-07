@@ -29,9 +29,8 @@ public:
     void set(uint16_t setAddress);
     int getFreeBlock(uint32_t* freeBlock);
     
-    //TODO: Besprechung ob noetig.
-    void writeDMap();
-    void readDMap();
+    void getAll(char* p);
+    void setAll(char* p);
     
 };
 

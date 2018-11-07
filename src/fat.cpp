@@ -5,7 +5,6 @@
 
 
 FAT::FAT() {
-	uint16_t fat[DATA_BLOCKS];
 	for (uint16_t i = 0; i < DATA_BLOCKS; i++) {
 		fat[i] = 0;
 	}

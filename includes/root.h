@@ -8,6 +8,10 @@
 #include <stdint.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <string.h>
+#include <libgen.h>  //basename
+#include <unistd.h>  //getuid /getgid
+#include <ctime>  //Time()
 
 typedef struct {
     char name[NAME_LENGTH];
@@ -21,7 +25,7 @@ typedef struct {
 
 class Root {
 private:
-    fileStats rootArray[];
+    fileStats rootArray[DATA_BLOCKS];
 public:
     Root();
     ~Root();

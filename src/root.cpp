@@ -8,12 +8,10 @@
 
 //create new empty filestats Array
 
-Root::root() {
-    rootArray = new fileStats[DATA_BLOCKS];
+Root::Root() {
 }
 
-Root::~root() {
-    delete[] rootArray;
+Root::~Root() {
 }
 
 //return full filestats array (for writing to hard driver)
@@ -22,7 +20,9 @@ void Root::getAll(fileStats* filestats) {
 }
 //set filestats array (for reading from hard driver)
 void Root::setAll(fileStats* filestats) {
-    rootArray = filestats;
+    for (int i = 0; i < DATA_BLOCKS; i++){
+        rootArray[i] = *(filestats + i);
+    }
 }
 //return filestats of the file under given number
 void Root::get(uint16_t num, fileStats* filestats) {
@@ -32,8 +32,8 @@ void Root::get(uint16_t num, fileStats* filestats) {
 //in array
 uint16_t Root::set(uint16_t num, char* filePath) {
     struct stat sb;
-    stat(path, &sb);
-    char *filename = basename(path);
+    stat(filePath, &sb);
+    char *filename = basename(filePath);
     if (strlen(filename) > NAME_LENGTH) {
         return -1;
     }
@@ -45,8 +45,6 @@ uint16_t Root::set(uint16_t num, char* filePath) {
     status->modi_time = sb.st_mtime;
     time(&(status->last_time));
     time(&(status->change_time));
-    this->rootArray[num] = status;
+    rootArray[num] = *status;
 return 0;
 }
-
-};
