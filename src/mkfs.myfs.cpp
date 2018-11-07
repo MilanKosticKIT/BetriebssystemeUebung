@@ -21,56 +21,14 @@
 #include "macros.h"
 #include "constants.h"
 
-typedef struct {
-    char name[NAME_LENGTH];
-    off_t size;
-    uid_t userID;
-    gid_t groupID;
-    time_t last_time;
-    time_t modi_time;
-    time_t change_time;
-} fileStats;
-
 //MARK: - Methodenheader
-//DMAP
-//TODO: Root?
-MetaData getMetaData(u_int8_t indexOfFile);
 
-void setMetaData(MetaData metaData, u_int8_t indexOfFile);
 
-void convertBlockToMetaData(MetaData *data, char *block);
 
-void convertMetaDataToBlock(MetaData *data, char *block);
-
-//TODO: Get these lines to a fitting header file.
 //MARK: -
 
 BlockDevice blockDevice = BlockDevice();
 
-
-bool getStats(fileStats *status, char *path, blkcnt_t *blockCount) {
-    struct stat sb;
-    stat(path, &sb);
-    char *filename = basename(path);
-    if (strlen(filename) > NAME_LENGTH) {
-        return false;
-    }
-    strcpy(status->name, filename);//TODO: Pointer?!?!
-    status->size = sb.st_size;
-    status->userID = geteuid();
-    status->groupID = getegid();
-    status->modi_time = sb.st_mtime;
-    time(&(status->last_time));
-    time(&(status->change_time));
-    *blockCount = sb.st_blocks;
-    return true;
-}
-
-void updateRoot(fileStats *status) {
-    fileStats root[NUM_DIR_ENTRIES];
-
-
-}
 
 
 int main(int argc, char *argv[]) {
@@ -78,7 +36,7 @@ int main(int argc, char *argv[]) {
     blockDevice.open("./Blockdevice.bin");
 
     /*
-    fileStats foobar;
+    fileStts foobar;
     foobar.size = 1024;
     writeDevice(15, foobar);
     
@@ -190,33 +148,5 @@ typedef struct {
 
 //MARK: - Our Methods
 
-//MARK: - DMAP
 
-//MARK: - Root
-//Returns the metaData of the file behind the index.
-MetaData getMetaData(u_int8_t indexOfFile) {
-    u_int32_t blockNo = ROOT_START + indexOfFile;
-    char *block;
-    blockDevice.read(blockNo, block);
-    MetaData data;
-    convertBlockToMetaData(&data, block);       //TODO: Pls check deferensation, (and spelling).
-    return data;
-}
 
-//Sets the MetaData of an file, which is refrenced via the index.
-void setMetaData(MetaData metaData, u_int8_t indexOfFile) {
-    u_int32_t blockNo = ROOT_START + indexOfFile;
-    char *block;
-    convertBlockToMetaData(&metaData, block);   //TODO: Pls check deferensation, (and spelling).
-    blockDevice.write(blockNo, block);
-}
-
-//Casts the given block to a given MetaData instance
-void convertBlockToMetaData(MetaData *data, char *block) {
-    //TODO: Implement this.
-}
-
-//Converts the given MetaData into a block, formatted as char*/String
-void convertMetaDataToBlock(MetaData *data, char *block) {
-    //TODO: Implement this.
-}
