@@ -21,6 +21,10 @@
 #include "macros.h"
 #include "constants.h"
 
+#include "dmap.h"
+#include "fat.h"
+#include "root.h"
+
 //MARK: - Methodenheader
 
 
@@ -28,6 +32,9 @@
 //MARK: -
 
 BlockDevice blockDevice = BlockDevice();
+FAT fat = FAT();
+DMap dmap = DMap();
+root root = root();
 
 
 
