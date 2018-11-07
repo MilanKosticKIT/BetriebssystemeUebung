@@ -17,7 +17,7 @@ typedef struct {
 
 class root {
 private:
-    filestats rootArray[];
+    fileStats rootArray[];
 public:
     root();
     fileStats[]* getAll();
