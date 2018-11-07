@@ -8,29 +8,29 @@
 
 //create new empty filestats Array
 
-root::root() {
+Root::root() {
     rootArray = new fileStats[DATA_BLOCKS];
 }
 
-root::~root() {
+Root::~root() {
     delete[] rootArray;
 }
 
 //return full filestats array (for writing to hard driver)
-void root::getAll(fileStats* filestats) {
+void Root::getAll(fileStats* filestats) {
     filestats = rootArray;
 }
 //set filestats array (for reading from hard driver)
-void root::setAll(fileStats* filestats) {
+void Root::setAll(fileStats* filestats) {
     rootArray = filestats;
 }
 //return filestats of the file under given number
-void root::get(uint16_t num, fileStats* filestats) {
+void Root::get(uint16_t num, fileStats* filestats) {
     *filestats = rootArray[num];
 }
 //get filestats info from new file and add it to given position
 //in array
-uint16_t root::set(uint16_t num, char* filePath) {
+uint16_t Root::set(uint16_t num, char* filePath) {
     struct stat sb;
     stat(path, &sb);
     char *filename = basename(path);

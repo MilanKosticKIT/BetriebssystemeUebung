@@ -15,12 +15,12 @@ typedef struct {
     time_t change_time;
 } fileStats;
 
-class root {
+class Root {
 private:
     fileStats rootArray[];
 public:
-    root();
-    ~root();
+    Root();
+    ~Root();
     void getAll(fileStats* filestats);
     void setAll(fileStats* filestats);
     void get (uint16_t num, fileStats* filestats);
