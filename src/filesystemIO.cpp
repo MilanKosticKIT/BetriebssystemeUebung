@@ -4,8 +4,8 @@
 
 #include "filesystemIO.h"
 
-FilesystemIO::FilesystemIO() {
-    // todo ticket #17: create blockdevice or get blockdevice/path parameter?
+FilesystemIO::FilesystemIO(BlockDevice* blockdevice) {
+    blockDevice = *blockdevice;
 }
 
 template<class T>

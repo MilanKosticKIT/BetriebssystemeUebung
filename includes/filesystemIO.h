@@ -17,11 +17,11 @@ private:
     BlockDevice blockDevice;
 
 public:
-    // todo ticket #17: create blockdevice or get blockdevice/path parameter?
+    
     /**
      * Creates a new IO-Interface for a blockdevice.
      */
-    FilesystemIO();
+    FilesystemIO(BlockDevice blockdevice);
 
     /**
      * Writes a generic type of data into the blockdevice. Writes to the position block sets.
