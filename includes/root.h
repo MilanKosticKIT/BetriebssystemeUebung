@@ -5,6 +5,10 @@
 #ifndef MYFS_ROOT_H
 #define MYFS_ROOT_H
 
+#include <stdint.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
 typedef struct {
     char name[NAME_LENGTH];
     off_t size;
