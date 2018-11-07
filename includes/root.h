@@ -15,7 +15,7 @@ typedef struct {
     time_t change_time;
 } fileStats;
 
-class root {
+class Root {
 private:
     fileStats rootArray[];
 public:
