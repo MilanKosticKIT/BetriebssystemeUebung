@@ -44,6 +44,8 @@ uint16_t FAT::addToFAT(uint16_t firstBlock, uint16_t nextAddress) {
 	std::list<uint16_t> *fatList;
 	iterateFAT(firstBlock, fatList);
 	fat[fatList->back()] = nextAddress;
+    return 0;
+    //TODO: Think about return value!
 }
 
 //add the last block of a file to FAT
@@ -52,8 +54,8 @@ void FAT::addLastToFAT(uint16_t lastAddress) {
 }
 
 
-setAll(char* p){
-	for (i = 0; i < DATA_BLOCKS; i++){
+void FAT::setAll(char* p){
+	for (int i = 0; i < DATA_BLOCKS; i++){
 		fat[i] = *(p + i);
 	}
 
@@ -61,6 +63,6 @@ setAll(char* p){
 
 
 
-void getAll(char *p){
-	p = (char) fat;
+void FAT::getAll(char *p){
+	p = (char*) fat;
 }
