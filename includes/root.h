@@ -23,7 +23,7 @@ public:
     fileStats[] getAll();
     void initialize(fileStats[]);
     fileStats get (uint16_t);
-    bool set (uint16_t, cahr*);
+    bool set (uint16_t, char*);
     fileStats getStats(char)
 };
 

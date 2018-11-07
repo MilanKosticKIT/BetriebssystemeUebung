@@ -21,32 +21,13 @@
 #include "macros.h"
 #include "constants.h"
 
-typedef struct {
-    char name[NAME_LENGTH];
-    off_t size;
-    uid_t userID;
-    gid_t groupID;
-    time_t last_time;
-    time_t modi_time;
-    time_t change_time;
-} fileStats;
-
 //MARK: - Methodenheader
-//DMAP
-//TODO: Root?
-MetaData getMetaData(u_int8_t indexOfFile);
 
-void setMetaData(MetaData metaData, u_int8_t indexOfFile);
 
-void convertBlockToMetaData(MetaData *data, char *block);
 
-void convertMetaDataToBlock(MetaData *data, char *block);
-
-//TODO: Get these lines to a fitting header file.
 //MARK: -
 
 BlockDevice blockDevice = BlockDevice();
-
 
 
 
@@ -167,33 +148,5 @@ typedef struct {
 
 //MARK: - Our Methods
 
-//MARK: - DMAP
 
-//MARK: - Root
-//Returns the metaData of the file behind the index.
-MetaData getMetaData(u_int8_t indexOfFile) {
-    u_int32_t blockNo = ROOT_START + indexOfFile;
-    char *block;
-    blockDevice.read(blockNo, block);
-    MetaData data;
-    convertBlockToMetaData(&data, block);       //TODO: Pls check deferensation, (and spelling).
-    return data;
-}
 
-//Sets the MetaData of an file, which is refrenced via the index.
-void setMetaData(MetaData metaData, u_int8_t indexOfFile) {
-    u_int32_t blockNo = ROOT_START + indexOfFile;
-    char *block;
-    convertBlockToMetaData(&metaData, block);   //TODO: Pls check deferensation, (and spelling).
-    blockDevice.write(blockNo, block);
-}
-
-//Casts the given block to a given MetaData instance
-void convertBlockToMetaData(MetaData *data, char *block) {
-    //TODO: Implement this.
-}
-
-//Converts the given MetaData into a block, formatted as char*/String
-void convertMetaDataToBlock(MetaData *data, char *block) {
-    //TODO: Implement this.
-}
