@@ -50,3 +50,17 @@ uint16_t FAT::addToFAT(uint16_t firstBlock, uint16_t nextAddress) {
 void FAT::addLastToFAT(uint16_t lastAddress) {
 	fat[lastAddress] = -1;
 }
+
+
+setAll(char* p){
+	for (i = 0; i < DATA_BLOCKS; i++){
+		fat[i] = *(p + i);
+	}
+
+}
+
+
+
+void getAll(char *p){
+	p = (char) fat;
+}

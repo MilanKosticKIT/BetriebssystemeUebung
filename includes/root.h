@@ -17,13 +17,13 @@ typedef struct {
 
 class root {
 private:
-    filestats rootArray[];
+    fileStats rootArray[];
 public:
     root();
     fileStats[]* getAll();
     void initialize(fileStats[]*);
     fileStats* get (uint16_t);
-    uint16_t set (uint16_t, cahr*);
+    uint16_t set (uint16_t, char*);
 
 };
 
