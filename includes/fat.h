@@ -14,10 +14,10 @@ private:
 
 public:
 	FAT();
-	int iterateFAT(uint16_t firstBlock, std::list<int>* list);
+	int iterateFAT(uint16_t firstBlock, std::list<uint16_t>* list);
 	int addToFAT(uint16_t firstBlock, uint16_t nextAddress);
 	void addLastToFAT(uint16_t lastAddress);
 
 };
 
-#endif 
+#endif
