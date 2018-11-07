@@ -17,15 +17,15 @@ root::~root() {
 }
 
 //return full filestats array (for writing to hard driver)
-root::getAll(fileStats* filestats) {
+void root::getAll(fileStats* filestats) {
     filestats = rootArray;
 }
 //set filestats array (for reading from hard driver)
-root::setAll(fileStats* filestats) {
+void root::setAll(fileStats* filestats) {
     rootArray = filestats;
 }
 //return filestats of the file under given number
-root::get(uint16_t num, fileStats* filestats) {
+void root::get(uint16_t num, fileStats* filestats) {
     *filestats = rootArray[num];
 }
 //get filestats info from new file and add it to given position

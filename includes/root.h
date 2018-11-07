@@ -21,9 +21,9 @@ private:
 public:
     root();
     ~root();
-    getAll(fileStats* filestats);
-    setAll(fileStats* filestats);
-    get (uint16_t num, fileStats* filestats);
+    void getAll(fileStats* filestats);
+    void setAll(fileStats* filestats);
+    void get (uint16_t num, fileStats* filestats);
     uint16_t set (uint16_t num, char* filePath);
 
 };
