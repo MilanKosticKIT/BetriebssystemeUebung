@@ -24,6 +24,7 @@
 #include "dmap.h"
 #include "fat.h"
 #include "root.h"
+#include "filesystemIO.h"
 
 //MARK: - Methodenheader
 
@@ -32,15 +33,46 @@
 //MARK: -
 
 BlockDevice blockDevice = BlockDevice();
+FilesystemIO fsIO = FilesystemIO(blockDevice);
 FAT fat = FAT();
 DMap dmap = DMap();
 Root root = Root();
+struct SuperBlock superblock;
 
 
 
 int main(int argc, char *argv[]) {
 
-    blockDevice.open("./Blockdevice.bin");
+    if (argc > 1) {
+        //blockDevice.create(argv[1]);
+        blockDevice.create("./Blockdevice.bin");
+
+        uint16_t fatArray[DATA_BLOCKS];
+        uint8_t dMapArray[DATA_BLOCKS / 8];
+        fileStats rootArray[DATA_BLOCKS];
+
+        fat.getAll((char*) fatArray);
+        dmap.getAll((char*) dMapArray);
+        root.getAll(rootArray);
+
+        fsIO.writeDevice(0, 5);
+        fsIO.writeDevice(SUPERBLOCK_START, superblock);
+        fsIO.writeDevice(DMAP_START, dMapArray);
+        fsIO.writeDevice(FAT_START, fatArray);
+        fsIO.writeDevice(ROOT_START, rootArray);
+
+        if (argc > 2) {
+
+            // todo copy files into this filesystem
+
+
+
+
+        }
+    } else {
+        // error: name of containerfile missing
+    }
+
 
     /*
     fileStts foobar;
