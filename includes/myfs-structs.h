@@ -24,7 +24,7 @@ struct MetaData{
     //TODO: Discuss wether we implement this on our one or use stat()
 };
 
-struct SuperBlock{
+struct SuperBlock {
     uint32_t fileSystemSize;        //In blocks / Number of blocks
     uint32_t emptySpaceSize;        //In blocks / Number of blocks
     uint32_t maximumStorageSize;    //In blocks / Number of blocks

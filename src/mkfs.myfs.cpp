@@ -15,6 +15,7 @@
 #include <libgen.h>
 #include <iostream>
 #include <string.h>
+#include <root.h>
 
 #include "myfs.h"
 #include "blockdevice.h"
@@ -48,14 +49,32 @@ int main(int argc, char *argv[]) {
         blockDevice.create("./Blockdevice.bin");
 
         uint16_t fatArray[DATA_BLOCKS];
+        for (int i = 0; i < DATA_BLOCKS; i++) {
+            fatArray[i] = 0;
+        }
         uint8_t dMapArray[DATA_BLOCKS / 8];
+        for (int i = 0; i < DATA_BLOCKS; i++) {
+            dMapArray[i] = 0;
+        }
         fileStats rootArray[DATA_BLOCKS];
+        fileStats stats;
+        stats.groupID = 0;
+        stats.userID = 0;
+        stats.change_time = 0;
+        stats.last_time = 0;
+        stats.modi_time = 0;
+        for (int i = 0; i < NAME_LENGTH; i++) {
+            stats.name[i] = '\0';
+        }
+        stats.size = 0;
+        for (int i = 0; i < DATA_BLOCKS; i++) {
+            rootArray[i] = stats;
+        }
 
         fat.getAll((char*) fatArray);
         dmap.getAll((char*) dMapArray);
         root.getAll(rootArray);
 
-        fsIO.writeDevice(0, 5);
         fsIO.writeDevice(SUPERBLOCK_START, superblock);
         fsIO.writeDevice(DMAP_START, dMapArray);
         fsIO.writeDevice(FAT_START, fatArray);
