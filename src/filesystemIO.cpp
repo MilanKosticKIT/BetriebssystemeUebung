@@ -4,8 +4,8 @@
 
 #include "filesystemIO.h"
 
-FilesystemIO::FilesystemIO(BlockDevice* blockdevice) {
-    blockDevice = *blockdevice;
+FilesystemIO::FilesystemIO(BlockDevice &blockdevice) {
+    blockDevice = blockdevice;
 }
 
 template<class T>

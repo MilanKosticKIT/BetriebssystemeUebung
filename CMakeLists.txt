@@ -13,6 +13,7 @@ set(MKFS
         src/blockdevice.cpp
         src/dmap.cpp
         src/fat.cpp
+        src/root.cpp
         src/filesystemIO.cpp)
 
 set(MOUNT
@@ -22,6 +23,7 @@ set(MOUNT
         src/mount.myfs.c
         src/dmap.cpp
         src/fat.cpp
+        src/root.cpp
         src/filesystemIO.cpp)
 
 set(UNITTEST
