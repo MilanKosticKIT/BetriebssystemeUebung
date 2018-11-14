@@ -3,6 +3,7 @@
 #ifndef fat_h
 #define fat_h
 
+#include "constants.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>

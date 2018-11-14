@@ -11,14 +11,23 @@
 
 #include <fuse.h>
 #include <cmath>
-
+#include "filesystemIO.h"
 #include "blockdevice.h"
 #include "myfs-structs.h"
+#include "fat.h"
+#include "dmap.h"
+#include "root.h"
 
 class MyFS {
 private:
     static MyFS *_instance;
     FILE *logFile;
+    BlockDevice blockDevice = BlockDevice();
+    FilesystemIO fsIO = FilesystemIO(blockDevice);
+    FAT fat = FAT();
+    DMap dmap = DMap();
+    Root root = Root();
+    struct SuperBlock superblock;
     
 public:
     static MyFS *Instance();

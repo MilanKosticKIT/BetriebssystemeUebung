@@ -31,6 +31,22 @@ MyFS* MyFS::Instance() {
 
 MyFS::MyFS() {
     this->logFile= stderr;
+
+    uint16_t  fatArray[DATA_BLOCKS];
+    uint16_t  dmapArray[DATA_BLOCKS / 16];
+    fileStats rootArray[DATA_BLOCKS];
+    struct SuperBlock superBlock;
+
+    fsIO.readDevice(SUPERBLOCK_START, superblock);
+    fsIO.readDevice(DMAP_START, dmapArray);
+    fsIO.readDevice(FAT_START, fatArray);
+    fsIO.readDevice(ROOT_START, rootArray);
+
+    fat.setAll((char*) fatArray);
+    dmap.setAll((char*) dmapArray);
+    root.set((rootArray);
+
+
 }
 
 MyFS::~MyFS() {
@@ -39,7 +55,11 @@ MyFS::~MyFS() {
 
 int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
     LOGM();
-    
+
+
+
+
+
     // TODO: Implement this!
     
     RETURN(0);
@@ -137,7 +157,9 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
 
 int MyFS::fuseStatfs(const char *path, struct statvfs *statInfo) {
     LOGM();
+
     return 0;
+
 }
 
 int MyFS::fuseFlush(const char *path, struct fuse_file_info *fileInfo) {
