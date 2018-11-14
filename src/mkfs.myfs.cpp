@@ -75,11 +75,12 @@ int main(int argc, char *argv[]) {
         dmap.setAll((char*) dMapArray);
         root.setAll(rootArray);
 
+/*
         fsIO.writeDevice(SUPERBLOCK_START, superblock);
         fsIO.writeDevice(DMAP_START, dMapArray);
         fsIO.writeDevice(FAT_START, fatArray);
         fsIO.writeDevice(ROOT_START, rootArray);
-
+*/
         if (argc > 2) {
 
             // todo copy files into this filesystem
@@ -97,10 +98,10 @@ int main(int argc, char *argv[]) {
     fileStts foobar;
     foobar.size = 1024;
     writeDevice(15, foobar);
-    
+
     fileStats bar;
     readDevice(15, &bar);
-    
+
     std::cout << bar.size << std::endl;
      */
 
@@ -113,7 +114,7 @@ int main(int argc, char *argv[]) {
     /* Test for read/writeDevice for one block with int (>1 byte)
     int input[6] = {0, 1, 2, 3, 4, 5};
     int output[6];
-    
+
     writeDevice(10, input);
     readDevice(10, output);
     for(int i = 0; i< 6; i++){
@@ -205,6 +206,3 @@ typedef struct {
 
 
 //MARK: - Our Methods
-
-
-

@@ -10,7 +10,7 @@
 #include "constants.h"
 
 DMap::DMap(){
-    
+
 }
 
 
@@ -19,7 +19,7 @@ DMap::DMap(){
 void DMap::clear(uint16_t clearAddress) {
     int byte = clearAddress / 8;
     int bit = clearAddress % 8;
-    
+
     uint8_t* byteToChange = dMapValues + byte;
     *byteToChange &= ~(1 << (7 - bit));
 }
@@ -28,7 +28,7 @@ void DMap::clear(uint16_t clearAddress) {
 void DMap::set(uint16_t setAddress) {
     int byte = setAddress / 8;
     int bit = setAddress % 8;
-    
+
     uint8_t* byteToChange = dMapValues + byte;
     *byteToChange |= (1 << (7 - bit));
 }
@@ -37,7 +37,7 @@ void DMap::set(uint16_t setAddress) {
 bool DMap::isAdressFull(uint16_t blockNo) {
     int byte = blockNo / 8;
     int bit = blockNo % 8;
-    
+
     uint8_t* byteToRead = dMapValues + byte;
     //TODO: Or this version 3
     return (*byteToRead & (1 << (7 - bit)));
@@ -46,12 +46,11 @@ bool DMap::isAdressFull(uint16_t blockNo) {
 //Returns -1 when nothing found, >=0  when something found
 //Starting search for new freeBlock at startAddress
 int DMap::findFirstFreeAddress(uint16_t startAddress){
-    //uint8_t currentByteChar;// = (char) malloc(1);
     //For not read only Version:
     uint16_t currentByte = startAddress / 8;
     uint8_t currentBit;
-    
-    for (; currentByte * 8 <= ADDRESS_MAX; currentByte++) {// TODO: MAX_SIZE = number of blocks in file system
+
+    for (; currentByte * 8 <= ADDRESS_MAX; currentByte++) {
         currentBit = 0;
         if (dMapValues[currentByte] != 0xFF) {
             while (currentBit < 8) {//run over bit
@@ -69,8 +68,8 @@ int DMap::findFirstFreeAddress(uint16_t startAddress){
 //TODO: Write Comment
 //Returns the first empty block.
 //When an error occurs -1 is returned, else 0.
-int DMap::getFreeBlock(uint32_t* freeBlock){
-    if (firstFreeAddress <= ADDRESS_MAX) {// TODO: MAX_SIZE = number of blocks in file system
+int DMap::getFreeBlock(uint16_t* freeBlock){
+    if (firstFreeAddress <= ADDRESS_MAX) {
         *freeBlock = firstFreeAddress;
         return 0;
     } else {

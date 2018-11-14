@@ -8,31 +8,29 @@
 
 #ifndef DMap_hpp
 #define DMap_hpp
-#define ADDRESS_MAX 1
 
 #include <stdio.h>
 #include <stdint.h>
 #include "myfs-structs.h"
+#define ADDRESS_MAX DATA_BLOCKS - 1
 
 class DMap{
-    
+
     int firstFreeAddress;
     uint8_t* dMapValues;
-    
+
     int findFirstFreeAddress(uint16_t startAddress);
     bool isAdressFull(uint16_t blockNo);
 public:
-    
+
     DMap();
     void clear(uint16_t clearAddress);
     void set(uint16_t setAddress);
-    int getFreeBlock(uint32_t* freeBlock);
-    
+    int getFreeBlock(uint16_t* freeBlock);
+
     void getAll(char* p);
     void setAll(char* p);
-    
+
 };
 
 #endif /* DMap_hpp */
-
-
