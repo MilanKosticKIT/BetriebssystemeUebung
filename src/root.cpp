@@ -28,6 +28,18 @@ void Root::setAll(fileStats* filestats) {
 void Root::get(uint16_t num, fileStats* filestats) {
     *filestats = rootArray[num];
 }
+
+// Gets the filestats with the given name.
+void Root::get(const char* name, fileStats* filestats) {
+    for (int i = 0; i < DATA_BLOCKS; i++) {
+        fileStats currentFileStats = rootArray[i];
+        if (strcmp(currentFileStats.name, name) == 0) {
+            filestats = currentFileStats;
+            return;
+        }
+    }
+}
+
 //get filestats info from new file and add it to given position
 //in array
 uint16_t Root::set(uint16_t num, char* filePath) {
