@@ -58,8 +58,8 @@ int main(int argc, char *argv[]) {
             rootArray[i] = stats;
         }
 
-        fat.setAll((char*) fatArray);
-        dmap.setAll((char*) dMapArray);
+        fat.setAll((char *) fatArray);
+        dmap.setAll((char *) dMapArray);
         root.setAll(rootArray);
 
         fsIO.writeDevice(SUPERBLOCK_START, superblock);
@@ -68,31 +68,41 @@ int main(int argc, char *argv[]) {
         fsIO.writeDevice(ROOT_START, rootArray);
 
         if (argc > 2) {
+            for (int i = 2; i < argc; i++) { // copy files
+                char *filename = argv[i];
+                int fileDescriptor = open(filename, O_RDONLY);
+                if (fileDescriptor >= 0) {
+                    ssize_t retRead;
+                    char buffer[BLOCK_SIZE];
 
-        // todo copy files into this filesystem
-        int fileDescriptor = open(argv[2], O_RDONLY);
-	    if (fileDescriptor >= 0) {
-            // todo: write root
+                    uint16_t currentBlock;
+                    dmap.getFreeBlock(&currentBlock);
+                    uint16_t lastBlock = currentBlock;
+                    root.createEntry(filename); // "create file"
+                    fileStats stats;
+                    root.get(filename, &stats);
+                    stats.first_block = currentBlock;
 
-            ssize_t retRead = -1;
-            int buffer[BLOCK_SIZE + 1];
-            do {
-              retRead = read(fileDescriptor, buffer, BLOCK_SIZE);
-              buffer[retRead] = '\0';
-              for (int i = 0; i < BLOCK_SIZE; i++) {
-                  // dmap.getFirstFreeBlock()
-                  // dmap.set()
-                  // fat.addToFAT
-                  // write block
+                    retRead = read(fileDescriptor, buffer, BLOCK_SIZE);
+                    blockDevice.write(DATA_START + currentBlock, buffer); // write data
+                    dmap.set(currentBlock);
 
-                  // fat.addLastToFAT
-              }
-            } while(retRead > 0);
-	    }
-	    int retClose = close(fileDescriptor);
+                    while (retRead > 0) {
+                        dmap.getFreeBlock(&currentBlock);
 
-
-
+                        retRead = read(fileDescriptor, buffer, BLOCK_SIZE);
+                        blockDevice.write(DATA_START + currentBlock, buffer);
+                        dmap.set(currentBlock);
+                        fat.addToFAT(lastBlock, currentBlock);
+                        lastBlock = currentBlock;
+                        if (retRead > 0) {
+                            stats.size += retRead;
+                        }
+                    }
+                    fat.addLastToFAT(lastBlock);
+                }
+                int retClose = close(fileDescriptor);
+            }
         }
     } else {
         // error: name of containerfile missing
@@ -202,11 +212,7 @@ typedef struct {
     std::cout << std::endl;
     */
 
-
-
-    // TODO: Implement file system generation & copying of files here
     return 0;
-
 }
 
 
