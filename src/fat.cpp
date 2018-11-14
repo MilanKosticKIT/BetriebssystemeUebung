@@ -28,7 +28,7 @@ FAT::FAT() {
 */
 uint16_t FAT::iterateFAT(uint16_t firstBlock, std::list<uint16_t>* list) {
 	uint16_t nextBlock = firstBlock;
-	std::list<uint16_t> fileList; //creates a list to store all datablocks of a specific file
+	std::list<uint16_t> fileList ; //creates a list to store all datablocks of a specific file
 	fileList.push_back(nextBlock);
 	while (fat[nextBlock] != -1) {
 		fileList.push_back(fat[nextBlock]);
@@ -38,11 +38,28 @@ uint16_t FAT::iterateFAT(uint16_t firstBlock, std::list<uint16_t>* list) {
 	return 0;
 }
 
+int FAT::deleteFromFAT(uint16_t firstBlock){
+
+    std::list<uint16_t> fatList;
+    iterateFAT(firstBlock, &fatList);
+	std::list<uint16_t >::const_iterator iterator;
+    for (iterator = fatList.begin(); iterator != fatList.end(); ++iterator){
+    	fat[*iterator] = 0;
+    }
+
+    return 0;
+
+
+}
+
+
+
+
 //add the next address of a file to the FAT
 uint16_t FAT::addToFAT(uint16_t firstBlock, uint16_t nextAddress) {
-	std::list<uint16_t> *fatList;
-	iterateFAT(firstBlock, fatList);
-	fat[fatList->back()] = nextAddress;
+	std::list<uint16_t> fatList;
+	iterateFAT(firstBlock, &fatList);
+	fat[fatList.back()] = nextAddress;
     return 0;
     //TODO: Think about return value!
 }
