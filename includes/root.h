@@ -13,6 +13,8 @@
 #include <unistd.h>  //getuid /getgid
 #include <ctime>  //Time()
 
+#include "constants.h"
+
 typedef struct {
     char name[NAME_LENGTH];
     off_t size;

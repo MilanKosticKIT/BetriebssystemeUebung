@@ -24,7 +24,6 @@ class DMap{
 public:
     
     DMap();
-    bool checkFreeSpace(uint16_t blockCount);
     void clear(uint16_t clearAddress);
     void set(uint16_t setAddress);
     int getFreeBlock(uint32_t* freeBlock);

@@ -14,11 +14,6 @@ DMap::DMap(){
 }
 
 
-bool DMap::checkFreeSpace(uint16_t blockCount){
-    SuperBlock* superblock;
-    //getSuperBlock(superblock);
-    return (*superblock).emptySpaceSize >= blockCount;
-}
 
 //Marks an address as empty.
 void DMap::clear(uint16_t clearAddress) {
