@@ -44,7 +44,7 @@ MyFS::MyFS() {
 
     fat.setAll((char*) fatArray);
     dmap.setAll((char*) dmapArray);
-    root.set((rootArray);
+    root.set(rootArray);
 
 
 }
@@ -97,7 +97,21 @@ int MyFS::fuseMkdir(const char *path, mode_t mode) {
 
 int MyFS::fuseUnlink(const char *path) {
     LOGM();
-    
+
+    fileStats file;
+    std::list<uint16_t >::const_iterator iterator;
+    root.get(path, &file);
+
+
+    std::list<uint16_t> list;
+    fat.iterateFAT(file.first_block, &list );
+    for (iterator = list.begin(); iterator != list.end(); ++iterator){
+        dmap.clear(*iterator);
+    }
+    fat.deleteFromFAT(file.first_block);
+
+    root.deleteFromRoot(path);
+
     // TODO: Implement this!
     
     RETURN(0);
