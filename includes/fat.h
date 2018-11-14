@@ -16,6 +16,7 @@ private:
 public:
 	FAT();
 	uint16_t iterateFAT(uint16_t firstBlock, std::list<uint16_t>* list);
+	int deleteFromFAT(uint16_t firstBlock);
 	uint16_t addToFAT(uint16_t firstBlock, uint16_t nextAddress);
 	void addLastToFAT(uint16_t lastAddress);
 	void setAll(char* p);
