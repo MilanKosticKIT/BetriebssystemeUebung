@@ -110,9 +110,7 @@ int MyFS::fuseUnlink(const char *path) {
     }
     fat.deleteFromFAT(file.first_block);
 
-    root.deleteFromRoot(path);
-
-    // TODO: Implement this!
+    root.deleteEntry(path);
 
     RETURN(0);
 }
@@ -230,8 +228,6 @@ int MyFS::fuseReaddir(const char *path, void *buf, fuse_fill_dir_t filler, off_t
     // TODO: Implement this!
 
     RETURN(0);
-
-    // <<< My new code
 }
 
 int MyFS::fuseReleasedir(const char *path, struct fuse_file_info *fileInfo) {

@@ -34,12 +34,17 @@ public:
     ~Root();
     void getAll(fileStats* filestats);
     void setAll(fileStats* filestats);
-    int deleteFromRoot(const char* name);
-    int get(const char* name, fileStats* filestats);
-    int setFistBLock(const char* name, uint16_t firstBlock);
 
-    void get (uint16_t num, fileStats* filestats);
-    int set (uint16_t num, char* filePath);
+    //Methods with filename:
+
+    int get(const char* name, fileStats* filestats);
+    int deleteEntry(const char* name);
+    int createEntry(const char* name);
+
+    //Methods with position(--> file descriptor):
+
+    void get(uint16_t num, fileStats* filestats);
+    int set(uint16_t num, char* filePath);
 
 };
 

@@ -10,6 +10,9 @@
 //create new empty filestats Array
 
 Root::Root() {
+    for (int i = 0; i < DATA_BLOCKS; i++) {
+        rootArray[i].size = -1; //todo: set to no entry?
+    }
 }
 
 Root::~Root() {
@@ -25,13 +28,10 @@ void Root::setAll(fileStats* filestats) {
         rootArray[i] = *(filestats + i);
     }
 }
-//return filestats of the file under given number
-void Root::get(uint16_t num, fileStats* filestats) {
-    *filestats = rootArray[num];
-}
+
 
 // deletes the filestats with the given name.
-int Root::deleteFromRoot(const char* name) {
+int Root::deleteEntry(const char *name) {
     for (int i = 0; i < DATA_BLOCKS; i++) {
         fileStats currentFileStats = rootArray[i];
         if (strcmp(currentFileStats.name, name) == 0) {
@@ -43,17 +43,51 @@ int Root::deleteFromRoot(const char* name) {
     return -1;
 }
 
-    int Root::get(const char* name, fileStats* filestats) {
-        for (int i = 0; i < DATA_BLOCKS; i++) {
-            fileStats currentFileStats = rootArray[i];
-            if (strcmp(currentFileStats.name, name) == 0) {
-                *filestats = currentFileStats;
-                return 0;
-            }
-        }
-        errno = ENOENT;
+// creates a new root entry for the file with the given name.
+int Root::createEntry(const char *name) {
+    if (strlen(name) > NAME_LENGTH) {
+        errno = ENAMETOOLONG;
         return -1;
     }
+    fileStats stats = {};
+    strcpy(stats.name, name);
+    stats.userID = geteuid();
+    stats.groupID = getegid();
+    time_t currentTime;
+    time(&currentTime);
+    stats.modi_time = currentTime;
+    stats.last_time = currentTime;
+    stats.change_time = currentTime;
+
+    for (int i = 0; i < DATA_BLOCKS; i++) {
+        if (rootArray[i].size < 0) { //todo: which flag indicates no entry?
+            rootArray[i] = stats;
+            return 0;
+        }
+
+    }
+    errno = ENFILE;
+    return -1;
+}
+
+// get the filestats of the given file
+int Root::get(const char* name, fileStats* filestats) {
+    for (int i = 0; i < DATA_BLOCKS; i++) {
+        fileStats currentFileStats = rootArray[i];
+        if (strcmp(currentFileStats.name, name) == 0) {
+            *filestats = currentFileStats;
+            return 0;
+        }
+    }
+    errno = ENOENT;
+    return -1;
+}
+
+
+//return filestats of the file under given number
+void Root::get(uint16_t num, fileStats* filestats) {
+    *filestats = rootArray[num];
+}
 
 //get filestats info from new file and add it to given position
 //in array
@@ -76,12 +110,4 @@ int Root::set(uint16_t num, char* filePath) {
 
     delete status;
     return 0;
-}
-
-int Root::setFirstBLock(const char *name, uint16_t firstBlock) {
-    fileStats file;
-    int res = get(name, &file);
-    file.first_block = firstBlock;
-
-    return res;
 }
