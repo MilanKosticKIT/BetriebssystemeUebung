@@ -14,7 +14,7 @@ set(MKFS
         src/dmap.cpp
         src/fat.cpp
         src/root.cpp
-        src/filesystemIO.cpp)
+        )
 
 set(MOUNT
         src/blockdevice.cpp
@@ -24,7 +24,7 @@ set(MOUNT
         src/dmap.cpp
         src/fat.cpp
         src/root.cpp
-        src/filesystemIO.cpp)
+        )
 
 set(UNITTEST
         src/blockdevice.cpp
