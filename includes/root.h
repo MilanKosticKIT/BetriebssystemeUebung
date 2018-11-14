@@ -34,7 +34,7 @@ public:
     void getAll(fileStats* filestats);
     void setAll(fileStats* filestats);
     void get (uint16_t num, fileStats* filestats);
-    void get(const char* name, fileStats* filestats);
+    int get(const char* name, fileStats* filestats);
     uint16_t set (uint16_t num, char* filePath);
 
 };

@@ -19,7 +19,7 @@
 #include "constants.h"
 #include "myfs.h"
 #include "myfs-info.h"
-
+#include <errno.h>
 MyFS* MyFS::_instance = NULL;
 
 MyFS* MyFS::Instance() {
@@ -56,13 +56,25 @@ MyFS::~MyFS() {
 int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
     LOGM();
 
+    fileStats fileStats1;
+    int res = root.get(path, &fileStats1);
+
+    struct stat stats;
+    stats.st_uid = fileStats1.userID;
+    stats.st_gid = fileStats1.groupID;
+    stats.st_size = fileStats1.size;
+    stats.st_atim.tv_sec = fileStats1.last_time;
+    stats.st_ctim.tv_sec = fileStats1.change_time;
+    stats.st_mtim.tv_sec = fileStats1.modi_time;
+
+    *statbuf = stats;
 
 
+    if (res == -1){
+        res = -errno;
+    }
 
-
-    // TODO: Implement this!
-    
-    RETURN(0);
+    RETURN(res);
 }
 
 int MyFS::fuseReadlink(const char *path, char *link, size_t size) {
