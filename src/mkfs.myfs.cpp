@@ -71,9 +71,9 @@ int main(int argc, char *argv[]) {
             rootArray[i] = stats;
         }
 
-        fat.getAll((char*) fatArray);
-        dmap.getAll((char*) dMapArray);
-        root.getAll(rootArray);
+        fat.setAll((char*) fatArray);
+        dmap.setAll((char*) dMapArray);
+        root.setAll(rootArray);
 
         fsIO.writeDevice(SUPERBLOCK_START, superblock);
         fsIO.writeDevice(DMAP_START, dMapArray);
