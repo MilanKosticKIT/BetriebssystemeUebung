@@ -1,0 +1,31 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\renewcommand{\contentsname}{Inhaltsverzeichnis}
+
+\begin{document}
+\tableofcontents
+\newpage
+\section{Einleitung}
+\subsection{Ziel}
+Als Ergänzung zu den Inhalten der Vorlesung "Betriebsysteme" und zur Vertiefung des Systemnahen Programmierens unter C++, wurde das Dateisystem MyFs erstellt.
+\subsection{Technische Umgebung}
+Da Dateisystemverwaltung auf Kernel Ebene stattfindet, wurde File System In User Space (Fuse) als Schnittstelle zwischen dem Kernel und MyFs benutzt. Somit stand auch das Zielbetriebsystem fest, es wurde Linux aufgrund der besseren Handhabung von Fuse unter Linux.
+Entwickelt wurde das Dateisystem mit hilfe von XCode unter MacOS in C++.
+Zur Versionsverwaltung und zur Projektverwaltung wurde GitHub benutzt.
+\subsection{Struktur der Containerdatei}
+Die Containerdatei wurde intern in 5 Abschnitte unterteilt.
+\\ 
+\begin{enumerate}
+\item Superblock  $\Rightarrow$ \textit{Informationen über das Dateisystem} 
+\item FAT	$\Rightarrow$ \textit{Verlinkung von Datenblöcken zu Dateien} 
+
+\item DMAP $\Rightarrow$ \textit{Übersicht freier Datenblöcke} 
+\item Root $\Rightarrow$ \textit{Informationen über Dateien} 
+\item Datenblöcke $\Rightarrow$ \textit{Dateien in MyFs geteilt in Blöcke} 
+\end{enumerate}
+\end{document}
