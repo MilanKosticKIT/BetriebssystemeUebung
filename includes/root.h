@@ -35,10 +35,11 @@ public:
     void getAll(fileStats* filestats);
     void setAll(fileStats* filestats);
     int deleteFromRoot(const char* name);
-    void get (uint16_t num, fileStats* filestats);
     int get(const char* name, fileStats* filestats);
     int setFistBLock(const char* name, uint16_t firstBlock);
-    uint16_t set (uint16_t num, char* filePath);
+
+    void get (uint16_t num, fileStats* filestats);
+    int set (uint16_t num, char* filePath);
 
 };
 

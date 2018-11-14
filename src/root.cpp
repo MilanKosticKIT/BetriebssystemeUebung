@@ -57,7 +57,7 @@ int Root::deleteFromRoot(const char* name) {
 
 //get filestats info from new file and add it to given position
 //in array
-uint16_t Root::set(uint16_t num, char* filePath) {
+int Root::set(uint16_t num, char* filePath) {
     struct stat sb;
     stat(filePath, &sb);
     char *filename = basename(filePath);
@@ -73,10 +73,12 @@ uint16_t Root::set(uint16_t num, char* filePath) {
     time(&(status->last_time));
     time(&(status->change_time));
     rootArray[num] = *status;
-return 0;
+
+    delete status;
+    return 0;
 }
 
-int Root::setFistBLock(const char *name, uint16_t firstBlock) {
+int Root::setFirstBLock(const char *name, uint16_t firstBlock) {
     fileStats file;
     int res = get(name, &file);
     file.first_block = firstBlock;

@@ -29,8 +29,6 @@
 
 //MARK: - Methodenheader
 
-
-
 //MARK: -
 
 BlockDevice blockDevice = BlockDevice();
@@ -40,13 +38,11 @@ DMap dmap = DMap();
 Root root = Root();
 struct SuperBlock superblock;
 
-
-
 int main(int argc, char *argv[]) {
 
     if (argc > 1) {
-        //blockDevice.create(argv[1]);
-        blockDevice.create("./Blockdevice.bin");
+        blockDevice.create(argv[1]);
+        //blockDevice.create("./Blockdevice.bin");
 
         uint16_t fatArray[DATA_BLOCKS];
         for (int i = 0; i < DATA_BLOCKS; i++) {
@@ -57,16 +53,7 @@ int main(int argc, char *argv[]) {
             dMapArray[i] = 0;
         }
         fileStats rootArray[DATA_BLOCKS];
-        fileStats stats;
-        stats.groupID = 0;
-        stats.userID = 0;
-        stats.change_time = 0;
-        stats.last_time = 0;
-        stats.modi_time = 0;
-        for (int i = 0; i < NAME_LENGTH; i++) {
-            stats.name[i] = '\0';
-        }
-        stats.size = 0;
+        fileStats stats = {};
         for (int i = 0; i < DATA_BLOCKS; i++) {
             rootArray[i] = stats;
         }
@@ -75,16 +62,34 @@ int main(int argc, char *argv[]) {
         dmap.setAll((char*) dMapArray);
         root.setAll(rootArray);
 
-/*
         fsIO.writeDevice(SUPERBLOCK_START, superblock);
         fsIO.writeDevice(DMAP_START, dMapArray);
         fsIO.writeDevice(FAT_START, fatArray);
         fsIO.writeDevice(ROOT_START, rootArray);
-*/
+
         if (argc > 2) {
 
-            // todo copy files into this filesystem
+        // todo copy files into this filesystem
+        int fileDescriptor = open(argv[2], O_RDONLY);
+	    if (fileDescriptor >= 0) {
+            // todo: write root
 
+            ssize_t retRead = -1;
+            int buffer[BLOCK_SIZE + 1];
+            do {
+              retRead = read(fileDescriptor, buffer, BLOCK_SIZE);
+              buffer[retRead] = '\0';
+              for (int i = 0; i < BLOCK_SIZE; i++) {
+                  // dmap.getFirstFreeBlock()
+                  // dmap.set()
+                  // fat.addToFAT
+                  // write block
+
+                  // fat.addLastToFAT
+              }
+            } while(retRead > 0);
+	    }
+	    int retClose = close(fileDescriptor);
 
 
 
