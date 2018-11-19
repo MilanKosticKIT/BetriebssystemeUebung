@@ -44,23 +44,14 @@ int main(int argc, char *argv[]) {
         blockDevice.create(argv[1]);
         //blockDevice.create("./Blockdevice.bin");
 
+        // write empty filesystem
         uint16_t fatArray[DATA_BLOCKS];
-        for (int i = 0; i < DATA_BLOCKS; i++) {
-            fatArray[i] = 0;
-        }
         uint8_t dMapArray[DATA_BLOCKS / 8];
-        for (int i = 0; i < DATA_BLOCKS; i++) {
-            dMapArray[i] = 0;
-        }
         fileStats rootArray[DATA_BLOCKS];
-        fileStats stats = {};
-        for (int i = 0; i < DATA_BLOCKS; i++) {
-            rootArray[i] = stats;
-        }
 
-        fat.setAll((char *) fatArray);
-        dmap.setAll((char *) dMapArray);
-        root.setAll(rootArray);
+        fat.getAll((char *) fatArray);
+        dmap.getAll((char *) dMapArray);
+        root.getAll(rootArray);
 
         fsIO.writeDevice(SUPERBLOCK_START, superblock);
         fsIO.writeDevice(DMAP_START, dMapArray);
@@ -100,8 +91,10 @@ int main(int argc, char *argv[]) {
                         }
                     }
                     fat.addLastToFAT(lastBlock);
+                    superblock.emptySpaceSize -= stats.size; //todo
                 }
-                int retClose = close(fileDescriptor);
+                close(fileDescriptor);
+                //int retClose = close(fileDescriptor);
             }
         }
     } else {

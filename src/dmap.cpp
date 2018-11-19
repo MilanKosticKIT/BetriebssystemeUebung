@@ -7,10 +7,11 @@
 //
 
 #include "dmap.h"
-#include "constants.h"
 
 DMap::DMap(){
-
+    for (int i = 0; i < DATA_BLOCKS / 8; i++) {
+        dMapValues[i] = 0;
+    }
 }
 
 
@@ -39,7 +40,6 @@ bool DMap::isAdressFull(uint16_t blockNo) {
     int bit = blockNo % 8;
 
     uint8_t* byteToRead = dMapValues + byte;
-    //TODO: Or this version 3
     return (*byteToRead & (1 << (7 - bit)));
 }
 
@@ -65,7 +65,6 @@ int DMap::findFirstFreeAddress(uint16_t startAddress){
     return -1;
 }
 
-//TODO: Write Comment
 //Returns the first empty block.
 //When an error occurs -1 is returned, else 0.
 int DMap::getFreeBlock(uint16_t* freeBlock){
@@ -82,5 +81,7 @@ void DMap::getAll(char* p) {
 }
 
 void DMap::setAll(char* p) {
-    dMapValues = (uint8_t*) p;
+    for (int i = 0; i < DATA_BLOCKS / 8; i++){
+        dMapValues[i] = (uint8_t) *(p + i);
+    }
 }

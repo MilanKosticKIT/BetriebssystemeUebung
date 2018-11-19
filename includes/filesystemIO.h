@@ -100,7 +100,7 @@ public:
      */
     template<class T, size_t N>
     void readDevice(std::size_t block, T (&data)[N]) {
-        static_assert(is_trivially_constructible<T>::value, "Can't operate on complex types!");
+        static_assert(std::is_trivially_constructible<T>::value, "Can't operate on complex types!");
 
         char *rawData = reinterpret_cast<char *>(&data);
         static char buffer[BLOCK_SIZE];

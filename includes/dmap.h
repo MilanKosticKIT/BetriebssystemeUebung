@@ -12,17 +12,19 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "myfs-structs.h"
-#define ADDRESS_MAX DATA_BLOCKS - 1
+#include "constants.h"
+
+#define ADDRESS_MAX (DATA_BLOCKS - 1)
 
 class DMap{
 
-    int firstFreeAddress;
-    uint8_t* dMapValues;
+    uint16_t firstFreeAddress;
+    uint8_t dMapValues[DATA_BLOCKS / 8];
 
     int findFirstFreeAddress(uint16_t startAddress);
     bool isAdressFull(uint16_t blockNo);
-public:
 
+public:
     DMap();
     void clear(uint16_t clearAddress);
     void set(uint16_t setAddress);
