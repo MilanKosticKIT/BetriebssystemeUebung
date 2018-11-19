@@ -99,12 +99,11 @@ int MyFS::fuseUnlink(const char *path) {
     LOGM();
 
     fileStats file;
-    std::list<uint16_t >::const_iterator iterator;
     root.get(path, &file);
 
-
+    std::list<uint16_t >::const_iterator iterator;
     std::list<uint16_t> list;
-    fat.iterateFAT(file.first_block, &list );
+    fat.iterateFAT(file.first_block, &list);
     for (iterator = list.begin(); iterator != list.end(); ++iterator){
         dmap.clear(*iterator);
     }
@@ -167,6 +166,14 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
     LOGM();
 
     // TODO: Implement this!
+    fileStats file;
+    root.get(path, &file);
+
+    off_t blockNo = offset / BLOCK_SIZE; // block number of file(not block number in filesystem!)
+    off_t blockOffset = offset % BLOCK_SIZE; // offset in the block
+
+    // Todo: read FAT and read Data.
+    // Todo: fileInfo???
 
     RETURN(0);
 }
