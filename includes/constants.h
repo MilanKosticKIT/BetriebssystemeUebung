@@ -7,7 +7,7 @@
 
 #define DATA_BYTES 33554432
 #define DATA_BLOCKS 8192
-#define BLOCK_SIZE  4096
+#define BLOCK_SIZE  512
 #define NAME_LENGTH 255
 #define NUM_DIR_ENTRIES 64
 #define NUM_OPEN_FILES 64

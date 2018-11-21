@@ -39,7 +39,7 @@ MOUNT_MYFS_OBJS = $(OBJDIR)/blockdevice.o \
 	$(OBJDIR)/dmap.o \
 	$(OBJDIR)/fat.o \
 	$(OBJDIR)/root.o
-	
+
 # build all targets
 all: $(TARGETS)
 
@@ -80,11 +80,15 @@ $(OBJDIR)/%.o :  $(SRCDIR)/%.c
 # directory with test source files
 TSRCDIR = unittests
 
-# object files for target mount.myfs TODO: add new object files here
+# object files for target unittests TODO: add new object files here
 UNITTESTS_OBJS = $(OBJDIR)/main.o \
 	$(OBJDIR)/blockdevice.o \
 	$(OBJDIR)/test-blockdevice.o \
+	$(OBJDIR)/test-filesystemIO.o \
 	$(OBJDIR)/myfs.o \
+	$(OBJDIR)/dmap.o \
+	$(OBJDIR)/fat.o \
+	$(OBJDIR)/root.o \
 	$(OBJDIR)/test-myfs.o \
 	$(OBJDIR)/helper.o
 
