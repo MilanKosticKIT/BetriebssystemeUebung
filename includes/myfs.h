@@ -11,6 +11,7 @@
 
 #include <fuse.h>
 #include <cmath>
+
 #include "filesystemIO.h"
 #include "blockdevice.h"
 #include "myfs-structs.h"
@@ -27,7 +28,7 @@ private:
     FAT fat = FAT();
     DMap dmap = DMap();
     Root root = Root();
-    struct SuperBlock superblock;
+    SuperBlock superblock;
     
 public:
     static MyFS *Instance();

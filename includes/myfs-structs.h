@@ -9,7 +9,10 @@
 #ifndef myfs_structs_h
 #define myfs_structs_h
 
-// TODO: Add structures of your file system here
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#include "constants.h"
 
 typedef struct {
     char name[NAME_LENGTH];
@@ -23,7 +26,7 @@ typedef struct {
     mode_t mode;
 } fileStats;
 
-struct SuperBlock {
+typedef struct {
     uint16_t fileSystemSize;        //In blocks / Number of blocks
     uint16_t emptySpaceSize;        //In blocks / Number of blocks
     uint16_t maximumStorageSize;    //In blocks / Number of blocks
@@ -35,6 +38,6 @@ struct SuperBlock {
     uint16_t fatSize;
     uint16_t rootSize;
     uint16_t dataSize;
-};
+} SuperBlock;
 
 #endif /* myfs_structs_h */

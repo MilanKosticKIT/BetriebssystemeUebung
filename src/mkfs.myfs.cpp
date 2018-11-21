@@ -37,7 +37,7 @@ FilesystemIO fsIO = FilesystemIO(blockDevice);
 FAT fat = FAT();
 DMap dmap = DMap();
 Root root = Root();
-struct SuperBlock superblock;
+SuperBlock superblock;
 
 int main(int argc, char *argv[]) {
 

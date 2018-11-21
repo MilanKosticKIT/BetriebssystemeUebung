@@ -7,11 +7,13 @@
 //
 
 #include "dmap.h"
+#include <errno.h>
 
 DMap::DMap(){
     for (int i = 0; i < DATA_BLOCKS / 8; i++) {
         dMapValues[i] = 0;
     }
+    firstFreeAddress = 0;
 }
 
 
@@ -23,6 +25,10 @@ void DMap::clear(uint16_t clearAddress) {
 
     uint8_t* byteToChange = dMapValues + byte;
     *byteToChange &= ~(1 << (7 - bit));
+
+    if (firstFreeAddress > clearAddress) { // if a block before first free address is cleared
+        firstFreeAddress = clearAddress; // set new first free block
+    }
 }
 
 //Marks an address as full
@@ -32,6 +38,10 @@ void DMap::set(uint16_t setAddress) {
 
     uint8_t* byteToChange = dMapValues + byte;
     *byteToChange |= (1 << (7 - bit));
+
+    if (firstFreeAddress >= setAddress) { // if the first free block was set
+        findFirstFreeAddress(setAddress); // search next free block
+    }
 }
 
 //Called to check wehther an address is full
@@ -62,16 +72,20 @@ int DMap::findFirstFreeAddress(uint16_t startAddress){
             }
         }
     }
+    // set first free address to max address.
+    // If the first free address is max address, getFreeBlock() checks, if it is full;
+    firstFreeAddress = ADDRESS_MAX;
     return -1;
 }
 
 //Returns the first empty block.
 //When an error occurs -1 is returned, else 0.
 int DMap::getFreeBlock(uint16_t* freeBlock){
-    if (firstFreeAddress <= ADDRESS_MAX) {
+    if (firstFreeAddress <= ADDRESS_MAX && !isAdressFull(ADDRESS_MAX)) {
         *freeBlock = firstFreeAddress;
         return 0;
     } else {
+        errno = ENOSPC;
         return -1;
     }
 }
@@ -84,4 +98,5 @@ void DMap::setAll(char* p) {
     for (int i = 0; i < DATA_BLOCKS / 8; i++){
         dMapValues[i] = (uint8_t) *(p + i);
     }
+    findFirstFreeAddress(0);
 }
