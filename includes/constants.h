@@ -7,6 +7,7 @@
 /* 4096 byte blocks
 #define DATA_BYTES 33554432
 #define DATA_BLOCKS 8192
+<<<<<<< HEAD
 #define BLOCK_SIZE  4096
 */
 

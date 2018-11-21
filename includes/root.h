@@ -14,17 +14,7 @@
 #include <ctime>  //Time()
 
 #include "constants.h"
-
-typedef struct {
-    char name[NAME_LENGTH];
-    off_t size;
-    uid_t userID;
-    gid_t groupID;
-    time_t last_time;
-    time_t modi_time;
-    time_t change_time;
-    uint16_t  first_block;
-} fileStats;
+#include "myfs-structs.h"
 
 class Root {
 private:

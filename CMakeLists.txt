@@ -29,9 +29,13 @@ set(MOUNT
 set(UNITTEST
         src/blockdevice.cpp
         src/myfs.cpp
+        src/dmap.cpp
+        src/fat.cpp
+        src/root.cpp
         unittests/main.cpp
         unittests/test-blockdevice.cpp
         unittests/test-myfs.cpp
+        unittests/test-filesystemIO.cpp
         unittests/helper.cpp)
 
 include_directories(includes)

@@ -19,6 +19,7 @@
 #include "constants.h"
 #include "myfs.h"
 #include "myfs-info.h"
+#include "myfs-structs.h"
 #include <errno.h>
 MyFS* MyFS::_instance = NULL;
 
@@ -87,6 +88,16 @@ int MyFS::fuseMknod(const char *path, mode_t mode, dev_t dev) {
 
     // TODO: Implement this!
 
+    root.createEntry(path);
+    fileStats stats;
+    root.get(path, &stats);
+    stats.mode = mode;
+    uint16_t firstBlock;
+    dmap.getFreeBlock(&firstBlock);
+    dmap.set(firstBlock);
+    stats.first_block = firstBlock;
+    fat.addLastToFAT(firstBlock);
+
     RETURN(0);
 }
 
@@ -109,6 +120,7 @@ int MyFS::fuseUnlink(const char *path) {
     }
     fat.deleteFromFAT(file.first_block);
 
+    superBlock.emptySpaceSize += file.size;
     root.deleteEntry(path);
 
     RETURN(0);

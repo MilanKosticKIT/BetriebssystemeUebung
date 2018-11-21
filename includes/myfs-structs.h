@@ -11,6 +11,18 @@
 
 // TODO: Add structures of your file system here
 
+typedef struct {
+    char name[NAME_LENGTH];
+    off_t size;
+    uid_t userID;
+    gid_t groupID;
+    time_t last_time;
+    time_t modi_time;
+    time_t change_time;
+    uint16_t  first_block;
+    mode_t mode;
+} fileStats;
+
 struct SuperBlock {
     uint16_t fileSystemSize;        //In blocks / Number of blocks
     uint16_t emptySpaceSize;        //In blocks / Number of blocks
