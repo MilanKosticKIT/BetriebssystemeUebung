@@ -15,6 +15,8 @@
 #include <cstdint>
 #include "constants.h"
 
+#define BD_BLOCK_SIZE BLOCK_SIZE
+
 class BlockDevice {
 private:
     uint32_t blockSize;

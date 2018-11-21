@@ -59,6 +59,12 @@ int Root::createEntry(const char *name) {
     stats.change_time = currentTime;
 
     for (int i = 0; i < DATA_BLOCKS; i++) {
+        if (strcmp(rootArray[i].name, name) == 0) {
+            errno = EEXIST;
+            return -1;
+        }
+    }
+    for (int i = 0; i < DATA_BLOCKS; i++) {
         if (rootArray[i].size < 0) { //todo: which flag indicates no entry?
             rootArray[i] = stats;
             return 0;

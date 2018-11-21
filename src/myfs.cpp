@@ -21,6 +21,8 @@
 #include "myfs-info.h"
 #include "myfs-structs.h"
 #include <errno.h>
+#include <myfs-structs.h>
+
 MyFS* MyFS::_instance = NULL;
 
 MyFS* MyFS::Instance() {
@@ -36,7 +38,6 @@ MyFS::MyFS() {
     uint16_t  fatArray[DATA_BLOCKS];
     uint16_t  dmapArray[DATA_BLOCKS / 16];
     fileStats rootArray[DATA_BLOCKS];
-    struct SuperBlock superBlock;
 
     fsIO.readDevice(SUPERBLOCK_START, superblock);
     fsIO.readDevice(DMAP_START, dmapArray);
@@ -63,6 +64,7 @@ int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
     struct stat stats;
     stats.st_uid = fileStats1.userID;
     stats.st_gid = fileStats1.groupID;
+    stats.st_mode = fileStats1.mode;
     stats.st_size = fileStats1.size;
     stats.st_atim.tv_sec = fileStats1.last_time;
     stats.st_ctim.tv_sec = fileStats1.change_time;
@@ -120,7 +122,7 @@ int MyFS::fuseUnlink(const char *path) {
     }
     fat.deleteFromFAT(file.first_block);
 
-    superBlock.emptySpaceSize += file.size;
+    superblock.emptySpaceSize += file.size;
     root.deleteEntry(path);
 
     RETURN(0);
