@@ -9,20 +9,19 @@
 #ifndef myfs_structs_h
 #define myfs_structs_h
 
-
-
-
-
 // TODO: Add structures of your file system here
 
-
-
-
-
-
-struct MetaData{
-    //TODO: Discuss wether we implement this on our one or use stat()
-};
+typedef struct {
+    char name[NAME_LENGTH];
+    off_t size;
+    uid_t userID;
+    gid_t groupID;
+    time_t last_time;
+    time_t modi_time;
+    time_t change_time;
+    uint16_t  first_block;
+    mode_t mode;
+} fileStats;
 
 struct SuperBlock {
     uint32_t fileSystemSize;        //In blocks / Number of blocks

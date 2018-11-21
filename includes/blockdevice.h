@@ -13,17 +13,16 @@
 
 #include <stdio.h>
 #include <cstdint>
-
-#define BD_BLOCK_SIZE 512
+#include "constants.h"
 
 class BlockDevice {
 private:
     uint32_t blockSize;
     int contFile;
     uint32_t size;
-    
+
 public:
-    BlockDevice(u_int32_t blockSize = 512);
+    BlockDevice(u_int32_t blockSize = BLOCK_SIZE);
     void resize(u_int32_t blockSize);
     int open(const char* path);
     int create(const char* path);

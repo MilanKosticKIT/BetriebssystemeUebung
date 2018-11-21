@@ -18,6 +18,7 @@
 #include <root.h>
 
 #include "myfs.h"
+#include "myfs-structs.h"
 #include "blockdevice.h"
 #include "macros.h"
 #include "constants.h"
@@ -103,6 +104,11 @@ int main(int argc, char *argv[]) {
                 }
                 int retClose = close(fileDescriptor);
             }
+
+            fsIO.writeDevice(SUPERBLOCK_START, superblock);
+            fsIO.writeDevice(DMAP_START, dMapArray);
+            fsIO.writeDevice(FAT_START, fatArray);
+            fsIO.writeDevice(ROOT_START, rootArray);
         }
     } else {
         // error: name of containerfile missing
