@@ -91,7 +91,9 @@ int DMap::getFreeBlock(uint16_t* freeBlock){
 }
 
 void DMap::getAll(char* p) {
-    p = (char *)dMapValues;
+    for (int i = 0; i < DATA_BLOCKS / 8; i++){
+        *((uint8_t*) p + i) = dMapValues[i];
+    }
 }
 
 void DMap::setAll(char* p) {

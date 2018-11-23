@@ -84,13 +84,14 @@ TSRCDIR = unittests
 UNITTESTS_OBJS = $(OBJDIR)/main.o \
 	$(OBJDIR)/blockdevice.o \
 	$(OBJDIR)/test-blockdevice.o \
-	$(OBJDIR)/test-filesystemIO.o \
 	$(OBJDIR)/myfs.o \
 	$(OBJDIR)/dmap.o \
 	$(OBJDIR)/fat.o \
 	$(OBJDIR)/root.o \
 	$(OBJDIR)/test-myfs.o \
-	$(OBJDIR)/helper.o
+	$(OBJDIR)/helper.o \
+	$(OBJDIR)/test-filesystemIO.o \
+	$(OBJDIR)/test-dmap.o
 
 # test targets
 TTARGETS = test
