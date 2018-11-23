@@ -85,4 +85,72 @@ TEST_CASE("Dmap.clear", "[DMap]") {
         dmap.getAll((char *) readArray);
         REQUIRE(memcmp(dMapArray, readArray, sizeof(DATA_BLOCKS)) == 0);
     }
+    SECTION("Clearing bit that is already clear") {
+        DMap dmap = DMap();
+        uint8_t dMapArray[DATA_BLOCKS / 8];
+        uint8_t readArray[DATA_BLOCKS / 8];
+        readArray[0] = 0;
+        dMapArray[0] = 0x7f;
+        for (int i = 1; i < DATA_BLOCKS / 8; i++) {
+            readArray[i] = dMapArray[i] = 0;
+        }
+        dmap.setAll((char *) dMapArray);
+        dmap.clear(0);
+        dmap.getAll((char *) readArray);
+        REQUIRE(memcmp(dMapArray, readArray, sizeof(DATA_BLOCKS)) == 0);
+    }
+    SECTION("Accessing address that is to high") {
+        //TODO: Define behaviour.
+        //TODO: Implement behaviour.
+        DMap dmap = DMap();
+        uint8_t dMapArray[DATA_BLOCKS / 8];
+        for (int i = 0; i < DATA_BLOCKS / 8; i++) {
+            dMapArray[i] = 0;
+        }
+        dmap.setAll((char *) dMapArray);
+        dmap.clear(65535);
+    }
+}
+
+TEST_CASE("Dmap.set" , "[DMap]") {
+    SECTION("Setting empty bit") {
+        DMap dmap = DMap();
+        uint8_t dMapArray[DATA_BLOCKS / 8];
+        uint8_t readArray[DATA_BLOCKS / 8];
+        for (int i = 0; i < DATA_BLOCKS / 8; i++) {
+            readArray[i] = dMapArray[i] = 0;
+        }
+        dmap.setAll((char *) dMapArray);
+        dMapArray[0] = 0x80;
+        dmap.set(0);
+        dmap.getAll((char *) readArray);
+        REQUIRE(memcmp(dMapArray, readArray, sizeof(DATA_BLOCKS)) == 0);
+    }
+    SECTION("Setting bit that is already set") {
+        //TODO: Define behaviour.
+        //TODO: Implement behaviour.
+        DMap dmap = DMap();
+        uint8_t dMapArray[DATA_BLOCKS / 8];
+        uint8_t readArray[DATA_BLOCKS / 8];
+        readArray[0] = 0;
+        dMapArray[0] = 0x80;
+        for (int i = 1; i < DATA_BLOCKS / 8; i++) {
+            readArray[i] = dMapArray[i] = 0;
+        }
+        dmap.setAll((char *) dMapArray);
+        dmap.set(0);
+        dmap.getAll((char *) readArray);
+        REQUIRE(memcmp(dMapArray, readArray, sizeof(DATA_BLOCKS)) == 0);
+    }
+    SECTION("Accessing address that is to high") {
+        //TODO: Define behaviour.
+        //TODO: Implement behaviour.
+        DMap dmap = DMap();
+        uint8_t dMapArray[DATA_BLOCKS / 8];
+        for (int i = 1; i < DATA_BLOCKS / 8; i++) {
+            dMapArray[i] = 0;
+        }
+        dmap.setAll((char *) dMapArray);
+        dmap.set(65535);
+    }
 }
