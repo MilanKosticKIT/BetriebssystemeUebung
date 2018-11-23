@@ -18,11 +18,11 @@
 #define BD_PATH "Test_Blockdevice.bin"
 
 /*
-TEST_CASE( "dmap empty on creation", "[dmap]" ) {
-    //TODO: Implement this :/
-    //Is beeing taken care of when creating the dmap.
-    //Therefore dmap.settAll has to work!
-}
+ TEST_CASE( "dmap empty on creation", "[dmap]" ) {
+ //TODO: Implement this :/
+ //Is beeing taken care of when creating the dmap.
+ //Therefore dmap.settAll has to work!
+ }
  */
 
 TEST_CASE("DMap.setAll / DMap.getAll", "[dmap]") {
@@ -39,6 +39,7 @@ TEST_CASE("DMap.setAll / DMap.getAll", "[dmap]") {
         REQUIRE(memcmp(dMapArray, readArray, sizeof(DATA_BLOCKS)) == 0);
     }
     SECTION("First entry different, rest of Array simmilar"){
+        //Just to be sure my tests work. If this one gets marked as failed, all Sections of this Test_Case have to be corrected. (Short run!)
         DMap dmap = DMap();
         uint8_t dMapArray[DATA_BLOCKS / 8];
         uint8_t readArray[DATA_BLOCKS / 8];
@@ -53,6 +54,7 @@ TEST_CASE("DMap.setAll / DMap.getAll", "[dmap]") {
         REQUIRE(memcmp(dMapArray, readArray, sizeof(DATA_BLOCKS -1)) == 0);
     }
     SECTION("First entry same, rest different") {
+        //Just to be sure my tests work. If this one gets marked as failed, all Sections of this Test_Case have to be corrected. (Short run!)
         DMap dmap = DMap();
         uint8_t dMapArray[DATA_BLOCKS / 8];
         uint8_t readArray[DATA_BLOCKS / 8];
@@ -68,7 +70,7 @@ TEST_CASE("DMap.setAll / DMap.getAll", "[dmap]") {
     }
 }
 
-TEST_CASE("Dmap.clear", "[DMap") {
+TEST_CASE("Dmap.clear", "[DMap]") {
     SECTION("Clearing bit that is set") {
         DMap dmap = DMap();
         uint8_t dMapArray[DATA_BLOCKS / 8];
