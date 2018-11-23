@@ -66,9 +66,9 @@ int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
     stats.st_gid = fileStats1.groupID;
     stats.st_mode = fileStats1.mode;
     stats.st_size = fileStats1.size;
-    stats.st_atim.tv_sec = fileStats1.last_time;
-    stats.st_ctim.tv_sec = fileStats1.change_time;
-    stats.st_mtim.tv_sec = fileStats1.modi_time;
+    stats.st_atime = fileStats1.last_time;
+    stats.st_ctime = fileStats1.change_time;
+    stats.st_mtime = fileStats1.modi_time;
 
     *statbuf = stats;
 

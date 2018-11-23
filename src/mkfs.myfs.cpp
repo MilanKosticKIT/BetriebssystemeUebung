@@ -15,7 +15,6 @@
 #include <libgen.h>
 #include <iostream>
 #include <string.h>
-#include <root.h>
 
 #include "myfs.h"
 #include "myfs-structs.h"
