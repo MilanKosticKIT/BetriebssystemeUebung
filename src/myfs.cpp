@@ -21,7 +21,6 @@
 #include "myfs-info.h"
 #include "myfs-structs.h"
 #include <errno.h>
-#include <myfs-structs.h>
 
 MyFS* MyFS::_instance = NULL;
 
