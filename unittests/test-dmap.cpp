@@ -49,7 +49,7 @@ TEST_CASE("DMap.setAll / DMap.getAll", "[dmap]") {
         dmap.setAll((char *) dMapArray);
         dmap.getAll((char *) readArray);
         dMapArray[0] = 1;
-        REQUIRE(memcmp(dMapArray, readArray, sizeof(1)) == 1);
+        REQUIRE(memcmp(dMapArray, readArray, 1) == 1);
         dMapArray[0] = readArray[0];
         REQUIRE(memcmp(dMapArray, readArray, sizeof(DATA_BLOCKS -1)) == 0);
     }
