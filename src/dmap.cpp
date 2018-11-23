@@ -61,10 +61,11 @@ int DMap::findFirstFreeAddress(uint16_t startAddress){
     uint8_t currentBit;
 
     for (; currentByte * 8 <= ADDRESS_MAX; currentByte++) {
-        currentBit = 0;
+
         if (dMapValues[currentByte] != 0xFF) {
+            currentBit = 0;
             while (currentBit < 8) {//run over bit
-                if (~(dMapValues[currentByte] | (1 << (7 - currentBit)))) {
+                if (~(dMapValues[currentByte] | ~(1 << (7 - currentBit)))) {
                     firstFreeAddress = currentByte * 8 + currentBit;
                     return 0;
                 }
