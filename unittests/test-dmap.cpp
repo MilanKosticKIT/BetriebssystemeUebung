@@ -25,7 +25,7 @@
  }
  */
 
-TEST_CASE("DMap.setAll / DMap.getAll", "[dmap]") {
+TEST_CASE("DMap.setAll / DMap.getAll", "[DMap]") {
     SECTION("Completly empty/same Array"){
         DMap dmap = DMap();
         uint8_t dMapArray[DATA_BLOCKS / 8];
@@ -155,7 +155,7 @@ TEST_CASE("Dmap.set" , "[DMap]") {
     }
 }
 
-TEST_CASE("Dmap.getFreeBlock with set blocks" , "[DMap]") {
+TEST_CASE("Dmap.getFreeBlock, with set blocks" , "[DMap]") {
     SECTION("Initial values of dmap") {
         DMap dmap = DMap();
         uint16_t firstFreeBlock;
@@ -194,7 +194,7 @@ TEST_CASE("Dmap.getFreeBlock with set blocks" , "[DMap]") {
     }
 }
 
-TEST_CASE("Dmap.getFreeBlock with set and cleared blocks" , "[DMap]") {
+TEST_CASE("Dmap.getFreeBlock, with set and cleared blocks" , "[DMap]") {
     SECTION("The first n blocks are set, one of them is cleared") {
         DMap dmap = DMap();
         for (uint16_t i = 0; i < 123; i++) {
@@ -245,7 +245,7 @@ TEST_CASE("Dmap.getFreeBlock with set and cleared blocks" , "[DMap]") {
     }
 }
 
-TEST_CASE("Dmap.getFreeBlock with setAll") {
+TEST_CASE("Dmap.getFreeBlock, with setAll", "[DMap") {
     SECTION("Empty array") {
         DMap dmap = DMap();
         char dmapArray[DATA_BLOCKS / 8];
@@ -284,7 +284,7 @@ TEST_CASE("Dmap.getFreeBlock with setAll") {
     }
 }
 
-TEST_CASE("Dmap.getFreeBlock with full dmap") {
+TEST_CASE("Dmap.getFreeBlock, with full dmap", "DMap") {
     SECTION("Full dmap with setAll") {
         DMap dmap = DMap();
         char dmapArray[DATA_BLOCKS / 8];
