@@ -5,7 +5,7 @@
 
 
 FAT::FAT() {
-	for (uint16_t i = 0; i < DATA_BLOCKS; i++) {
+	for (int i = 0; i < DATA_BLOCKS; i++) {
 		fat[i] = 0;
 	}
 }
@@ -24,7 +24,7 @@ FAT::FAT() {
 
 /* returns a list of all the datablocks used for a specific file in order
 *  param: firstBlock: first datablock of a file
-*         list: pouint16_ter to a list
+*         list: pointer to a list
 */
 uint16_t FAT::iterateFAT(uint16_t firstBlock, std::list<uint16_t>* list) {
 	uint16_t nextBlock = firstBlock;

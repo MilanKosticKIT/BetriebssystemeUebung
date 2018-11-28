@@ -169,26 +169,112 @@ int MyFS::fuseUtime(const char *path, struct utimbuf *ubuf) {
 
 int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
     LOGM();
+    fileStats file;
+    int exists = root.get(path, &file);
 
-    // TODO: Implement this!
+    if ( exists == -1){
+        RETURN(-errno);
+    }
 
-    RETURN(0);
+    if (file.userID == geteuid()) {
+        if (fileInfo->flags == O_RDONLY) {
+            if (file.mode == S_IRUSR) {
+                RETURN(0)
+            }
+        } else if (fileInfo->flags == O_WRONLY) {
+            if (file.mode == S_IWUSR) {
+                RETURN(0)
+            }
+        } else if (fileInfo->flags == O_RDWR) {
+            if (file.mode == S_IRWXU) {
+                RETURN(0)
+            }
+        }
+
+
+
+    } else if (file.groupID == getegid()) {
+        if (fileInfo->flags == O_RDONLY) {
+            if (file.mode == S_IRGRP) {
+                RETURN(0)
+            }
+        } else if (fileInfo->flags == O_WRONLY) {
+            if (file.mode == S_IWGRP) {
+                RETURN(0)
+            }
+        } else if (fileInfo->flags == O_RDWR) {
+            if (file.mode == S_IRWXG) {
+                RETURN(0)
+            }
+        }
+    } else {
+        if (fileInfo->flags == O_RDONLY) {
+            if (file.mode == S_IROTH) {
+                RETURN(0)
+            }
+        } else if (fileInfo->flags == O_WRONLY) {
+            if (file.mode == S_IWOTH) {
+                RETURN(0)
+            }
+        } else if (fileInfo->flags == O_RDWR) {
+            if (file.mode == S_IRWXO) {
+                RETURN(0)
+            }
+        }
+    }
+    errno = EACCES;
+    RETURN(-errno);
 }
 
 int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
 
-    // TODO: Implement this!
+
     fileStats file;
     root.get(path, &file);
 
-    off_t blockNo = offset / BLOCK_SIZE; // block number of file(not block number in filesystem!)
+
+    if ( file.size < offset){
+        RETURN(0);
+    }
+    if (file.size < offset + size) {
+        size = file.size - offset;
+    }
+
+    off_t blockNo = offset / BLOCK_SIZE; // block number of file (not block number in filesystem!)
     off_t blockOffset = offset % BLOCK_SIZE; // offset in the block
+    int howManyBlocks = ceil(double(size + blockOffset) / double(BLOCK_SIZE)); //number of blocks you need to read for this operation (upper limit)
 
-    // Todo: read FAT and read Data.
-    // Todo: fileInfo???
 
-    RETURN(0);
+    std::list<uint16_t> list;
+    fat.iterateFAT(file.first_block, &list);
+
+    std::list<uint16_t >::const_iterator iterator = list.begin();
+    int blocks[howManyBlocks];    //saves all block locations needed for this operation
+
+    for ( int t = 0; t < blockNo ; t++){
+        ++iterator;
+    }
+
+
+    for(int i = 0; i < howManyBlocks; i++){
+        blocks[i] = *iterator;
+        ++iterator;
+    }
+
+    char buffer[BLOCK_SIZE];
+    blockDevice.read(blocks[0], buffer);
+    memcpy(buf, buffer + blockOffset, BLOCK_SIZE - offset);
+    for (int j = 1; j < howManyBlocks - 1; j++) {
+        blockDevice.read(blocks[j], buf + blockOffset + BLOCK_SIZE * (j - 1));
+    }
+    blockDevice.read(blocks[howManyBlocks - 1], buffer);
+    memcpy(buf + blockOffset + (howManyBlocks - 2) * BLOCK_SIZE, buffer, (size + blockOffset) % BLOCK_SIZE);
+
+
+
+
+    RETURN(size);
 }
 
 int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fileInfo) {
