@@ -11,7 +11,7 @@
 
 class FAT {
 private:
-	uint16_t fat[DATA_BLOCKS];
+	int32_t fat[DATA_BLOCKS];
 
 public:
 	FAT();

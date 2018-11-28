@@ -23,7 +23,7 @@
 
 #define SUPERBLOCK_SIZE 1
 #define DMAP_SIZE 16
-#define FAT_SIZE 256
+#define FAT_SIZE 512 //TOOO Collapse sizes
 #define ROOT_SIZE 64 // todo
 
 #define SUPERBLOCK_START 0
