@@ -46,8 +46,6 @@ MyFS::MyFS() {
     fat.setAll((char*) fatArray);
     dmap.setAll((char*) dmapArray);
     root.setAll(rootArray);
-
-
 }
 
 MyFS::~MyFS() {
@@ -59,8 +57,11 @@ int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
 
     fileStats fileStats1;
     int res = root.get(path, &fileStats1);
+    if (res == -1){
+        RETURN(-errno);
+    }
 
-    struct stat stats;
+    struct stat stats = {};
     stats.st_uid = fileStats1.userID;
     stats.st_gid = fileStats1.groupID;
     stats.st_mode = fileStats1.mode;
@@ -70,11 +71,6 @@ int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
     stats.st_mtime = fileStats1.modi_time;
 
     *statbuf = stats;
-
-
-    if (res == -1){
-        res = -errno;
-    }
 
     RETURN(res);
 }
@@ -98,6 +94,7 @@ int MyFS::fuseMknod(const char *path, mode_t mode, dev_t dev) {
     dmap.set(firstBlock);
     stats.first_block = firstBlock;
     fat.addLastToFAT(firstBlock);
+    root.update(stats);
 
     RETURN(0);
 }
@@ -190,9 +187,6 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
                 RETURN(0)
             }
         }
-
-
-
     } else if (file.groupID == getegid()) {
         if (fileInfo->flags == O_RDONLY) {
             if (file.mode == S_IRGRP) {

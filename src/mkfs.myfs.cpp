@@ -91,7 +91,8 @@ int main(int argc, char *argv[]) {
                         }
                     }
                     fat.addLastToFAT(lastBlock);
-                    superblock.emptySpaceSize -= stats.size; //todo
+                    root.update(stats);
+                    superblock.emptySpaceSize -= stats.size;
                 }
                 close(fileDescriptor);
                 //int retClose = close(fileDescriptor);
