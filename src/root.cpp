@@ -19,7 +19,9 @@ Root::~Root() {
 
 //return full filestats array (for writing to hard driver)
 void Root::getAll(fileStats* filestats) {
-    filestats = rootArray;
+    for (int i = 0; i < DATA_BLOCKS; i++) {
+        *(fileStats + i) = rootArray[i];
+    }
 }
 //set filestats array (for reading from hard driver)
 void Root::setAll(fileStats* filestats) {
