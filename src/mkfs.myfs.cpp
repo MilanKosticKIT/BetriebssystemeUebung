@@ -31,14 +31,13 @@
 
 //MARK: -
 
-BlockDevice blockDevice = BlockDevice();
-FilesystemIO fsIO = FilesystemIO(blockDevice);
-FAT fat = FAT();
-DMap dmap = DMap();
-Root root = Root();
-SuperBlock superblock;
-
 int main(int argc, char *argv[]) {
+    BlockDevice blockDevice = BlockDevice();
+    FilesystemIO fsIO = FilesystemIO(blockDevice);
+    FAT fat = FAT();
+    DMap dmap = DMap();
+    Root root = Root();
+    SuperBlock superblock = {};
 
     if (argc > 1) {
         blockDevice.create(argv[1]);
@@ -47,7 +46,7 @@ int main(int argc, char *argv[]) {
         // write empty filesystem
         uint16_t fatArray[DATA_BLOCKS];
         uint8_t dMapArray[DATA_BLOCKS / 8];
-        fileStats rootArray[DATA_BLOCKS];
+        fileStats rootArray[ROOT_ARRAY_SIZE];
 
         fat.getAll((char *) fatArray);
         dmap.getAll((char *) dMapArray);

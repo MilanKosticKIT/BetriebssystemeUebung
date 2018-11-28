@@ -5,11 +5,9 @@
 #include "root.h"
 
 
-
 //create new empty filestats Array
-
 Root::Root() {
-    for (int i = 0; i < DATA_BLOCKS; i++) {
+    for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
         rootArray[i].size = -1; //todo: set to no entry?
     }
 }
@@ -19,14 +17,14 @@ Root::~Root() {
 
 //return full filestats array (for writing to hard driver)
 void Root::getAll(fileStats* filestats) {
-    for (int i = 0; i < DATA_BLOCKS; i++) {
+    for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
         * (filestats + i) = rootArray[i];
         //TODO: Look over upper line!
     }
 }
 //set filestats array (for reading from hard driver)
 void Root::setAll(fileStats* filestats) {
-    for (int i = 0; i < DATA_BLOCKS; i++){
+    for (int i = 0; i < ROOT_ARRAY_SIZE; i++){
         rootArray[i] = *(filestats + i);
     }
 }
@@ -34,7 +32,7 @@ void Root::setAll(fileStats* filestats) {
 
 // deletes the filestats with the given name.
 int Root::deleteEntry(const char *name) {
-    for (int i = 0; i < DATA_BLOCKS; i++) {
+    for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
         fileStats currentFileStats = rootArray[i];
         if (strcmp(currentFileStats.name, name) == 0) {
             rootArray[i] = {};
@@ -61,13 +59,13 @@ int Root::createEntry(const char *name) {
     stats.last_time = currentTime;
     stats.change_time = currentTime;
 
-    for (int i = 0; i < DATA_BLOCKS; i++) {
+    for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
         if (strcmp(rootArray[i].name, name) == 0) {
             errno = EEXIST;
             return -1;
         }
     }
-    for (int i = 0; i < DATA_BLOCKS; i++) {
+    for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
         if (rootArray[i].size < 0) { //todo: which flag indicates no entry?
             rootArray[i] = stats;
             return 0;
@@ -80,7 +78,7 @@ int Root::createEntry(const char *name) {
 
 // get the filestats of the given file
 int Root::get(const char* name, fileStats* filestats) {
-    for (int i = 0; i < DATA_BLOCKS; i++) {
+    for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
         fileStats currentFileStats = rootArray[i];
         if (strcmp(currentFileStats.name, name) == 0) {
             *filestats = currentFileStats;
@@ -93,7 +91,7 @@ int Root::get(const char* name, fileStats* filestats) {
 
 // set the filestats of the given file to the given values, if it exists (names are compared).
 int Root::update(fileStats filestats) {
-    for (int i = 0; i < DATA_BLOCKS; i++) {
+    for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
         fileStats currentFileStats = rootArray[i];
         if (strcmp(currentFileStats.name, filestats.name) == 0) {
             rootArray[i] = filestats;
