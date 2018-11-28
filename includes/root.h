@@ -28,6 +28,7 @@ public:
     //Methods with filename:
 
     int get(const char* name, fileStats* filestats);
+    int update(fileStats filestats);
     int deleteEntry(const char* name);
     int createEntry(const char* name);
 

@@ -91,6 +91,19 @@ int Root::get(const char* name, fileStats* filestats) {
     return -1;
 }
 
+// set the filestats of the given file to the given values, if it exists (names are compared).
+int Root::update(fileStats filestats) {
+    for (int i = 0; i < DATA_BLOCKS; i++) {
+        fileStats currentFileStats = rootArray[i];
+        if (strcmp(currentFileStats.name, filestats.name) == 0) {
+            rootArray[i] = filestats;
+            return 0;
+        }
+    }
+    errno = ENOENT;
+    return -1;
+}
+
 
 //return filestats of the file under given number
 void Root::get(uint16_t num, fileStats* filestats) {
