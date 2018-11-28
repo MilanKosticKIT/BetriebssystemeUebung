@@ -37,6 +37,8 @@ set(UNITTEST
         unittests/test-myfs.cpp
         unittests/test-filesystemIO.cpp
         unittests/test-dmap.cpp
+        unittests/test-fat.cpp
+        unittests/test-root.cpp
         unittests/helper.cpp)
 
 include_directories(includes)
