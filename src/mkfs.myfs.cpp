@@ -40,6 +40,7 @@ int main(int argc, char *argv[]) {
     SuperBlock superblock = {};
 
     if (argc > 1) {
+        std::cout << "Creating Blockdevice: " << argv[1] << std::endl;
         blockDevice.create(argv[1]);
         //blockDevice.create("./Blockdevice.bin");
 
@@ -48,10 +49,11 @@ int main(int argc, char *argv[]) {
         uint8_t dMapArray[DATA_BLOCKS / 8];
         fileStats rootArray[ROOT_ARRAY_SIZE];
 
+        std::cout << "Creating Filesystem" << std::endl;
         fat.getAll((char *) fatArray);
         dmap.getAll((char *) dMapArray);
         root.getAll(rootArray);
-
+        std::cout << "Initializing Filesystem" << std::endl;
         fsIO.writeDevice(SUPERBLOCK_START, superblock);
         fsIO.writeDevice(DMAP_START, dMapArray);
         fsIO.writeDevice(FAT_START, fatArray);
@@ -60,43 +62,68 @@ int main(int argc, char *argv[]) {
         if (argc > 2) {
             for (int i = 2; i < argc; i++) { // copy files
                 char *filename = argv[i];
+                std::cout << "Copying file: " << argv[i] << std::endl;
                 int fileDescriptor = open(filename, O_RDONLY);
-                if (fileDescriptor >= 0) {
+                if (fileDescriptor < 0) {
+                    std::cout << "errno: " << errno << std::endl;
+                } else {
                     ssize_t retRead;
                     char buffer[BLOCK_SIZE];
+                    int ret = 0;
 
                     uint16_t currentBlock;
-                    dmap.getFreeBlock(&currentBlock);
+                    ret = dmap.getFreeBlock(&currentBlock);
+                    if (ret < 0) {
+                        std::cout << "errno: " << errno << std::endl;
+                    }
                     uint16_t lastBlock = currentBlock;
-                    root.createEntry(filename); // "create file"
+                    ret = root.createEntry(filename); // "create file"
+                    if (ret < 0) {
+                        std::cout << "errno: " << errno << std::endl;
+                    }
                     fileStats stats;
-                    root.get(filename, &stats);
+                    ret = root.get(filename, &stats);
+                    if (ret < 0) {
+                        std::cout << "errno: " << errno << std::endl;
+                    }
                     stats.first_block = currentBlock;
 
+                    std::cout << "Writing the folowing blocks: ";
                     retRead = read(fileDescriptor, buffer, BLOCK_SIZE);
-                    blockDevice.write(DATA_START + currentBlock, buffer); // write data
-                    dmap.set(currentBlock);
-
                     while (retRead > 0) {
-                        dmap.getFreeBlock(&currentBlock);
+                        std::cout << currentBlock;
+                        ret = blockDevice.write(DATA_START + currentBlock, buffer);
+                        if (ret < 0) {
+                            std::cout << "errno: " << errno << std::endl;
+                        }
+                        dmap.set(currentBlock);
+                        stats.size += retRead;
+
+                        lastBlock = currentBlock; // set last written block
+                        ret = dmap.getFreeBlock(&currentBlock); // and get next block to write
+                        if (ret < 0) {
+                            std::cout << "errno: " << errno << std::endl;
+                        }
+                        ret = fat.addToFAT(lastBlock, currentBlock); // set the successor of the last written block
+                        if (ret < 0) {
+                            std::cout << "errno: " << errno << std::endl;
+                        }
 
                         retRead = read(fileDescriptor, buffer, BLOCK_SIZE);
-                        blockDevice.write(DATA_START + currentBlock, buffer);
-                        dmap.set(currentBlock);
-                        fat.addToFAT(lastBlock, currentBlock);
-                        lastBlock = currentBlock;
-                        if (retRead > 0) {
-                            stats.size += retRead;
-                        }
                     }
+                    std::cout << std::endl;
                     fat.addLastToFAT(lastBlock);
-                    root.update(stats);
+                    ret = root.update(stats);
+                    if (ret < 0) {
+                        std::cout << "errno: " << errno << std::endl;
+                    }
                     superblock.emptySpaceSize -= stats.size;
-                }
-                close(fileDescriptor);
-                //int retClose = close(fileDescriptor);
-            }
 
+                    close(fileDescriptor);
+                }
+
+            }
+            std::cout << "Writing Filesystem data" << std::endl;
             fsIO.writeDevice(SUPERBLOCK_START, superblock);
             fsIO.writeDevice(DMAP_START, dMapArray);
             fsIO.writeDevice(FAT_START, fatArray);
