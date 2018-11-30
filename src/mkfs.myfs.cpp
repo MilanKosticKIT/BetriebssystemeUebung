@@ -15,6 +15,7 @@
 #include <libgen.h>
 #include <iostream>
 #include <string.h>
+#include <myfs-structs.h>
 
 #include "myfs.h"
 #include "myfs-structs.h"
@@ -71,18 +72,17 @@ int main(int argc, char *argv[]) {
                     char buffer[BLOCK_SIZE];
                     int ret = 0;
 
-                    uint16_t currentBlock;
-                    ret = dmap.getFreeBlock(&currentBlock);
-                    if (ret < 0) {
-                        std::cout << "errno: " << errno << std::endl;
-                    }
-                    uint16_t lastBlock = currentBlock;
                     ret = root.createEntry(filename); // "create file"
                     if (ret < 0) {
                         std::cout << "errno: " << errno << std::endl;
                     }
                     fileStats stats;
-                    ret = root.get(filename, &stats);
+                    ret = root.get(filename, &stats); // get file stats
+                    if (ret < 0) {
+                        std::cout << "errno: " << errno << std::endl;
+                    }
+                    uint16_t currentBlock;
+                    ret = dmap.getFreeBlock(&currentBlock);
                     if (ret < 0) {
                         std::cout << "errno: " << errno << std::endl;
                     }
@@ -91,6 +91,10 @@ int main(int argc, char *argv[]) {
                     std::cout << "Writing the folowing blocks: ";
                     retRead = read(fileDescriptor, buffer, BLOCK_SIZE);
                     while (retRead > 0) {
+                        ret = dmap.getFreeBlock(&currentBlock);
+                        if (ret < 0) {
+                            std::cout << "errno: " << errno << std::endl;
+                        }
                         std::cout << currentBlock;
                         ret = blockDevice.write(DATA_START + currentBlock, buffer);
                         if (ret < 0) {
@@ -99,12 +103,7 @@ int main(int argc, char *argv[]) {
                         dmap.set(currentBlock);
                         stats.size += retRead;
 
-                        lastBlock = currentBlock; // set last written block
-                        ret = dmap.getFreeBlock(&currentBlock); // and get next block to write
-                        if (ret < 0) {
-                            std::cout << "errno: " << errno << std::endl;
-                        }
-                        ret = fat.addToFAT(lastBlock, currentBlock); // set the successor of the last written block
+                        ret = fat.addToFAT(stats.first_block, currentBlock);
                         if (ret < 0) {
                             std::cout << "errno: " << errno << std::endl;
                         }
@@ -112,7 +111,7 @@ int main(int argc, char *argv[]) {
                         retRead = read(fileDescriptor, buffer, BLOCK_SIZE);
                     }
                     std::cout << std::endl;
-                    fat.addLastToFAT(lastBlock);
+                    fat.addLastToFAT(currentBlock);
                     ret = root.update(stats);
                     if (ret < 0) {
                         std::cout << "errno: " << errno << std::endl;

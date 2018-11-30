@@ -86,9 +86,9 @@ TEST_CASE("FAT.addlasttoFAT", "[FAT]"){
         FAT fat = FAT();
 
         fat.addToFAT(345, 765);
-        fat.addToFAT(765, 34);
-        fat.addToFAT(34, 8);
-        fat.addToFAT(8, 9261);
+        fat.addToFAT(345, 34);
+        fat.addToFAT(345, 8);
+        fat.addToFAT(345, 9261);
         fat.addLastToFAT(9261);
 
         std::list<uint16_t> list;
@@ -119,9 +119,9 @@ TEST_CASE("FAT.addToFAT", "[FAT]"){
         values.push_back(8);
         values.push_back(9261);
         fat.addToFAT(345, 765);
-        fat.addToFAT(765, 34);
-        fat.addToFAT(34, 8);
-        fat.addToFAT(8, 9261);
+        fat.addToFAT(345, 34);
+        fat.addToFAT(345, 8);
+        fat.addToFAT(345, 9261);
         fat.addLastToFAT(9261);
 
         std::list<uint16_t> list;
