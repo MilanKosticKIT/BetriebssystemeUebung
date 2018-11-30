@@ -17,12 +17,7 @@
 
 #define BD_PATH "Test_Blockdevice.bin"
 
-/*
- TEST_CASE( "dmap empty on creation", "[dmap]" ) {
- //Is beeing taken care of when creating the dmap.
- //Therefore dmap.settAll has to work!
- }
- */
+
 
 TEST_CASE("DMap.setAll / DMap.getAll", "[DMap]") {
     SECTION("Completly empty/same Array"){
@@ -35,37 +30,15 @@ TEST_CASE("DMap.setAll / DMap.getAll", "[DMap]") {
         }
         dmap.setAll((char *) dMapArray);
         dmap.getAll((char *) readArray);
-        REQUIRE(memcmp(dMapArray, readArray, sizeof(DATA_BLOCKS)) == 0);
+        REQUIRE(memcmp(dMapArray, readArray, sizeof(dMapArray)) == 0);
     }
-    SECTION("First entry different, rest of Array simmilar"){
-        //Just to be sure my tests work. If this one gets marked as failed, all Sections of this Test_Case have to be corrected. (Short run!)
+    SECTION("Random Array content"){
         DMap dmap = DMap();
         uint8_t dMapArray[DATA_BLOCKS / 8];
         uint8_t readArray[DATA_BLOCKS / 8];
-        for (int i = 0; i < DATA_BLOCKS / 8; i++) {
-            dMapArray[i] = 0;
-        }
         dmap.setAll((char *) dMapArray);
         dmap.getAll((char *) readArray);
-        dMapArray[0] = 1;
-        REQUIRE(memcmp(dMapArray, readArray, 1) == 1);
-        dMapArray[0] = readArray[0];
-        REQUIRE(memcmp(dMapArray, readArray, sizeof(DATA_BLOCKS -1)) == 0);
-    }
-    SECTION("First entry same, rest different") {
-        //Just to be sure my tests work. If this one gets marked as failed, all Sections of this Test_Case have to be corrected. (Short run!)
-        DMap dmap = DMap();
-        uint8_t dMapArray[DATA_BLOCKS / 8];
-        uint8_t readArray[DATA_BLOCKS / 8];
-        for (int i = 0; i < DATA_BLOCKS / 8; i++) {
-            dMapArray[i] = 0;
-        }
-        dmap.setAll((char *) dMapArray);
-        dmap.getAll((char *) readArray);
-        for (int i = 0; i < DATA_BLOCKS / 8; i++) {
-            dMapArray[i] = 42;
-        }
-        REQUIRE(memcmp(dMapArray, readArray, sizeof(DATA_BLOCKS)) == 42);
+        REQUIRE(memcmp(dMapArray, readArray, sizeof(dMapArray)) == 0);
     }
 }
 
@@ -74,41 +47,42 @@ TEST_CASE("DMap.clear", "[DMap]") {
         DMap dmap = DMap();
         uint8_t dMapArray[DATA_BLOCKS / 8];
         uint8_t readArray[DATA_BLOCKS / 8];
-        readArray[0] =  dMapArray[0] = 0xff;
-        for (int i = 1; i < DATA_BLOCKS / 8; i++) {
-            readArray[i] = dMapArray[i] = 0;
-        }
+        readArray[0] =  dMapArray[0] = 0xff; // set first entry to the same value
         dmap.setAll((char *) dMapArray);
-        dMapArray[0] = 0x7f;
-        dmap.clear(0);
-        dmap.getAll((char *) readArray);
-        REQUIRE(memcmp(dMapArray, readArray, sizeof(DATA_BLOCKS)) == 0);
+        dMapArray[0] = 0x7f; // "clear" dmapArray[0]
+        dmap.clear(0); // clear dmap[0]
+        dmap.getAll((char *) readArray); // read cleared dmap
+        REQUIRE(dMapArray[0] == readArray[0]);
     }
     SECTION("Clearing bit that is already clear") {
         DMap dmap = DMap();
         uint8_t dMapArray[DATA_BLOCKS / 8];
         uint8_t readArray[DATA_BLOCKS / 8];
-        readArray[0] = 0;
-        dMapArray[0] = 0x7f;
-        for (int i = 1; i < DATA_BLOCKS / 8; i++) {
-            readArray[i] = dMapArray[i] = 0;
-        }
+        readArray[0] = dMapArray[0] = 0x7f;
         dmap.setAll((char *) dMapArray);
         dmap.clear(0);
         dmap.getAll((char *) readArray);
-        REQUIRE(memcmp(dMapArray, readArray, sizeof(DATA_BLOCKS)) == 0);
+        REQUIRE(readArray[0] == dMapArray[0]);
     }
-    SECTION("Accessing address that is to high") {
-        //TODO: Define behaviour.
-        //TODO: Implement behaviour.
+    SECTION("Clearing multiple bits in dMap") {
         DMap dmap = DMap();
         uint8_t dMapArray[DATA_BLOCKS / 8];
+        uint8_t readArray[DATA_BLOCKS / 8];
         for (int i = 0; i < DATA_BLOCKS / 8; i++) {
-            dMapArray[i] = 0;
+            switch (i % 3) { // write multiple different values
+                case 0: dMapArray[i] = readArray[i] = 0xD2; break;
+                case 1: dMapArray[i] = readArray[i] = 0x39; break;
+                default: dMapArray[i] = readArray[i] = 0x76; break;
+            }
         }
         dmap.setAll((char *) dMapArray);
-        dmap.clear(65535);
-        REQUIRE(false);
+        for (int i = 0; i < DATA_BLOCKS / 8; i++) {
+            dmap.clear((uint16_t)(i * 8 + (i % 8))); // with clear
+            uint8_t clearMask = ~((uint8_t) 1 << (7 - (i % 8))); // clear manually
+            dMapArray[i] &= clearMask;
+        }
+        dmap.getAll((char*) readArray);
+        REQUIRE(memcmp(readArray, dMapArray, sizeof(dMapArray)) == 0);
     }
 }
 
@@ -117,42 +91,43 @@ TEST_CASE("DMap.set" , "[DMap]") {
         DMap dmap = DMap();
         uint8_t dMapArray[DATA_BLOCKS / 8];
         uint8_t readArray[DATA_BLOCKS / 8];
-        for (int i = 0; i < DATA_BLOCKS / 8; i++) {
-            readArray[i] = dMapArray[i] = 0;
-        }
+        dMapArray[0] = 0;
         dmap.setAll((char *) dMapArray);
         dMapArray[0] = 0x80;
         dmap.set(0);
         dmap.getAll((char *) readArray);
-        REQUIRE(memcmp(dMapArray, readArray, sizeof(DATA_BLOCKS)) == 0);
+        REQUIRE(dMapArray[0] == readArray[0]);
     }
     SECTION("Setting bit that is already set") {
-        //TODO: Define behaviour.
-        //TODO: Implement behaviour.
         DMap dmap = DMap();
         uint8_t dMapArray[DATA_BLOCKS / 8];
         uint8_t readArray[DATA_BLOCKS / 8];
         readArray[0] = 0;
         dMapArray[0] = 0x80;
-        for (int i = 1; i < DATA_BLOCKS / 8; i++) {
-            readArray[i] = dMapArray[i] = 0;
-        }
         dmap.setAll((char *) dMapArray);
         dmap.set(0);
         dmap.getAll((char *) readArray);
-        REQUIRE(memcmp(dMapArray, readArray, sizeof(DATA_BLOCKS)) == 0);
+        REQUIRE(dMapArray[0] == readArray[0]);
     }
-    SECTION("Accessing address that is to high") {
-        //TODO: Define behaviour.
-        //TODO: Implement behaviour.
+    SECTION("Setting multiple bits in dMap") {
         DMap dmap = DMap();
         uint8_t dMapArray[DATA_BLOCKS / 8];
-        for (int i = 1; i < DATA_BLOCKS / 8; i++) {
-            dMapArray[i] = 0;
+        uint8_t readArray[DATA_BLOCKS / 8];
+        for (int i = 0; i < DATA_BLOCKS / 8; i++) {
+            switch (i % 3) { // write multiple different values
+                case 0: dMapArray[i] = readArray[i] = 0xD2; break;
+                case 1: dMapArray[i] = readArray[i] = 0x39; break;
+                default: dMapArray[i] = readArray[i] = 0x76; break;
+            }
         }
         dmap.setAll((char *) dMapArray);
-        dmap.set(65535);
-        REQUIRE(false);
+        for (int i = 0; i < DATA_BLOCKS / 8; i++) {
+            dmap.set((uint16_t)(i * 8 + (i % 8))); // with clear
+            uint8_t setMask = (uint8_t) 1 << (7 - (i % 8)); // clear manually
+            dMapArray[i] |= setMask;
+        }
+        dmap.getAll((char*) readArray);
+        REQUIRE(memcmp(readArray, dMapArray, sizeof(dMapArray)) == 0);
     }
 }
 
