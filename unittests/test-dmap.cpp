@@ -108,6 +108,7 @@ TEST_CASE("DMap.clear", "[DMap]") {
         }
         dmap.setAll((char *) dMapArray);
         dmap.clear(65535);
+        REQUIRE(false);
     }
 }
 
@@ -151,6 +152,7 @@ TEST_CASE("DMap.set" , "[DMap]") {
         }
         dmap.setAll((char *) dMapArray);
         dmap.set(65535);
+        REQUIRE(false);
     }
 }
 

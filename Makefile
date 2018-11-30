@@ -83,13 +83,13 @@ TSRCDIR = unittests
 # object files for target unittests TODO: add new object files here
 UNITTESTS_OBJS = $(OBJDIR)/main.o \
 	$(OBJDIR)/blockdevice.o \
-	$(OBJDIR)/test-blockdevice.o \
 	$(OBJDIR)/myfs.o \
 	$(OBJDIR)/dmap.o \
 	$(OBJDIR)/fat.o \
 	$(OBJDIR)/root.o \
-	$(OBJDIR)/test-myfs.o \
 	$(OBJDIR)/helper.o \
+	$(OBJDIR)/test-blockdevice.o \
+	$(OBJDIR)/test-myfs.o \
 	$(OBJDIR)/test-filesystemIO.o \
 	$(OBJDIR)/test-dmap.o \
 	$(OBJDIR)/test-fat.o \
