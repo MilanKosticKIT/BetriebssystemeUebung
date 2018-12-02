@@ -9,7 +9,7 @@
 //create new empty filestats Array
 Root::Root() {
     for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
-        rootArray[i].size = -1; //todo: set to no entry?
+        rootArray[i].size = -1;
     }
 }
 
@@ -19,7 +19,7 @@ Root::~Root() {
 //return full filestats array (for writing to hard driver)
 void Root::getAll(fileStats* filestats) {
     for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
-        * (filestats + i) = rootArray[i];
+        *(filestats + i) = rootArray[i];
     }
 }
 //set filestats array (for reading from hard driver)
@@ -33,8 +33,7 @@ void Root::setAll(fileStats* filestats) {
 // deletes the filestats with the given name.
 int Root::deleteEntry(const char *name) {
     for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
-        fileStats currentFileStats = rootArray[i];
-        if (strcmp(currentFileStats.name, name) == 0) {
+        if (rootArray[i].size >= 0 && strcmp(rootArray[i].name, name) == 0) {
             rootArray[i] = {};
             rootArray[i].size = -1;
             return 0;
@@ -50,6 +49,12 @@ int Root::createEntry(const char *name) {
         errno = ENAMETOOLONG;
         return -1;
     }
+    for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
+        if (rootArray[i].size >= 0 && strcmp(rootArray[i].name, name) == 0) {
+            errno = EEXIST;
+            return -1;
+        }
+    }
     fileStats stats = {};
     strcpy(stats.name, name);
     stats.userID = geteuid();
@@ -59,19 +64,11 @@ int Root::createEntry(const char *name) {
     stats.modi_time = currentTime;
     stats.last_time = currentTime;
     stats.change_time = currentTime;
-
     for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
-        if (strcmp(rootArray[i].name, name) == 0) {
-            errno = EEXIST;
-            return -1;
-        }
-    }
-    for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
-        if (rootArray[i].size < 0) { //todo: which flag indicates no entry?
+        if (rootArray[i].size < 0) {
             rootArray[i] = stats;
             return 0;
         }
-
     }
     errno = ENFILE;
     return -1;
@@ -80,9 +77,8 @@ int Root::createEntry(const char *name) {
 // get the filestats of the given file
 int Root::get(const char* name, fileStats* filestats) {
     for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
-        fileStats currentFileStats = rootArray[i];
-        if (strcmp(currentFileStats.name, name) == 0) {
-            *filestats = currentFileStats;
+        if (rootArray[i].size >= 0 && strcmp(rootArray[i].name, name) == 0) {
+            *filestats = rootArray[i];
             return 0;
         }
     }
@@ -93,8 +89,7 @@ int Root::get(const char* name, fileStats* filestats) {
 // set the filestats of the given file to the given values, if it exists (names are compared).
 int Root::update(fileStats filestats) {
     for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
-        fileStats currentFileStats = rootArray[i];
-        if (strcmp(currentFileStats.name, filestats.name) == 0) {
+        if (rootArray[i].size >= 0 && strcmp(rootArray[i].name, filestats.name) == 0) {
             rootArray[i] = filestats;
             return 0;
         }
