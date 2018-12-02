@@ -15,7 +15,7 @@
 #include "constants.h"
 #include "fat.h"
 
-#define BD_PATH "Test_Blockdevice.bin"
+
 
 TEST_CASE("FAT.setALL / FAT.getAll", "[FAT]"){
     SECTION("Normally initalized FAT used"){
@@ -43,7 +43,7 @@ TEST_CASE("FAT.setALL / FAT.getAll", "[FAT]"){
         
         fat.setAll((char * ) fatArrary);
         fat.getAll((char * ) readArray);
-        memcmp(fatArrary, readArray, sizeof(fatArrary));
+        REQUIRE(memcmp(fatArrary, readArray, sizeof(fatArrary)));
     }
     SECTION("Manually added various address, with terminator"){
         FAT fat = FAT();
@@ -108,6 +108,7 @@ TEST_CASE("FAT.addToFAT", "[FAT]"){
         }
         
 //        fat.setAll(<#char *p#>)
+        REQUIRE(false); // todo finish test case
     }
     SECTION("Multiple values"){
         FAT fat = FAT();

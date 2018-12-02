@@ -123,5 +123,3 @@ TEST_CASE( "Read/Write array", "[filesystemIO]" ) {
 
     remove(BD_PATH);
 }
-
-// TODO: Implement your helper functions here!

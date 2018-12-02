@@ -2,6 +2,7 @@
 // Created by test on 05.11.2018.
 //
 #include <errno.h>
+
 #include "root.h"
 
 
@@ -19,7 +20,6 @@ Root::~Root() {
 void Root::getAll(fileStats* filestats) {
     for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
         * (filestats + i) = rootArray[i];
-        //TODO: Look over upper line!
     }
 }
 //set filestats array (for reading from hard driver)
@@ -36,6 +36,7 @@ int Root::deleteEntry(const char *name) {
         fileStats currentFileStats = rootArray[i];
         if (strcmp(currentFileStats.name, name) == 0) {
             rootArray[i] = {};
+            rootArray[i].size = -1;
             return 0;
         }
     }

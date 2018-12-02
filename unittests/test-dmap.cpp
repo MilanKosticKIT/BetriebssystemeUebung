@@ -20,7 +20,7 @@
 
 
 TEST_CASE("DMap.setAll / DMap.getAll", "[DMap]") {
-    SECTION("Completly empty/same Array"){
+    SECTION("Completely empty/same Array"){
         DMap dmap = DMap();
         uint8_t dMapArray[DATA_BLOCKS / 8];
         uint8_t readArray[DATA_BLOCKS / 8];
