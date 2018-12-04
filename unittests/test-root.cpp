@@ -10,8 +10,8 @@
 
 #include <string.h>
 #include <iostream>
-#include <myfs-structs.h>
 
+#include "myfs-structs.h"
 #include "helper.hpp"
 #include "constants.h"
 #include "root.h"
