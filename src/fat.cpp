@@ -16,7 +16,7 @@ FAT::FAT() {
 //MARK: - FAT
 /* creates the FAT and initialises it with default values
 *  meaning behind values:
-* -1 = terminator character
+*  ROOT_TERMINATOR = terminator character
 *  0 = free
 */
 
@@ -30,7 +30,7 @@ int FAT::iterateFAT(uint16_t firstBlock, std::list<uint16_t>* list) {
 	uint16_t nextBlock = firstBlock;
 	std::list<uint16_t> fileList ; //creates a list to store all datablocks of a specific file
 	fileList.push_back(nextBlock);
-	while (fat[nextBlock] != -1) {
+	while (fat[nextBlock] != ROOT_TERMINATOR && fat[nextBlock] != 0) {
 		fileList.push_back(fat[nextBlock]);
 		nextBlock = fat[nextBlock];
 	}
@@ -65,7 +65,7 @@ int FAT::addToFAT(uint16_t firstBlock, uint16_t nextAddress) {
 
 //add the last block of a file to FAT
 void FAT::addLastToFAT(uint16_t lastAddress) {
-	fat[lastAddress] = -1;
+	fat[lastAddress] = ROOT_TERMINATOR;
 }
 
 
