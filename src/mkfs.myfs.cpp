@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
 
         // write empty filesystem
         uint16_t fatArray[DATA_BLOCKS];
-        uint8_t dMapArray[DATA_BLOCKS / 8];
+        uint8_t dMapArray[(DATA_BLOCKS + 1) / 8];
         fileStats rootArray[ROOT_ARRAY_SIZE];
 
         std::cout << "Creating Filesystem" << std::endl;
@@ -122,6 +122,9 @@ int main(int argc, char *argv[]) {
 
             }
             std::cout << "Writing Filesystem data" << std::endl;
+            dmap.getAll((char*) dMapArray);
+            fat.getAll((char*) fatArray);
+            root.getAll(rootArray);
             fsIO.writeDevice(SUPERBLOCK_START, superblock);
             fsIO.writeDevice(DMAP_START, dMapArray);
             fsIO.writeDevice(FAT_START, fatArray);

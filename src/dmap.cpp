@@ -10,7 +10,7 @@
 #include <errno.h>
 
 DMap::DMap(){
-    for (int i = 0; i < DATA_BLOCKS / 8; i++) {
+    for (int i = 0; i < (DATA_BLOCKS + 1) / 8; i++) {
         dMapValues[i] = 0;
     }
     firstFreeAddress = 0;
@@ -73,16 +73,15 @@ int DMap::findFirstFreeAddress(uint16_t startAddress){
             }
         }
     }
-    // set first free address to max address.
-    // If the first free address is max address, getFreeBlock() checks, if it is full;
-    firstFreeAddress = ADDRESS_MAX;
+    // set first free address to terminator. (No free address)
+    firstFreeAddress = ADDRESS_MAX + 1;
     return -1;
 }
 
 //Returns the first empty block.
 //When an error occurs -1 is returned, else 0.
 int DMap::getFreeBlock(uint16_t* freeBlock){
-    if (firstFreeAddress <= ADDRESS_MAX && !isAdressFull(ADDRESS_MAX)) {
+    if (firstFreeAddress <= ADDRESS_MAX) {
         *freeBlock = firstFreeAddress;
         return 0;
     } else {
@@ -92,13 +91,13 @@ int DMap::getFreeBlock(uint16_t* freeBlock){
 }
 
 void DMap::getAll(char* p) {
-    for (int i = 0; i < DATA_BLOCKS / 8; i++){
+    for (int i = 0; i < (DATA_BLOCKS + 1) / 8; i++){
         *((uint8_t*) p + i) = dMapValues[i];
     }
 }
 
 void DMap::setAll(char* p) {
-    for (int i = 0; i < DATA_BLOCKS / 8; i++){
+    for (int i = 0; i < (DATA_BLOCKS + 1) / 8; i++){
         dMapValues[i] = (uint8_t) *(p + i);
     }
     findFirstFreeAddress(0);
