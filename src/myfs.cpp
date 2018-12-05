@@ -315,15 +315,26 @@ int MyFS::fuseRemovexattr(const char *path, const char *name) {
 }
 
 int MyFS::fuseOpendir(const char *path, struct fuse_file_info *fileInfo) {
-    LOGM();
+  LOGM();
 
-    // TODO: Implement this!
-
-    RETURN(0);
+  RETURN(0); // todo always grants access
+  
+  errno = EACCES;
+  RETURN(-errno);
 }
 
 int MyFS::fuseReaddir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
+
+    fileStats file;
+    struct stat s;
+    for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
+        root.get(i, &file);
+        if (file.size >= 0) { // if file exists
+            fuseGetattr(file.name, &s);
+            filler(buf, file.name, NULL, 0);
+        }
+    }
 
     // TODO: Implement this!
 
