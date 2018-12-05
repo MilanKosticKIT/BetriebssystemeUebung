@@ -61,6 +61,22 @@ int main(int argc, char *argv[]) {
         fsIO.writeDevice(ROOT_START, rootArray);
 
         if (argc > 2) {
+            //When the files to copy are too large for our filesystem
+            //the operation will be aborted
+            std::cout << "Checking if files fit in filesystem: ";
+            int freeSpace = DATA_BYTES;
+            struct stat buffer1;
+            bool sizeOK = true;
+            for (int i = 1; i < argc; i++) {
+                stat(argv[i], &buffer1);
+                freeSpace = freeSpace - buffer1.st_size;
+                if (freeSpace < 0) {
+                    sizeOK = false;
+                    break;
+                }
+            }
+            if (sizeOK) {   //The files fit in the filesystem
+                std::cout << "The files fit in the filesystem." << std::endl;
             for (int i = 2; i < argc; i++) { // copy files
                 char *filename = argv[i];
                 std::cout << "Copying file: " << argv[i] << std::endl;
@@ -140,6 +156,10 @@ int main(int argc, char *argv[]) {
             fsIO.writeDevice(DMAP_START, dMapArray);
             fsIO.writeDevice(FAT_START, fatArray);
             fsIO.writeDevice(ROOT_START, rootArray);
+            }else {
+                std::cout << "The files to copy are to big for the filesystem. Aborting" << std::endl;
+            }
+            
         }
     } else {
         // error: name of containerfile missing
