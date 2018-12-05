@@ -85,14 +85,14 @@ TEST_CASE("Root.createEntry", "[Root]"){
     SECTION("Max filename length reached") {
         Root root = Root();
 
-        char* name = (char*) malloc(NAME_LENGTH);
-        name[NAME_LENGTH - 1] = '\0';
+        char* name = (char*) malloc(NAME_LENGTH + 1);
+        name[NAME_LENGTH] = '\0';
         gen_random(name, NAME_LENGTH);
         REQUIRE((root.createEntry(name) >= 0));
         free(name);
 
-        name = (char*) malloc(NAME_LENGTH + 1);
-        name[NAME_LENGTH] = '\0';
+        name = (char*) malloc(NAME_LENGTH + 2);
+        name[NAME_LENGTH + 1] = '\0';
         gen_random(name, NAME_LENGTH + 1);
         REQUIRE((root.createEntry(name) < 0 && errno == ENAMETOOLONG));
         free(name);
