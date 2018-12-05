@@ -20,30 +20,29 @@
 TEST_CASE("FAT.setALL / FAT.getAll", "[FAT]"){
     SECTION("Normally initalized FAT used"){
         FAT fat = FAT();
-        uint16_t fatArrary[DATA_BLOCKS];
+        uint16_t fatArray[DATA_BLOCKS];
         uint16_t readArray[DATA_BLOCKS];
         
-        fatArrary[0] = 0;
-        for(int i = 0; i < DATA_BLOCKS - 1; i++){
-            fatArrary[i + 1] = 0;
-            readArray[i + 1] = -1;
+
+        for(int i = 0; i < DATA_BLOCKS; i++){
+            fatArray[i] = FAT_TERMINATOR;
         }
         
         fat.getAll((char * ) readArray);
-        REQUIRE(memcmp(fatArrary, readArray, sizeof(fatArrary)) == 0);
+        REQUIRE(memcmp(fatArray, readArray, sizeof(fatArray)) == 0);
     }
-    SECTION("Manual to -1 set FAT"){
+    SECTION("Manual to FAT_TERMINATOR set FAT"){
         FAT fat = FAT();
-        uint16_t fatArrary[DATA_BLOCKS];
+        uint16_t fatArray[DATA_BLOCKS];
         uint16_t readArray[DATA_BLOCKS];
         
         for(int i = 0; i < DATA_BLOCKS - 1; i++){
-            fatArrary[i] = -1;
+            fatArray[i] = FAT_TERMINATOR;
         }
         
-        fat.setAll((char * ) fatArrary);
+        fat.setAll((char * ) fatArray);
         fat.getAll((char * ) readArray);
-        REQUIRE(memcmp(fatArrary, readArray, sizeof(fatArrary)) == 0);
+        REQUIRE(memcmp(fatArray, readArray, sizeof(fatArray)) == 0);
     }
     SECTION("Manually added various address, with terminator"){
         FAT fat = FAT();
@@ -51,12 +50,12 @@ TEST_CASE("FAT.setALL / FAT.getAll", "[FAT]"){
         uint16_t readArray[DATA_BLOCKS];
         
         for (int i = 0; i < DATA_BLOCKS; i++) {
-            fatArray[i] = 0;
+            fatArray[i] = FAT_TERMINATOR;
         }
-        fatArray[1] = 123;
-        fatArray[123] = 3;
-        fatArray[3] = 41183;
-        fatArray[41183] = -1;
+        fatArray[1] = 5;
+        fatArray[5] = 9;
+        fatArray[9] = 20;
+        fatArray[20] = FAT_TERMINATOR;
         
         fat.setAll((char *) fatArray);
         fat.getAll((char *) readArray);
