@@ -109,7 +109,7 @@ TEST_CASE("Root.get", "[Root]") {
     }
 }
 
-TEST_CASE("Root.delete", "[Root]") {
+TEST_CASE("Root.deleteEntry", "[Root]") {
     SECTION("Successful deletion") {
         Root root = Root();
 
@@ -119,10 +119,9 @@ TEST_CASE("Root.delete", "[Root]") {
         REQUIRE(root.get("TestEntry", &stats) < 0); // entry not found
     }
 
-    SECTION("Get nonexisting file") {
+    SECTION("Delete nonexisting file") {
         Root root = Root();
-        fileStats stats;
-        REQUIRE((root.get("TestEntry", &stats) < 0 && errno == ENOENT));
+        REQUIRE((root.deleteEntry("TestEntry") < 0 && errno == ENOENT));
     }
 }
 
