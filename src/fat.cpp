@@ -28,7 +28,7 @@ FAT::FAT() {
 */
 int FAT::iterateFAT(uint16_t firstBlock, std::list<uint16_t>* list) {
 	uint16_t nextBlock = firstBlock;
-	std::list<uint16_t> fileList ; //creates a list to store all datablocks of a specific file
+	std::list<uint16_t> fileList; //creates a list to store all datablocks of a specific file
 	fileList.push_back(nextBlock);
 	while (fat[nextBlock] != FAT_TERMINATOR) {
 		fileList.push_back(fat[nextBlock]);
