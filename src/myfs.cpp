@@ -35,7 +35,7 @@ MyFS::MyFS() {
     this->logFile= stderr;
 
     uint16_t  fatArray[DATA_BLOCKS];
-    uint16_t  dmapArray[DATA_BLOCKS / 16];
+    uint16_t  dmapArray[(DATA_BLOCKS + 1) / 16];
     fileStats rootArray[DATA_BLOCKS];
 
     fsIO.readDevice(SUPERBLOCK_START, superblock);

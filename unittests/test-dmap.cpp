@@ -22,9 +22,9 @@
 TEST_CASE("DMap.setAll / DMap.getAll", "[DMap]") {
     SECTION("Completely empty/same Array"){
         DMap dmap = DMap();
-        uint8_t dMapArray[DATA_BLOCKS / 8];
-        uint8_t readArray[DATA_BLOCKS / 8];
-        for (int i = 0; i < DATA_BLOCKS / 8; i++) {
+        uint8_t dMapArray[(DATA_BLOCKS + 1) / 8];
+        uint8_t readArray[(DATA_BLOCKS + 1) / 8];
+        for (int i = 0; i < (DATA_BLOCKS + 1) / 8; i++) {
             dMapArray[i] = 3;
             readArray[i] = 1;
         }
@@ -34,8 +34,8 @@ TEST_CASE("DMap.setAll / DMap.getAll", "[DMap]") {
     }
     SECTION("Random Array content"){
         DMap dmap = DMap();
-        uint8_t dMapArray[DATA_BLOCKS / 8];
-        uint8_t readArray[DATA_BLOCKS / 8];
+        uint8_t dMapArray[(DATA_BLOCKS + 1) / 8];
+        uint8_t readArray[(DATA_BLOCKS + 1) / 8];
         dmap.setAll((char *) dMapArray);
         dmap.getAll((char *) readArray);
         REQUIRE(memcmp(dMapArray, readArray, sizeof(dMapArray)) == 0);
@@ -45,8 +45,8 @@ TEST_CASE("DMap.setAll / DMap.getAll", "[DMap]") {
 TEST_CASE("DMap.clear", "[DMap]") {
     SECTION("Clearing bit that is set") {
         DMap dmap = DMap();
-        uint8_t dMapArray[DATA_BLOCKS / 8];
-        uint8_t readArray[DATA_BLOCKS / 8];
+        uint8_t dMapArray[(DATA_BLOCKS + 1) / 8];
+        uint8_t readArray[(DATA_BLOCKS + 1) / 8];
         readArray[0] =  dMapArray[0] = 0xff; // set first entry to the same value
         dmap.setAll((char *) dMapArray);
         dMapArray[0] = 0x7f; // "clear" dmapArray[0]
@@ -56,8 +56,8 @@ TEST_CASE("DMap.clear", "[DMap]") {
     }
     SECTION("Clearing bit that is already clear") {
         DMap dmap = DMap();
-        uint8_t dMapArray[DATA_BLOCKS / 8];
-        uint8_t readArray[DATA_BLOCKS / 8];
+        uint8_t dMapArray[(DATA_BLOCKS + 1) / 8];
+        uint8_t readArray[(DATA_BLOCKS + 1) / 8];
         readArray[0] = dMapArray[0] = 0x7f;
         dmap.setAll((char *) dMapArray);
         dmap.clear(0);
@@ -66,9 +66,9 @@ TEST_CASE("DMap.clear", "[DMap]") {
     }
     SECTION("Clearing multiple bits in dMap") {
         DMap dmap = DMap();
-        uint8_t dMapArray[DATA_BLOCKS / 8];
-        uint8_t readArray[DATA_BLOCKS / 8];
-        for (int i = 0; i < DATA_BLOCKS / 8; i++) {
+        uint8_t dMapArray[(DATA_BLOCKS + 1) / 8];
+        uint8_t readArray[(DATA_BLOCKS + 1) / 8];
+        for (int i = 0; i < (DATA_BLOCKS + 1) / 8; i++) {
             switch (i % 3) { // write multiple different values
                 case 0: dMapArray[i] = readArray[i] = 0xD2; break;
                 case 1: dMapArray[i] = readArray[i] = 0x39; break;
@@ -76,7 +76,7 @@ TEST_CASE("DMap.clear", "[DMap]") {
             }
         }
         dmap.setAll((char *) dMapArray);
-        for (int i = 0; i < DATA_BLOCKS / 8; i++) {
+        for (int i = 0; i < (DATA_BLOCKS + 1) / 8; i++) {
             dmap.clear((uint16_t)(i * 8 + (i % 8))); // with clear
             uint8_t clearMask = ~((uint8_t) 1 << (7 - (i % 8))); // clear manually
             dMapArray[i] &= clearMask;
@@ -89,8 +89,8 @@ TEST_CASE("DMap.clear", "[DMap]") {
 TEST_CASE("DMap.set" , "[DMap]") {
     SECTION("Setting empty bit") {
         DMap dmap = DMap();
-        uint8_t dMapArray[DATA_BLOCKS / 8];
-        uint8_t readArray[DATA_BLOCKS / 8];
+        uint8_t dMapArray[(DATA_BLOCKS + 1) / 8];
+        uint8_t readArray[(DATA_BLOCKS + 1) / 8];
         dMapArray[0] = 0;
         dmap.setAll((char *) dMapArray);
         dMapArray[0] = 0x80;
@@ -100,8 +100,8 @@ TEST_CASE("DMap.set" , "[DMap]") {
     }
     SECTION("Setting bit that is already set") {
         DMap dmap = DMap();
-        uint8_t dMapArray[DATA_BLOCKS / 8];
-        uint8_t readArray[DATA_BLOCKS / 8];
+        uint8_t dMapArray[(DATA_BLOCKS + 1) / 8];
+        uint8_t readArray[(DATA_BLOCKS + 1) / 8];
         readArray[0] = 0;
         dMapArray[0] = 0x80;
         dmap.setAll((char *) dMapArray);
@@ -111,9 +111,9 @@ TEST_CASE("DMap.set" , "[DMap]") {
     }
     SECTION("Setting multiple bits in dMap") {
         DMap dmap = DMap();
-        uint8_t dMapArray[DATA_BLOCKS / 8];
-        uint8_t readArray[DATA_BLOCKS / 8];
-        for (int i = 0; i < DATA_BLOCKS / 8; i++) {
+        uint8_t dMapArray[(DATA_BLOCKS + 1) / 8];
+        uint8_t readArray[(DATA_BLOCKS + 1) / 8];
+        for (int i = 0; i < (DATA_BLOCKS + 1) / 8; i++) {
             switch (i % 3) { // write multiple different values
                 case 0: dMapArray[i] = readArray[i] = 0xD2; break;
                 case 1: dMapArray[i] = readArray[i] = 0x39; break;
@@ -121,7 +121,7 @@ TEST_CASE("DMap.set" , "[DMap]") {
             }
         }
         dmap.setAll((char *) dMapArray);
-        for (int i = 0; i < DATA_BLOCKS / 8; i++) {
+        for (int i = 0; i < (DATA_BLOCKS + 1) / 8; i++) {
             dmap.set((uint16_t)(i * 8 + (i % 8))); // with clear
             uint8_t setMask = (uint8_t) 1 << (7 - (i % 8)); // clear manually
             dMapArray[i] |= setMask;
@@ -224,8 +224,8 @@ TEST_CASE("DMap.getFreeBlock, with set and cleared blocks" , "[DMap]") {
 TEST_CASE("DMap.getFreeBlock, with setAll", "[DMap]") {
     SECTION("Empty array") {
         DMap dmap = DMap();
-        char dmapArray[DATA_BLOCKS / 8];
-        for (int i = 0; i < DATA_BLOCKS / 8; i++) {
+        char dmapArray[(DATA_BLOCKS + 1) / 8];
+        for (int i = 0; i < (DATA_BLOCKS + 1) / 8; i++) {
             dmapArray[i] = 0;
         }
         dmap.setAll(dmapArray);
@@ -236,7 +236,7 @@ TEST_CASE("DMap.getFreeBlock, with setAll", "[DMap]") {
     }
     SECTION("First n blocks are set") {
         DMap dmap = DMap();
-        char dmapArray[DATA_BLOCKS / 8];
+        char dmapArray[(DATA_BLOCKS + 1) / 8];
         for (int i = 0; i < 67; i++) {
             dmapArray[i] = (char) 0xFF;
         }
@@ -250,7 +250,7 @@ TEST_CASE("DMap.getFreeBlock, with setAll", "[DMap]") {
     }
     SECTION("First blocks is empty") {
         DMap dmap = DMap();
-        char dmapArray[DATA_BLOCKS / 8];
+        char dmapArray[(DATA_BLOCKS + 1) / 8];
         dmapArray[0] = (char) 0;
         dmap.setAll(dmapArray);
 
@@ -263,8 +263,8 @@ TEST_CASE("DMap.getFreeBlock, with setAll", "[DMap]") {
 TEST_CASE("DMap.getFreeBlock, with full dmap", "[DMap]") {
     SECTION("Full dmap with setAll") {
         DMap dmap = DMap();
-        char dmapArray[DATA_BLOCKS / 8];
-        for (int i = 0; i < DATA_BLOCKS / 8; i++) {
+        char dmapArray[(DATA_BLOCKS + 1) / 8];
+        for (int i = 0; i < (DATA_BLOCKS + 1) / 8; i++) {
             dmapArray[i] = (char) 0xFF;
         }
         dmap.setAll(dmapArray);
