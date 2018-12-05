@@ -20,7 +20,7 @@
 
 #include "blockdevice.h"
 
-//#undef DEBUG
+#undef DEBUG
 
 BlockDevice::BlockDevice(u_int32_t blockSize) {
     assert(blockSize % 512 == 0);
