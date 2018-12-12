@@ -76,14 +76,21 @@ int Root::createEntry(const char *name) {
 
 // get the filestats of the given file
 int Root::get(const char* name, fileStats* filestats) {
-    for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
-        if (rootArray[i].size >= 0 && strcmp(rootArray[i].name, name) == 0) {
-            *filestats = rootArray[i];
-            return 0;
+    if (strcmp("/", name) == 0) {
+        filestats->mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
+        filestats->userID = geteuid();
+        filestats->groupID = getegid();
+        return 0;
+    } else {
+        for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
+            if (rootArray[i].size >= 0 && strcmp(rootArray[i].name, name) == 0) {
+                *filestats = rootArray[i];
+                return 0;
+            }
         }
+        errno = ENOENT;
+        return -1;
     }
-    errno = ENOENT;
-    return -1;
 }
 
 // set the filestats of the given file to the given values, if it exists (names are compared).
