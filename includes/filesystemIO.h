@@ -33,7 +33,7 @@ public:
      */
     template<class T>
     void writeDevice(size_t block, const T &data) {
-        static_assert(std::is_trivially_copyable<T>::value, "Can't operate on complex types!");
+        //static_assert(std::is_trivially_copyable<T>::value, "Can't operate on complex types!");
 
         const char *rawData = reinterpret_cast<const char *>(&data);
 
@@ -55,7 +55,7 @@ public:
      */
     template<class T>
     void readDevice(size_t block, T &data) {
-        static_assert(std::is_trivially_constructible<T>::value, "Can't operate on complex types!");
+        //static_assert(std::is_trivially_constructible<T>::value, "Can't operate on complex types!");
 
         char *rawData = reinterpret_cast<char *>(&data);
         static char buffer[BLOCK_SIZE];
@@ -77,7 +77,7 @@ public:
      */
     template<class T, size_t N>
     void writeDevice(size_t block, const T (&data)[N]) {
-        static_assert(std::is_trivially_copyable<T>::value, "Can't operate on complex types!");
+        //static_assert(std::is_trivially_copyable<T>::value, "Can't operate on complex types!");
 
         const char *rawData = reinterpret_cast<const char *>(&data);
 
@@ -100,7 +100,7 @@ public:
      */
     template<class T, size_t N>
     void readDevice(std::size_t block, T (&data)[N]) {
-        static_assert(std::is_trivially_constructible<T>::value, "Can't operate on complex types!");
+        //static_assert(std::is_trivially_constructible<T>::value, "Can't operate on complex types!");
 
         char *rawData = reinterpret_cast<char *>(&data);
         static char buffer[BLOCK_SIZE];

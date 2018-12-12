@@ -20,7 +20,7 @@
 
 class Root {
 private:
-    fileStats rootArray[ROOT_ARRAY_SIZE];
+    fileStats *rootArray = new fileStats[ROOT_ARRAY_SIZE];
 public:
     Root();
     ~Root();

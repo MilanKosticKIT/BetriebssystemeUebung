@@ -73,7 +73,6 @@ void FAT::setAll(char* p){
 	for (int i = 0; i < DATA_BLOCKS; i++){
 		fat[i] = *((uint16_t*) p + i);
 	}
-
 }
 
 

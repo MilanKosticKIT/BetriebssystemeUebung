@@ -14,7 +14,7 @@ CFLAGS = -g -Wall -I$(HEADERDIR) -DFUSE_USE_VERSION=26 `pkg-config fuse --cflags
 CPPFLAGS = -std=gnu++11 -g -Wall -I$(HEADERDIR) -DFUSE_USE_VERSION=26 `pkg-config fuse --cflags`
 
 # linker flags
-LINKFLAGS = -g -Wall
+LINKFLAGS = -pg -Wall
 #LINKFLAGS = -Wall -L/usr/local/lib -losxfuse
 
 # libraries

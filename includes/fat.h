@@ -4,6 +4,7 @@
 #define fat_h
 
 #include "constants.h"
+#include "macros.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -11,7 +12,7 @@
 
 class FAT {
 private:
-	uint16_t fat[DATA_BLOCKS];
+	uint16_t *fat = new uint16_t[DATA_BLOCKS];
 
 public:
 	FAT();

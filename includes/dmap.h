@@ -19,7 +19,7 @@
 class DMap{
 
     uint16_t firstFreeAddress;
-    uint8_t dMapValues[DATA_BLOCKS / 8];
+    uint8_t *dMapValues = new uint8_t[(DATA_BLOCKS + 1) / 8];
 
     int findFirstFreeAddress(uint16_t startAddress);
     bool isAdressFull(uint16_t blockNo);
