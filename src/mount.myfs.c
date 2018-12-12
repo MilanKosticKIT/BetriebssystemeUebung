@@ -19,7 +19,7 @@ struct fuse_operations myfs_oper;
 
 int main(int argc, char *argv[]) {
     int fuse_stat;
-    
+
     myfs_oper.getattr = wrap_getattr;
     myfs_oper.readlink = wrap_readlink;
     myfs_oper.getdir = NULL;
@@ -50,15 +50,15 @@ int main(int argc, char *argv[]) {
     myfs_oper.releasedir = wrap_releasedir;
     myfs_oper.fsyncdir = wrap_fsyncdir;
     myfs_oper.init = wrap_init;
-    
+
     // FsInfo will be used to pass information to fuse functions
     struct MyFsInfo *FsInfo;
     FsInfo= malloc(sizeof(struct MyFsInfo));
-    
+
     char* containerFileName= NULL;
     char* logFileName= NULL;
     char* mountPointName= NULL;
-    
+
     // parse arguments
     if(argc > 3) {
         // check if container file exists
@@ -67,32 +67,32 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "Error: Cannot access container file %s\n", argv[1]);
             exit(EXIT_FAILURE);
         }
-        
+
         // check if logfile is accassible
         FILE* logFile = fopen(argv[2], "w+");
-        
+
         if(logFile == NULL || (logFileName= realpath(argv[2], NULL)) == NULL) {
             fprintf(stderr, "Error: Cannot access log file %s\n", argv[2]);
             exit(EXIT_FAILURE);
         }
-        
+
         fclose(logFile);
-        
+
         // check if mountpoint exists
         if((mountPointName= realpath(argv[3], NULL)) == NULL) {
             fprintf(stderr, "Error: Cannot access mount point %s\n", argv[3]);
             exit(EXIT_FAILURE);
         }
-        
+
         // everything ok, lets go
         fprintf(stderr, "Containerfile= %s\n", containerFileName);
         fprintf(stderr, "Logfile=       %s\n", logFileName);
         fprintf(stderr, "Mountpoint=    %s\n", mountPointName);
-        
+
         // container & log file name will be passed to fuse functions
         FsInfo->contFile= containerFileName;
         FsInfo->logFile= logFileName;
-        
+
         // adjust arguments
         argv+= 2; argc-= 2;
     }
@@ -100,19 +100,17 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Usage: %s containerfile logfile mountpoint\n", argv[0]);
         return (EXIT_FAILURE);
     }
-    
+
     // call fuse initialization method
     fuse_stat = fuse_main(argc, argv, &myfs_oper, FsInfo);
-    
+
     fprintf(stderr, "fuse_main returned %d\n", fuse_stat);
-    
+
     // cleanup
     free(FsInfo);
     free(containerFileName);
     free(logFileName);
     free(mountPointName);
-    
+
     return EXIT_SUCCESS;
 }
-
-

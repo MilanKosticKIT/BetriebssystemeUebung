@@ -77,9 +77,11 @@ int Root::createEntry(const char *name) {
 // get the filestats of the given file
 int Root::get(const char* name, fileStats* filestats) {
     if (strcmp("/", name) == 0) {
-        filestats->mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
-        filestats->userID = geteuid();
-        filestats->groupID = getegid();
+        fileStats stats;
+        stats.mode = S_IFDIR | 0555;
+        stats.userID = geteuid();
+        stats.groupID = getegid();
+        *filestats = stats;
         return 0;
     } else {
         for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {

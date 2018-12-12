@@ -33,19 +33,6 @@ MyFS* MyFS::Instance() {
 
 MyFS::MyFS() {
     this->logFile= stderr;
-
-    uint16_t  fatArray[DATA_BLOCKS];
-    uint16_t  dmapArray[(DATA_BLOCKS + 1) / 16];
-    fileStats rootArray[DATA_BLOCKS];
-
-    fsIO.readDevice(SUPERBLOCK_START, superblock);
-    fsIO.readDevice(DMAP_START, dmapArray);
-    fsIO.readDevice(FAT_START, fatArray);
-    fsIO.readDevice(ROOT_START, rootArray);
-
-    fat.setAll((char*) fatArray);
-    dmap.setAll((char*) dmapArray);
-    root.setAll(rootArray);
 }
 
 MyFS::~MyFS() {
@@ -55,8 +42,12 @@ MyFS::~MyFS() {
 int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
     LOGM();
 
+    char* name = (char*) malloc(strlen(path));
+    strcpy(name, path);
+    printf("Path: %s", name);
+
     fileStats fileStats1;
-    int res = root.get(path, &fileStats1);
+    int res = root.get(name, &fileStats1);
     if (res == -1){
         RETURN(-errno);
     }
@@ -69,6 +60,11 @@ int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
     stats.st_atime = fileStats1.last_time;
     stats.st_ctime = fileStats1.change_time;
     stats.st_mtime = fileStats1.modi_time;
+    if (strcmp("/", name) == 0) {
+        stats.st_nlink = 2;
+    } else {
+        stats.st_nlink = 1;
+    }
 
     *statbuf = stats;
 
@@ -231,7 +227,7 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
     if ( file.size < offset){
         RETURN(0);
     }
-    if (file.size < offset + size) {
+    if ((uint64_t)file.size < offset + size) {
         size = file.size - offset;
     }
 
@@ -268,7 +264,7 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
 
 
 
-    RETURN(size);
+    RETURN((int)size);
 }
 
 int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fileInfo) {
@@ -318,7 +314,7 @@ int MyFS::fuseOpendir(const char *path, struct fuse_file_info *fileInfo) {
   LOGM();
 
   RETURN(0); // todo always grants access
-  
+
   errno = EACCES;
   RETURN(-errno);
 }
@@ -328,6 +324,8 @@ int MyFS::fuseReaddir(const char *path, void *buf, fuse_fill_dir_t filler, off_t
 
     fileStats file;
     struct stat s;
+    filler(buf, ".", NULL, 0);
+    filler(buf, "..", NULL, 0);
     for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
         root.get(i, &file);
         if (file.size >= 0) { // if file exists
@@ -389,6 +387,19 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
         LOGF("Container file name: %s", ((MyFsInfo *) fuse_get_context()->private_data)->contFile);
 
         // TODO: Implement your initialization methods here!
+
+        uint16_t  fatArray[DATA_BLOCKS];
+        uint16_t  dmapArray[(DATA_BLOCKS + 1) / 16];
+        fileStats rootArray[DATA_BLOCKS];
+
+        fsIO.readDevice(SUPERBLOCK_START, superblock);
+        fsIO.readDevice(DMAP_START, dmapArray);
+        fsIO.readDevice(FAT_START, fatArray);
+        fsIO.readDevice(ROOT_START, rootArray);
+
+        fat.setAll((char*) fatArray);
+        dmap.setAll((char*) dmapArray);
+        root.setAll(rootArray);
     }
 
     RETURN(0);
