@@ -44,7 +44,10 @@ int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
 
     char* name = (char*) malloc(strlen(path));
     strcpy(name, path);
-    printf("Path: %s", name);
+    LOG("Path:");
+    LOGS(path);
+    LOG("Name:");
+    LOGS(name);
 
     fileStats fileStats1;
     int res = root.get(name, &fileStats1);
@@ -399,7 +402,6 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
         dmap.setAll(arrays->dMap);
         root.setAll(arrays->root);
     }
-LOG("4");
     RETURN(0);
 }
 
