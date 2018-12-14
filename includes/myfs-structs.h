@@ -40,4 +40,10 @@ typedef struct {
     uint16_t dataSize;
 } SuperBlock;
 
+struct MyfsArrays {
+    uint8_t dMap[(DATA_BLOCKS + 1) / 8];
+    uint16_t fat[DATA_BLOCKS];
+    fileStats root[NUM_DIR_ENTRIES];
+};
+
 #endif /* myfs_structs_h */

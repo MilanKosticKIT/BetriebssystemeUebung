@@ -387,23 +387,17 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
         LOGF("Container file name: %s", ((MyFsInfo *) fuse_get_context()->private_data)->contFile);
 
         // TODO: Implement your initialization methods here!
-        LOG("1");
-        uint16_t *fatArray = new uint16_t[DATA_BLOCKS];
-        //uint16_t fatArray[DATA_BLOCKS];
-        uint8_t *dmapArray = new uint8_t[(DATA_BLOCKS + 1) / 8];
-        fileStats *rootArray = new fileStats[DATA_BLOCKS];
-LOG("2");
+
+        MyfsArrays *arrays = new MyfsArrays;
+
         fsIO.readDevice(SUPERBLOCK_START, superblock);
-        fsIO.readDevice(DMAP_START, dmapArray);
-        fsIO.readDevice(FAT_START, fatArray);
-        fsIO.readDevice(ROOT_START, rootArray);
-LOG("3");
-        fat.setAll(fatArray);
-        LOG("3_1");
-        dmap.setAll(dmapArray);
-        LOG("3_2");
-        root.setAll(rootArray);
-        LOG("3_3");
+        fsIO.readDevice(DMAP_START, arrays->dMap);
+        fsIO.readDevice(FAT_START, arrays->fat);
+        fsIO.readDevice(ROOT_START, arrays->root);
+
+        fat.setAll(arrays->fat);
+        dmap.setAll(arrays->dMap);
+        root.setAll(arrays->root);
     }
 LOG("4");
     RETURN(0);
