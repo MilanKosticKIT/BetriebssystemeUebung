@@ -28,16 +28,16 @@ TEST_CASE("DMap.setAll / DMap.getAll", "[DMap]") {
             dMapArray[i] = 3;
             readArray[i] = 1;
         }
-        dmap.setAll((char *) dMapArray);
-        dmap.getAll((char *) readArray);
+        dmap.setAll(dMapArray);
+        dmap.getAll(readArray);
         REQUIRE(memcmp(dMapArray, readArray, sizeof(dMapArray)) == 0);
     }
     SECTION("Random Array content"){
         DMap dmap = DMap();
         uint8_t dMapArray[(DATA_BLOCKS + 1) / 8];
         uint8_t readArray[(DATA_BLOCKS + 1) / 8];
-        dmap.setAll((char *) dMapArray);
-        dmap.getAll((char *) readArray);
+        dmap.setAll(dMapArray);
+        dmap.getAll(readArray);
         REQUIRE(memcmp(dMapArray, readArray, sizeof(dMapArray)) == 0);
     }
 }
@@ -48,10 +48,10 @@ TEST_CASE("DMap.clear", "[DMap]") {
         uint8_t dMapArray[(DATA_BLOCKS + 1) / 8];
         uint8_t readArray[(DATA_BLOCKS + 1) / 8];
         readArray[0] =  dMapArray[0] = 0xff; // set first entry to the same value
-        dmap.setAll((char *) dMapArray);
+        dmap.setAll(dMapArray);
         dMapArray[0] = 0x7f; // "clear" dmapArray[0]
         dmap.clear(0); // clear dmap[0]
-        dmap.getAll((char *) readArray); // read cleared dmap
+        dmap.getAll(readArray); // read cleared dmap
         REQUIRE(dMapArray[0] == readArray[0]);
     }
     SECTION("Clearing bit that is already clear") {
@@ -59,9 +59,9 @@ TEST_CASE("DMap.clear", "[DMap]") {
         uint8_t dMapArray[(DATA_BLOCKS + 1) / 8];
         uint8_t readArray[(DATA_BLOCKS + 1) / 8];
         readArray[0] = dMapArray[0] = 0x7f;
-        dmap.setAll((char *) dMapArray);
+        dmap.setAll(dMapArray);
         dmap.clear(0);
-        dmap.getAll((char *) readArray);
+        dmap.getAll(readArray);
         REQUIRE(readArray[0] == dMapArray[0]);
     }
     SECTION("Clearing multiple bits in dMap") {
@@ -75,13 +75,13 @@ TEST_CASE("DMap.clear", "[DMap]") {
                 default: dMapArray[i] = readArray[i] = 0x76; break;
             }
         }
-        dmap.setAll((char *) dMapArray);
+        dmap.setAll(dMapArray);
         for (int i = 0; i < (DATA_BLOCKS + 1) / 8; i++) {
             dmap.clear((uint16_t)(i * 8 + (i % 8))); // with clear
             uint8_t clearMask = ~((uint8_t) 1 << (7 - (i % 8))); // clear manually
             dMapArray[i] &= clearMask;
         }
-        dmap.getAll((char*) readArray);
+        dmap.getAll(readArray);
         REQUIRE(memcmp(readArray, dMapArray, sizeof(dMapArray)) == 0);
     }
 }
@@ -92,10 +92,10 @@ TEST_CASE("DMap.set" , "[DMap]") {
         uint8_t dMapArray[(DATA_BLOCKS + 1) / 8];
         uint8_t readArray[(DATA_BLOCKS + 1) / 8];
         dMapArray[0] = 0;
-        dmap.setAll((char *) dMapArray);
+        dmap.setAll(dMapArray);
         dMapArray[0] = 0x80;
         dmap.set(0);
-        dmap.getAll((char *) readArray);
+        dmap.getAll(readArray);
         REQUIRE(dMapArray[0] == readArray[0]);
     }
     SECTION("Setting bit that is already set") {
@@ -104,9 +104,9 @@ TEST_CASE("DMap.set" , "[DMap]") {
         uint8_t readArray[(DATA_BLOCKS + 1) / 8];
         readArray[0] = 0;
         dMapArray[0] = 0x80;
-        dmap.setAll((char *) dMapArray);
+        dmap.setAll(dMapArray);
         dmap.set(0);
-        dmap.getAll((char *) readArray);
+        dmap.getAll(readArray);
         REQUIRE(dMapArray[0] == readArray[0]);
     }
     SECTION("Setting multiple bits in dMap") {
@@ -120,13 +120,13 @@ TEST_CASE("DMap.set" , "[DMap]") {
                 default: dMapArray[i] = readArray[i] = 0x76; break;
             }
         }
-        dmap.setAll((char *) dMapArray);
+        dmap.setAll(dMapArray);
         for (int i = 0; i < (DATA_BLOCKS + 1) / 8; i++) {
             dmap.set((uint16_t)(i * 8 + (i % 8))); // with clear
             uint8_t setMask = (uint8_t) 1 << (7 - (i % 8)); // clear manually
             dMapArray[i] |= setMask;
         }
-        dmap.getAll((char*) readArray);
+        dmap.getAll(readArray);
         REQUIRE(memcmp(readArray, dMapArray, sizeof(dMapArray)) == 0);
     }
 }

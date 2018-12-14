@@ -28,7 +28,7 @@ TEST_CASE("FAT.setALL / FAT.getAll", "[FAT]"){
             fatArray[i] = FAT_TERMINATOR;
         }
         
-        fat.getAll((char * ) readArray);
+        fat.getAll(readArray);
         REQUIRE(memcmp(fatArray, readArray, sizeof(fatArray)) == 0);
     }
     SECTION("Manual to FAT_TERMINATOR set FAT"){
@@ -40,8 +40,8 @@ TEST_CASE("FAT.setALL / FAT.getAll", "[FAT]"){
             fatArray[i] = FAT_TERMINATOR;
         }
         
-        fat.setAll((char * ) fatArray);
-        fat.getAll((char * ) readArray);
+        fat.setAll(fatArray);
+        fat.getAll(readArray);
         REQUIRE(memcmp(fatArray, readArray, sizeof(fatArray)) == 0);
     }
     SECTION("Manually added various address, with terminator"){
@@ -57,8 +57,8 @@ TEST_CASE("FAT.setALL / FAT.getAll", "[FAT]"){
         fatArray[9] = 20;
         fatArray[20] = FAT_TERMINATOR;
         
-        fat.setAll((char *) fatArray);
-        fat.getAll((char *) readArray);
+        fat.setAll(fatArray);
+        fat.getAll(readArray);
         REQUIRE(memcmp(fatArray, readArray, sizeof(fatArray)) == 0);
     }
 }

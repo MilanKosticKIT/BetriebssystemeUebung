@@ -123,3 +123,38 @@ TEST_CASE( "Read/Write array", "[filesystemIO]" ) {
 
     remove(BD_PATH);
 }
+
+TEST_CASE( "Read/Write array on heap", "[filesystemIO]" ) {
+    remove(BD_PATH);
+    BlockDevice blockdevice = BlockDevice();
+    blockdevice.create(BD_PATH);
+    FilesystemIO fsIO = FilesystemIO(blockdevice);
+
+    SECTION("array < BLOCK_SIZE") {
+        auto * input = new uint16_t[10];
+        auto * output = new uint16_t[10];
+        for(int i = 0; i < 10; i++) {
+            input[i] = (uint16_t )(i * i);
+        }
+
+        fsIO.writeDevice(21, input);
+        fsIO.readDevice(21, output);
+
+        REQUIRE(memcmp(input, output, sizeof(input)) == 0);
+    }
+
+    SECTION("array > BLOCK_SIZE") {
+        auto * input = new uint64_t[201];
+        auto * output = new uint64_t[201];
+        for(int i = 0; i < 201; i++) {
+            input[i] = (uint16_t)(i + 1);
+        }
+
+        fsIO.writeDevice(5, input);
+        fsIO.readDevice(5, output);
+
+        REQUIRE(memcmp(input, output, sizeof(input)) == 0);
+    }
+
+    remove(BD_PATH);
+}
