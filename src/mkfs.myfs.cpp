@@ -157,8 +157,7 @@ int main(int argc, char *argv[]) {
     } else {
         // error: name of containerfile missing
     }
-
-    return 0;
+    return errno;
 }
 
 
