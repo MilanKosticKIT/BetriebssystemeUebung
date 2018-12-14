@@ -38,6 +38,8 @@ public:
 
     void get(uint16_t num, fileStats* filestats);
     int set(uint16_t num, char* filePath);
+    bool exists(uint16_t index);
+    int getName(uint16_t index, char** name);
 
 };
 

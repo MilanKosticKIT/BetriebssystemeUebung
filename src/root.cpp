@@ -2,6 +2,7 @@
 // Created by test on 05.11.2018.
 //
 #include <errno.h>
+#include <myfs-structs.h>
 
 #include "root.h"
 
@@ -112,6 +113,29 @@ int Root::update(fileStats filestats) {
 //return filestats of the file under given number
 void Root::get(uint16_t num, fileStats* filestats) {
     *filestats = rootArray[num];
+}
+
+bool Root::exists(uint16_t index) {
+    if (index <= ROOT_ARRAY_SIZE) {
+        if (rootArray[index].size >= 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+int Root::getName(uint16_t index, char** name) {
+    if (index <= ROOT_ARRAY_SIZE) {
+        if (rootArray[index].size >= 0) {
+            *name = rootArray[index].name;
+            return 0;
+        }
+        errno = ENOENT;
+        return -1;
+    } else {
+        errno = ENXIO;
+        return -1;
+    }
 }
 
 //get filestats info from new file and add it to given position

@@ -328,15 +328,17 @@ int MyFS::fuseOpendir(const char *path, struct fuse_file_info *fileInfo) {
 int MyFS::fuseReaddir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
 
-    fileStats file;
-    struct stat s;
     filler(buf, ".", NULL, 0);
     filler(buf, "..", NULL, 0);
+    filler(buf, "Testdatei", NULL, 0);
+
     for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
-        root.get(i, &file);
-        if (file.size >= 0) { // if file exists
-            fuseGetattr(file.name, &s);
-            filler(buf, file.name, NULL, 0);
+        if (root.exists(i)) {
+            struct stat s;
+            char* name;
+            root.getName(i, &name);
+            fuseGetattr(name, &s);
+            filler(buf, name, &s, 0);
         }
     }
 
