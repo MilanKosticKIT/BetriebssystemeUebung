@@ -21,6 +21,7 @@
 #include "myfs-info.h"
 #include "myfs-structs.h"
 #include <errno.h>
+#include <string>
 
 MyFS* MyFS::_instance = NULL;
 
@@ -338,6 +339,10 @@ int MyFS::fuseReaddir(const char *path, void *buf, fuse_fill_dir_t filler, off_t
             char* name;
             root.getName(i, &name);
             fuseGetattr(name, &s);
+            LOG("name fuseReaddir:");
+            LOG(name);
+            LOG("struct s fuseReaddir");
+            LOGI((int)s.st_size);
             filler(buf, name, &s, 0);
         }
     }
@@ -379,6 +384,7 @@ void MyFS::fuseDestroy() {
 
 void* MyFS::fuseInit(struct fuse_conn_info *conn) {
     // Open logfile
+
     this->logFile= fopen(((MyFsInfo *) fuse_get_context()->private_data)->logFile, "w+");
     if(this->logFile == NULL) {
         fprintf(stderr, "ERROR: Cannot open logfile %s\n", ((MyFsInfo *) fuse_get_context()->private_data)->logFile);
@@ -395,7 +401,6 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
         LOGF("Container file name: %s", ((MyFsInfo *) fuse_get_context()->private_data)->contFile);
 
         // TODO: Implement your initialization methods here!
-
         MyfsArrays *arrays = new MyfsArrays;
 
         fsIO.readDevice(SUPERBLOCK_START, superblock);

@@ -7,7 +7,6 @@
 /* 4096 byte blocks
 #define DATA_BYTES 33554432
 #define DATA_BLOCKS 8192
-<<<<<<< HEAD
 #define BLOCK_SIZE  4096
 */
 
@@ -17,7 +16,7 @@
 #define NUM_DIR_ENTRIES 64
 #define NUM_OPEN_FILES 64
 
-#define DATA_BYTES (33554432 - 512)//33554432
+#define DATA_BYTES (33554432 - 512)
 #define DATA_BLOCKS 65535
 #define BLOCK_SIZE  512
 #define FAT_TERMINATOR DATA_BLOCKS

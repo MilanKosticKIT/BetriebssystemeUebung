@@ -24,6 +24,12 @@ do { fprintf(this->logFile, "\t%s\n", (text)); } while (0)
 
 #define LOGP(pointer) \
 do { fprintf(this->logFile, "\t%p\n", (pointer)); } while (0)
+
+#define LOGI(int) \
+do { fprintf(this->logFile, "\t%d\n", (int)); } while (0)
+
+
+
 #else
 #define LOGF(fmt, ...)
 #define LOG(text)
