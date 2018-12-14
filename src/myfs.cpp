@@ -45,9 +45,9 @@ int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
     char* name = (char*) malloc(strlen(path));
     strcpy(name, path);
     LOG("Path:");
-    LOGS(path);
+    LOG(path);
     LOG("Name:");
-    LOGS(name);
+    LOG(name);
 
    // LOGP(name);
 
