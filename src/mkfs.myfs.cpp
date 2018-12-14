@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
                 if (fileDescriptor < 0) {
                     std::cout << "errno: " << errno << std::endl;
                 } else {
-                    ssize_t retRead;
+                    ssize_t retRead = 1;
                     char buffer[BLOCK_SIZE];
                     int ret = 0;
 
@@ -98,28 +98,17 @@ int main(int argc, char *argv[]) {
                         std::cout << "Root.get errno: " << errno << std::endl;
                     }
                     uint16_t currentBlock;
+                    uint16_t nextBlock;
                     ret = dmap.getFreeBlock(&currentBlock);
                     if (ret < 0) {
                         std::cout << "DMap.getFreeBlock errno: " << errno << std::endl;
                     }
                     stats.first_block = currentBlock;
 
-                    std::cout << "Writing the folowing blocks: ";
-                    retRead = read(fileDescriptor, buffer, BLOCK_SIZE);
 
-                    std::cout << currentBlock << ",";
-                    ret = blockDevice.write(DATA_START + currentBlock, buffer);
-                    if (ret < 0) {
-                        std::cout << "BlockDevice.write errno: " << errno << std::endl;
-                    }
-                    dmap.set(currentBlock);
-                    stats.size += retRead;
 
                     while (retRead > 0) {
-                        ret = dmap.getFreeBlock(&currentBlock);
-                        if (ret < 0) {
-                            std::cout << "DMap.getFreeBlock errno: " << errno << std::endl;
-                        }
+                        retRead = read(fileDescriptor, buffer, BLOCK_SIZE);
                         std::cout << currentBlock << ",";
                         ret = blockDevice.write(DATA_START + currentBlock, buffer);
                         if (ret < 0) {
@@ -127,13 +116,17 @@ int main(int argc, char *argv[]) {
                         }
                         dmap.set(currentBlock);
                         stats.size += retRead;
-
-                        ret = fat.addToFAT(stats.first_block, currentBlock);
+                        ret = dmap.getFreeBlock(&nextBlock);
+                        if (ret < 0) {
+                            std::cout << "DMap.getFreeBlock errno: " << errno << std::endl;
+                        }
+                        ret = fat.addNextToFAT(currentBlock, nextBlock);
                         if (ret < 0) {
                             std::cout << "FAT.addToFAT errno: " << errno << std::endl;
                         }
+                        currentBlock = nextBlock;
 
-                        retRead = read(fileDescriptor, buffer, BLOCK_SIZE);
+
                     }
                     std::cout << std::endl;
                     fat.addLastToFAT(currentBlock);

@@ -20,6 +20,7 @@ public:
 	int iterateFAT(uint16_t firstBlock, std::list<uint16_t>* list);
 	int deleteFromFAT(uint16_t firstBlock);
 	int addToFAT(uint16_t firstBlock, uint16_t nextAddress);
+	int addNextToFAT(uint16_t currentLastBlock, uint16_t nextBlock);
 	void addLastToFAT(uint16_t lastAddress);
 	void setAll(uint16_t* p);
 	void getAll(uint16_t* p);

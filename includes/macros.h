@@ -20,10 +20,14 @@ exit(-1);\
 do { fprintf(this->logFile, "\t" fmt "\n", __VA_ARGS__); } while (0)
 
 #define LOG(text) \
-do { fprintf(this->logFile, "\t" text "\n"); } while (0)
+do { fprintf(this->logFile, "\t%s\n", (text)); } while (0)
+
+#define LOGP(pointer) \
+do { fprintf(this->logFile, "\t%p\n", (pointer)); } while (0)
 #else
 #define LOGF(fmt, ...)
 #define LOG(text)
+#define LOGP(pointer)
 #endif
 
 #ifdef DEBUG_METHODS
