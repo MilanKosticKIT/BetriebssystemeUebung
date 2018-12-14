@@ -65,6 +65,14 @@ int FAT::addToFAT(uint16_t firstBlock, uint16_t nextAddress) {
     return 0;
 }
 
+int FAT::addNextToFAT(uint16_t currentLastBlock, uint16_t nextBlock) {
+    if (currentLastBlock == nextBlock){
+
+    }
+    fat[currentLastBlock] = nextBlock;
+    return 0;
+}
+
 //add the last block of a file to FAT
 void FAT::addLastToFAT(uint16_t lastAddress) {
 	fat[lastAddress] = FAT_TERMINATOR;

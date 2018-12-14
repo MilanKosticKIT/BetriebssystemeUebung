@@ -49,6 +49,8 @@ int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
     LOG("Name:");
     LOGS(name);
 
+   // LOGP(name);
+
     fileStats fileStats1;
     int res = root.get(name, &fileStats1);
     if (res == -1){
@@ -63,6 +65,7 @@ int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
     stats.st_atime = fileStats1.last_time;
     stats.st_ctime = fileStats1.change_time;
     stats.st_mtime = fileStats1.modi_time;
+
     if (strcmp("/", name) == 0) {
         stats.st_nlink = 2;
     } else {
