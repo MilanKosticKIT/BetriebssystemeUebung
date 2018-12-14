@@ -16,7 +16,9 @@ DMap::DMap(){
     firstFreeAddress = 0;
 }
 
-
+DMap::~DMap() {
+    delete[] dMapValues;
+}
 
 //Marks an address as empty.
 void DMap::clear(uint16_t clearAddress) {
@@ -90,15 +92,15 @@ int DMap::getFreeBlock(uint16_t* freeBlock){
     }
 }
 
-void DMap::getAll(char* p) {
+void DMap::getAll(uint8_t* p) {
     for (int i = 0; i < (DATA_BLOCKS + 1) / 8; i++){
-        *((uint8_t*) p + i) = dMapValues[i];
+        *(p + i) = dMapValues[i];
     }
 }
 
-void DMap::setAll(char* p) {
+void DMap::setAll(uint8_t* p) {
     for (int i = 0; i < (DATA_BLOCKS + 1) / 8; i++){
-        dMapValues[i] = (uint8_t) *(p + i);
+        dMapValues[i] = *(p + i);
     }
     findFirstFreeAddress(0);
 }

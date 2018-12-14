@@ -10,7 +10,9 @@ FAT::FAT() {
 	}
 }
 
-
+FAT::~FAT() {
+	delete[] fat;
+}
 
 
 //MARK: - FAT
@@ -68,17 +70,14 @@ void FAT::addLastToFAT(uint16_t lastAddress) {
 	fat[lastAddress] = FAT_TERMINATOR;
 }
 
-
-void FAT::setAll(char* p){
+void FAT::setAll(uint16_t* p){
 	for (int i = 0; i < DATA_BLOCKS; i++){
-		fat[i] = *((uint16_t*) p + i);
+		fat[i] = *(p + i);
 	}
 }
 
-
-
-void FAT::getAll(char* p){
+void FAT::getAll(uint16_t* p){
 	for (int i = 0; i < DATA_BLOCKS; i++){
-		*((uint16_t*) p + i) = fat[i];
+		*(p + i) = fat[i];
 	}
 }

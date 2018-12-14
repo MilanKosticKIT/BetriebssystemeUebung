@@ -51,8 +51,8 @@ int main(int argc, char *argv[]) {
         fileStats rootArray[ROOT_ARRAY_SIZE];
 
         std::cout << "Creating Filesystem" << std::endl;
-        fat.getAll((char *) fatArray);
-        dmap.getAll((char *) dMapArray);
+        fat.getAll(fatArray);
+        dmap.getAll(dMapArray);
         root.getAll(rootArray);
         std::cout << "Initializing Filesystem" << std::endl;
         fsIO.writeDevice(SUPERBLOCK_START, superblock);
@@ -149,8 +149,8 @@ int main(int argc, char *argv[]) {
 
             }
             std::cout << "Writing Filesystem data" << std::endl;
-            dmap.getAll((char*) dMapArray);
-            fat.getAll((char*) fatArray);
+            dmap.getAll(dMapArray);
+            fat.getAll(fatArray);
             root.getAll(rootArray);
             fsIO.writeDevice(SUPERBLOCK_START, superblock);
             fsIO.writeDevice(DMAP_START, dMapArray);

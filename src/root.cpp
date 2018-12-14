@@ -14,6 +14,7 @@ Root::Root() {
 }
 
 Root::~Root() {
+    delete[] rootArray;
 }
 
 //return full filestats array (for writing to hard driver)

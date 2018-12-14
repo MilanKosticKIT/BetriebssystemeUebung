@@ -26,12 +26,13 @@ class DMap{
 
 public:
     DMap();
+    ~DMap();
     void clear(uint16_t clearAddress);
     void set(uint16_t setAddress);
     int getFreeBlock(uint16_t* freeBlock);
 
-    void getAll(char* p);
-    void setAll(char* p);
+    void getAll(uint8_t* p);
+    void setAll(uint8_t* p);
 
 };
 
