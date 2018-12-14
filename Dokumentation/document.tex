@@ -4,7 +4,9 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{graphicx}
-
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{comment}
 \renewcommand{\contentsname}{Inhaltsverzeichnis}
 
 \begin{document}
@@ -18,14 +20,52 @@ Da Dateisystemverwaltung auf Kernel Ebene stattfindet, wurde File System In User
 Entwickelt wurde das Dateisystem mit hilfe von XCode unter MacOS in C++.
 Zur Versionsverwaltung und zur Projektverwaltung wurde GitHub benutzt.
 \subsection{Struktur der Containerdatei}
+\label{subsec:struktur}
 Die Containerdatei wurde intern in 5 Abschnitte unterteilt.
 \\ 
 \begin{enumerate}
 \item Superblock  $\Rightarrow$ \textit{Informationen über das Dateisystem} 
-\item FAT	$\Rightarrow$ \textit{Verlinkung von Datenblöcken zu Dateien} 
-
-\item DMAP $\Rightarrow$ \textit{Übersicht freier Datenblöcke} 
+\item DMAP $\Rightarrow$ \textit{Übersicht freier Datenblöcke}
+\item FAT	$\Rightarrow$ \textit{Verlinkung von Datenblöcken zu Dateien}  
 \item Root $\Rightarrow$ \textit{Informationen über Dateien} 
 \item Datenblöcke $\Rightarrow$ \textit{Dateien in MyFs geteilt in Blöcke} 
 \end{enumerate}
+\subsection{Projektstruktur}
+Bei der Projektplanung haben wir uns an dem MVC Pattern orientiert.
+Wir haben getrennte Klassen für die einzelnen Abschnitte (siehe \ref{subsec:struktur}), welche die Logik/Modell stellen.
+Dazu gibt es die Klasse "FilesystemIO" welche Methoden für das Schreiben in die Containerdatei, sowie das Lesen daraus zur Verfügung stellt und in dem Pattern als View angesehen werden kann.
+Objekte dieser Klassen werden von einer übergeordneten Klasse "MyFS" erzeugt.
+Diese ruft Methoden aus den Klassen auf, um die Ausführung des Programms zu steuern und kann als Control in dem MVC Pattern angesehen werden.
+\newpage
+\section{Implementierung}
+\subsection{Superblock}
+Der Superblock enthält wichtige Informationen über das Dateisystem an sich. In ihm werden sowohl Informationen die für das Betriebssystem und den Benutzer relevant sind wie Größe des Dateisystems, der freie Speicherplatz und maximale Speichergröße. Als auch für den Betrieb des Dateisystems wichtige Daten wie die jeweiligen Startadressen der Bestandteile und die Größe dieser. Von der Implementierung ist es eine Struct mit 16 bit unsigned Integer werten.
+
+
+\subsection{DMAP}
+Die DMAP ist dazu da, einen Überblick zu schaffen, welche Datenblöcke frei sind.
+Im Endeffekt handelt es sich um einen Integer Array dessen Länge, der Anzahl vorhandenen Datenblöcke im Dateisystem entspricht. Dabei bedeutet eine "0" an Stelle x im Array, dass der x-te Datenblock frei ist, dementsprechend eine "1", dass der Datenblock belegt ist.  
+\\
+Die Klasse DMAP stellt 5 öffentliche Methoden, es können Blöcke als belegt und frei gesetzt werden.
+Außerdem gibt die Methode "getFreeBlock" den nächsten freien Block zurück
+
+\begin{comment}
+\lstinputlisting
+[caption={Superblock}
+\label{lst:superblock},
+captionpos=b,language=C++,firstline=29,lastline=41]
+{../includes/myfs-structs.h}
+
+
+\lstinputlisting
+[caption={DMAP}
+\label{lst:dmap},
+captionpos=b,language=C++, basicstyle=\ttfamily,
+keywordstyle=\color{blue}\ttfamily,
+stringstyle=\color{purple}\ttfamily,
+commentstyle=\color{gray}\ttfamily,
+]%
+{../src/dmap.cpp}
+\end{comment}
+
 \end{document}

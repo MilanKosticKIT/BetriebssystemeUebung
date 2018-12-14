@@ -2,3 +2,7 @@
 \contentsline {subsection}{\numberline {1.1}Ziel}{2}
 \contentsline {subsection}{\numberline {1.2}Technische Umgebung}{2}
 \contentsline {subsection}{\numberline {1.3}Struktur der Containerdatei}{2}
+\contentsline {subsection}{\numberline {1.4}Projektstruktur}{2}
+\contentsline {section}{\numberline {2}Implementierung}{3}
+\contentsline {subsection}{\numberline {2.1}Superblock}{3}
+\contentsline {subsection}{\numberline {2.2}DMAP}{3}
