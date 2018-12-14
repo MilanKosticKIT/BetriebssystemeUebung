@@ -14,7 +14,7 @@ set(MKFS
         src/dmap.cpp
         src/fat.cpp
         src/root.cpp
-        )
+        includes/log.h)
 
 set(MOUNT
         src/blockdevice.cpp
@@ -24,7 +24,7 @@ set(MOUNT
         src/dmap.cpp
         src/fat.cpp
         src/root.cpp
-        )
+        includes/log.h)
 
 set(UNITTEST
         src/blockdevice.cpp
@@ -39,7 +39,8 @@ set(UNITTEST
         unittests/test-dmap.cpp
         unittests/test-fat.cpp
         unittests/test-root.cpp
-        unittests/helper.cpp)
+        unittests/helper.cpp
+        includes/log.h)
 
 include_directories(includes)
 
