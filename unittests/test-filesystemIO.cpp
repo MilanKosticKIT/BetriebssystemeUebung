@@ -14,6 +14,7 @@
 #include "helper.hpp"
 #include "constants.h"
 #include "filesystemIO.h"
+#include "fsIO-new.h"
 
 #define BD_PATH "Test_Blockdevice.bin"
 
@@ -121,5 +122,77 @@ TEST_CASE( "Read/Write array, on Stack", "[filesystemIO]" ) {
         REQUIRE(memcmp(input, output, sizeof(input)) == 0);
     }
 
+    remove(BD_PATH);
+}
+
+TEST_CASE( "Read/Write struct", "[fsIO-new]" ) {
+    remove(BD_PATH);
+    BlockDevice blockdevice = BlockDevice();
+    blockdevice.create(BD_PATH);
+    NewFilesystemIO fsIO = NewFilesystemIO(blockdevice);
+    
+    SECTION("struct < BLOCK_SIZE") {
+        fileStats input;
+        fileStats output;
+        input.size = 1024;
+        
+        fsIO.writeDevice(15, input);
+        fsIO.readDevice(15, output);
+        
+        REQUIRE(memcmp(&input, &output, sizeof(fileStats)) == 0);
+    }
+    
+    SECTION("struct > BLOCK_SIZE") {
+        testData input;
+        testData output;
+        input.before = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+        input.first = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+        input.second = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+        input.third = {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3};
+        input.fourth = {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4};
+        input.fifth = {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5};
+        input.after = {11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+        
+        fsIO.writeDevice(2, input);
+        fsIO.readDevice(2, output);
+        
+        REQUIRE(memcmp(&input, &output, sizeof(testData)) == 0);
+    }
+    
+    remove(BD_PATH);
+}
+
+TEST_CASE( "Read/Write array, on Stack", "[fsIO-new]" ) {
+    remove(BD_PATH);
+    BlockDevice blockdevice = BlockDevice();
+    blockdevice.create(BD_PATH);
+    NewFilesystemIO fsIO = NewFilesystemIO(blockdevice);
+    
+    SECTION("array < BLOCK_SIZE") {
+        uint16_t input[10];
+        uint16_t output[10];
+        for(int i = 0; i < 10; i++) {
+            input[i] = i * i;
+        }
+        
+        fsIO.writeDevice(21, input);
+        fsIO.readDevice(21, output);
+        
+        REQUIRE(memcmp(input, output, sizeof(input)) == 0);
+    }
+    
+    SECTION("array > BLOCK_SIZE") {
+        uint64_t input[201];
+        uint64_t output[201];
+        for(int i = 0; i < 201; i++) {
+            input[i] = i + 1;
+        }
+        
+        fsIO.writeDevice(5, input);
+        fsIO.readDevice(5, output);
+        
+        REQUIRE(memcmp(input, output, sizeof(input)) == 0);
+    }
+    
     remove(BD_PATH);
 }
