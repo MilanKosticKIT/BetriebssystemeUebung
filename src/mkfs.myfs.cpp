@@ -21,12 +21,12 @@
 #include "blockdevice.h"
 #include "macros.h"
 #include "constants.h"
+#include "log.h"
 
 #include "dmap.h"
 #include "fat.h"
 #include "root.h"
 #include "filesystemIO.h"
-#include "log.h"
 
 //MARK: - Methodenheader
 
@@ -47,19 +47,19 @@ int main(int argc, char *argv[]) {
         //blockDevice.create("./Blockdevice.bin");
 
         // write empty filesystem
-        uint16_t fatArray[DATA_BLOCKS];
-        uint8_t dMapArray[(DATA_BLOCKS + 1) / 8];
-        fileStats rootArray[ROOT_ARRAY_SIZE];
+        uint16_t* fatArray = new uint16_t[DATA_BLOCKS];
+        uint8_t* dMapArray = new uint8_t[(DATA_BLOCKS + 1) / 8];
+        fileStats* rootArray = new fileStats[ROOT_ARRAY_SIZE];
 
         std::cout << "Creating Filesystem" << std::endl;
         fat.getAll(fatArray);
         dmap.getAll(dMapArray);
         root.getAll(rootArray);
         std::cout << "Initializing Filesystem" << std::endl;
-        fsIO.writeDevice(SUPERBLOCK_START, superblock);
-        fsIO.writeDevice(DMAP_START, dMapArray);
-        fsIO.writeDevice(FAT_START, fatArray);
-        fsIO.writeDevice(ROOT_START, rootArray);
+        fsIO.writeDevice(SUPERBLOCK_START, &superblock, sizeof(superblock));
+        fsIO.writeDevice(DMAP_START, dMapArray, sizeof(*dMapArray) * (DATA_BLOCKS + 1) / 8);
+        fsIO.writeDevice(FAT_START, fatArray, sizeof(*fatArray) * DATA_BLOCKS);
+        fsIO.writeDevice(ROOT_START, rootArray, sizeof(*rootArray) * ROOT_ARRAY_SIZE);
 
         if (argc > 2) {
             //When the files to copy are too large for our filesystem
@@ -157,15 +157,20 @@ int main(int argc, char *argv[]) {
             dmap.getAll(dMapArray);
             fat.getAll(fatArray);
             root.getAll(rootArray);
-            fsIO.writeDevice(SUPERBLOCK_START, superblock);
-            fsIO.writeDevice(DMAP_START, dMapArray);
-            fsIO.writeDevice(FAT_START, fatArray);
-            fsIO.writeDevice(ROOT_START, rootArray);
+            fsIO.writeDevice(SUPERBLOCK_START, &superblock, sizeof(superblock));
+            fsIO.writeDevice(DMAP_START, dMapArray, sizeof(*dMapArray) * (DATA_BLOCKS + 1) / 8);
+            fsIO.writeDevice(FAT_START, fatArray, sizeof(*fatArray) * DATA_BLOCKS);
+            fsIO.writeDevice(ROOT_START, rootArray, sizeof(*rootArray) * ROOT_ARRAY_SIZE);
+
+            delete[] dMapArray;
+            delete[] fatArray;
+            delete[] rootArray;
+
             }else {
                 std::cout << "The files to copy are to big for the filesystem. Aborting" << std::endl;
                 return errno;
             }
-            
+
         }
     } else {
         std::cout << "Invalid Arguments: Name of Containerfile missing!" << std::endl;

@@ -406,23 +406,19 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
         LOGF("Container file name: %s", ((MyFsInfo *) fuse_get_context()->private_data)->contFile);
 
         // TODO: Implement your initialization methods here!
-        MyfsArrays *arrays = new MyfsArrays;
-        MyfsArrays *initialValues = new MyfsArrays;
-        LOG("sizeof root Read array:");
-        LOGI((int) sizeof(initialValues->root));
-        memcpy(arrays->root, initialValues->root, sizeof(initialValues->root));
 
-        fsIO.readDevice(SUPERBLOCK_START, superblock);
-        fsIO.readDevice(DMAP_START, arrays->dMap);
-        fsIO.readDevice(FAT_START, arrays->fat);
-        fsIO.readDevice(ROOT_START, arrays->root);
+        uint16_t* fatArray = new uint16_t[DATA_BLOCKS];
+        uint8_t* dMapArray = new uint8_t[(DATA_BLOCKS + 1) / 8];
+        fileStats* rootArray = new fileStats[ROOT_ARRAY_SIZE];
 
-        fat.setAll(arrays->fat);
-        dmap.setAll(arrays->dMap);
-        root.setAll(arrays->root);
+        fsIO.readDevice(SUPERBLOCK_START, &superblock, sizeof(superblock));
+        fsIO.readDevice(DMAP_START, dMapArray, sizeof(*dMapArray) * (DATA_BLOCKS + 1) / 8);
+        fsIO.readDevice(FAT_START, fatArray, sizeof(*fatArray) * DATA_BLOCKS);
+        fsIO.readDevice(ROOT_START, rootArray, sizeof(*rootArray) * ROOT_ARRAY_SIZE);
 
-        LOG("memcmp");
-        LOGI(memcmp(initialValues->root, arrays->root, sizeof(arrays->root)));
+        dmap.setAll(dMapArray);
+        fat.setAll(fatArray);
+        root.setAll(rootArray);
 
         LOG("----------Root Array----------");
         for(int i = 0; i < ROOT_ARRAY_SIZE; i++) {
@@ -434,6 +430,10 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
             LOGI((int) stats.size);
             LOG("------------------");
         }
+
+        delete[] dMapArray;
+        delete[] fatArray;
+        delete[] rootArray;
     }
     RETURN(0);
 }
