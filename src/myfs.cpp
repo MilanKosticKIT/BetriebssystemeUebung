@@ -335,14 +335,19 @@ int MyFS::fuseReaddir(const char *path, void *buf, fuse_fill_dir_t filler, off_t
 
     for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
         if (root.exists(i)) {
+            LOG("Eintrag existiert: ");
+            LOGI(i);
+            LOG("Size:");
+            fileStats test;
+            root.get(i, &test);
+            LOGI((int)test.size);
             struct stat s;
             char* name;
-            root.getName(i, &name);
-            fuseGetattr(name, &s);
-            LOG("name fuseReaddir:");
+            LOG("getName successful:");
+            LOGI(root.getName(i, &name));
+            LOG("Name:");
             LOG(name);
-            LOG("struct s fuseReaddir");
-            LOGI((int)s.st_size);
+            fuseGetattr(name, &s);
             filler(buf, name, &s, 0);
         }
     }
@@ -402,6 +407,10 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
 
         // TODO: Implement your initialization methods here!
         MyfsArrays *arrays = new MyfsArrays;
+        MyfsArrays *initialValues = new MyfsArrays;
+        LOG("sizeof root Read array:");
+        LOGI((int) sizeof(initialValues->root));
+        memcpy(arrays->root, initialValues->root, sizeof(initialValues->root));
 
         fsIO.readDevice(SUPERBLOCK_START, superblock);
         fsIO.readDevice(DMAP_START, arrays->dMap);
@@ -411,6 +420,20 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
         fat.setAll(arrays->fat);
         dmap.setAll(arrays->dMap);
         root.setAll(arrays->root);
+
+        LOG("memcmp");
+        LOGI(memcmp(initialValues->root, arrays->root, sizeof(arrays->root)));
+
+        LOG("----------Root Array----------");
+        for(int i = 0; i < ROOT_ARRAY_SIZE; i++) {
+            LOG("Root array index: ");
+            LOGI(i);
+            fileStats stats;
+            root.get(i, &stats);
+            LOG("size");
+            LOGI((int) stats.size);
+            LOG("------------------");
+        }
     }
     RETURN(0);
 }
