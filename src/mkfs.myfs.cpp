@@ -168,7 +168,8 @@ int main(int argc, char *argv[]) {
             
         }
     } else {
-        // error: name of containerfile missing
+        std::cout << "Invalid Arguments: Name of Containerfile missing!" << std::endl;
+        return errno = 666;
     }
     return 0;
 }
