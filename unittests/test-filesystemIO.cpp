@@ -53,79 +53,7 @@ typedef struct {
     testNumbers after;
 } testData;
 
-TEST_CASE( "Read/Write struct", "[filesystemIO]" ) {
-    remove(BD_PATH);
-    BlockDevice blockdevice = BlockDevice();
-    blockdevice.create(BD_PATH);
-    FilesystemIO fsIO = FilesystemIO(blockdevice);
-
-    SECTION("struct < BLOCK_SIZE") {
-        fileStats input;
-        fileStats output;
-        input.size = 1024;
-
-        fsIO.writeDevice(15, input);
-        fsIO.readDevice(15, output);
-
-        REQUIRE(memcmp(&input, &output, sizeof(fileStats)) == 0);
-    }
-
-    SECTION("struct > BLOCK_SIZE") {
-        testData input;
-        testData output;
-        input.before = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-        input.first = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-        input.second = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
-        input.third = {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3};
-        input.fourth = {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4};
-        input.fifth = {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5};
-        input.after = {11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-
-        fsIO.writeDevice(2, input);
-        fsIO.readDevice(2, output);
-
-        REQUIRE(memcmp(&input, &output, sizeof(testData)) == 0);
-    }
-
-    remove(BD_PATH);
-}
-
-TEST_CASE( "Read/Write array, on Stack", "[filesystemIO]" ) {
-    remove(BD_PATH);
-    BlockDevice blockdevice = BlockDevice();
-    blockdevice.create(BD_PATH);
-    FilesystemIO fsIO = FilesystemIO(blockdevice);
-
-    SECTION("array < BLOCK_SIZE") {
-        uint16_t input[10];
-        uint16_t output[10];
-        for(int i = 0; i < 10; i++) {
-            input[i] = i * i;
-        }
-
-        fsIO.writeDevice(21, input);
-        fsIO.readDevice(21, output);
-
-        REQUIRE(memcmp(input, output, sizeof(input)) == 0);
-    }
-
-    SECTION("array > BLOCK_SIZE") {
-        uint64_t input[201];
-        uint64_t output[201];
-        for(int i = 0; i < 201; i++) {
-            input[i] = i + 1;
-        }
-
-        fsIO.writeDevice(5, input);
-        fsIO.readDevice(5, output);
-
-        REQUIRE(memcmp(input, output, sizeof(input)) == 0);
-    }
-
-    remove(BD_PATH);
-}
-
-TEST_CASE( "Read/Write struct", "[fsIO-new]" ) {
+TEST_CASE( "filsystemIO.Read/Write struct, on stack", "[filsystemIO]" ) {
     remove(BD_PATH);
     BlockDevice blockdevice = BlockDevice();
     blockdevice.create(BD_PATH);
@@ -136,8 +64,8 @@ TEST_CASE( "Read/Write struct", "[fsIO-new]" ) {
         fileStats output;
         input.size = 1024;
         
-        fsIO.writeDevice(15, input);
-        fsIO.readDevice(15, output);
+        fsIO.writeDevice(15, &input, sizeof(input));
+        fsIO.readDevice(15, &output, sizeof(output));
         
         REQUIRE(memcmp(&input, &output, sizeof(fileStats)) == 0);
     }
@@ -153,8 +81,8 @@ TEST_CASE( "Read/Write struct", "[fsIO-new]" ) {
         input.fifth = {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5};
         input.after = {11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
         
-        fsIO.writeDevice(2, input);
-        fsIO.readDevice(2, output);
+        fsIO.writeDevice(2, &input, sizeof(input));
+        fsIO.readDevice(2, &output, sizeof(output));
         
         REQUIRE(memcmp(&input, &output, sizeof(testData)) == 0);
     }
@@ -162,7 +90,7 @@ TEST_CASE( "Read/Write struct", "[fsIO-new]" ) {
     remove(BD_PATH);
 }
 
-TEST_CASE( "Read/Write array, on Stack", "[fsIO-new]" ) {
+TEST_CASE( "filsystemIO.Read/Write array, on stack", "[filsystemIO]" ) {
     remove(BD_PATH);
     BlockDevice blockdevice = BlockDevice();
     blockdevice.create(BD_PATH);
@@ -175,8 +103,8 @@ TEST_CASE( "Read/Write array, on Stack", "[fsIO-new]" ) {
             input[i] = i * i;
         }
         
-        fsIO.writeDevice(21, input);
-        fsIO.readDevice(21, output);
+        fsIO.writeDevice(21, &input, sizeof(input));
+        fsIO.readDevice(21, &output, sizeof(output));
         
         REQUIRE(memcmp(input, output, sizeof(input)) == 0);
     }
@@ -188,11 +116,94 @@ TEST_CASE( "Read/Write array, on Stack", "[fsIO-new]" ) {
             input[i] = i + 1;
         }
         
-        fsIO.writeDevice(5, input);
-        fsIO.readDevice(5, output);
+        fsIO.writeDevice(5, &input, sizeof(input));
+        fsIO.readDevice(5, &output, sizeof(output));
         
         REQUIRE(memcmp(input, output, sizeof(input)) == 0);
     }
     
     remove(BD_PATH);
 }
+
+TEST_CASE( "filsystemIO.Read/Write struct, on heap", "[filsystemIO]" ) {
+    remove(BD_PATH);
+    BlockDevice blockdevice = BlockDevice();
+    blockdevice.create(BD_PATH);
+    NewFilesystemIO fsIO = NewFilesystemIO(blockdevice);
+    
+    SECTION("struct < BLOCK_SIZE") {
+        fileStats* input = new fileStats;
+        fileStats* output = new fileStats;
+        input->size = 1024;
+        
+        fsIO.writeDevice(15, input, sizeof(*input));
+        fsIO.readDevice(15, output, sizeof(*output));
+        
+        REQUIRE(memcmp(input, output, sizeof(fileStats)) == 0);
+        delete input;
+        delete output;
+    }
+    
+    SECTION("struct > BLOCK_SIZE") {
+        testData* putput = new testData;
+        testData* output = new testData;
+        putput->before = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+        putput->first = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+        putput->second = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+        putput->third = {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3};
+        putput->fourth = {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4};
+        putput->fifth = {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5};
+        putput->after = {11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+        
+        fsIO.writeDevice(2, putput, sizeof(*putput));
+        fsIO.readDevice(2, output, sizeof(*output));
+        
+        REQUIRE(memcmp(putput, output, sizeof(testData)) == 0);
+        delete putput;
+        delete output;
+    }
+    
+    remove(BD_PATH);
+}
+
+TEST_CASE( "filsystemIO.Read/Write array, on heap", "[filsystemIO]" ) {
+    remove(BD_PATH);
+    BlockDevice blockdevice = BlockDevice();
+    blockdevice.create(BD_PATH);
+    NewFilesystemIO fsIO = NewFilesystemIO(blockdevice);
+    
+    SECTION("array < BLOCK_SIZE") {
+        uint16_t arraySize = 10;
+        uint16_t* input = new uint16_t[arraySize];
+        uint16_t* output = new uint16_t[arraySize];
+        for(int i = 0; i < arraySize; i++) {
+            input[i] = i * i;
+        }
+        
+        fsIO.writeDevice(21, input, sizeof(*input) * arraySize);
+        fsIO.readDevice(21, output, sizeof(*output) * arraySize);
+        
+        REQUIRE(memcmp(input, output, sizeof(*input)) == 0);
+        delete[] input;
+        delete[] output;
+    }
+    
+    SECTION("array > BLOCK_SIZE") {
+        uint16_t arraySize = 201;
+        uint16_t* input = new uint16_t[arraySize];
+        uint16_t* output = new uint16_t[arraySize];
+        for(int i = 0; i < arraySize; i++) {
+            input[i] = i + 1;
+        }
+        
+        fsIO.writeDevice(5, input, sizeof(*input));
+        fsIO.readDevice(5, output, sizeof(*output));
+        
+        REQUIRE(memcmp(input, output, sizeof(*input)) == 0);
+        delete[] input;
+        delete[] output;
+    }
+    
+    remove(BD_PATH);
+}
+
