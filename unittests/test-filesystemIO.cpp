@@ -89,7 +89,7 @@ TEST_CASE( "Read/Write struct", "[filesystemIO]" ) {
     remove(BD_PATH);
 }
 
-TEST_CASE( "Read/Write array", "[filesystemIO]" ) {
+TEST_CASE( "Read/Write array, on Stack", "[filesystemIO]" ) {
     remove(BD_PATH);
     BlockDevice blockdevice = BlockDevice();
     blockdevice.create(BD_PATH);

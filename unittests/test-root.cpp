@@ -153,3 +153,27 @@ TEST_CASE("Root.update", "[Root]") {
         REQUIRE((root.update(stats) < 0 && errno == ENOENT));
     }
 }
+
+TEST_CASE("Root.exists","[Root&") {
+    SECTION("Empty Root"){
+        Root root = Root();
+        REQUIRE(!root.exists(0));
+    }
+    SECTION("On invalid indices") {
+        Root root = Root();
+        REQUIRE(!root.exists(65.536));
+    }SECTION("With existing file") {
+        Root root = Root();
+        int ret = root.createEntry("TestEntry");
+        REQUIRE(ret >= 0);
+        REQUIRE(root.exists(0));
+    }
+    SECTION("After deleting file") {
+        Root root = Root();
+        int ret = root.createEntry("TestEntry");
+        REQUIRE(ret >= 0);
+        ret = root.deleteEntry("TestEntry");
+        REQUIRE(ret >= 0);
+        REQUIRE(!root.exists(0));
+    }
+}
