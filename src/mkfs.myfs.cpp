@@ -26,6 +26,7 @@
 #include "fat.h"
 #include "root.h"
 #include "filesystemIO.h"
+#include "log.h"
 
 //MARK: - Methodenheader
 
@@ -66,6 +67,9 @@ int main(int argc, char *argv[]) {
             std::cout << "Checking if files fit in filesystem: ";
             int freeSpace = DATA_BYTES;
             struct stat buffer1;
+            log(argc);
+            log(argc);
+            log(argc);
             bool sizeOK = true;
             for (int i = 1; i < argc; i++) {
                 stat(argv[i], &buffer1);

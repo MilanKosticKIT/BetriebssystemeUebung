@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
     myfs_oper.setxattr = wrap_setxattr;
     myfs_oper.getxattr = wrap_getxattr;
     myfs_oper.listxattr = wrap_listxattr;
-    myfs_oper.removexattr = wrap_removexattr;
+    myfs_oper.removexattr =wrap_removexattr;
     myfs_oper.opendir = wrap_opendir;
     myfs_oper.readdir = wrap_readdir;
     myfs_oper.releasedir = wrap_releasedir;
