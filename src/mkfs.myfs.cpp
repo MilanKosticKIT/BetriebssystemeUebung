@@ -87,6 +87,7 @@ int main(int argc, char *argv[]) {
                 int fileDescriptor = open(filename, O_RDONLY);
                 if (fileDescriptor < 0) {
                     std::cout << "errno: " << errno << std::endl;
+                    return errno;
                 } else {
                     ssize_t retRead = 1;
                     char buffer[BLOCK_SIZE];
@@ -95,17 +96,20 @@ int main(int argc, char *argv[]) {
                     ret = root.createEntry(filename); // "create file"
                     if (ret < 0) {
                         std::cout << "Root.createEntry errno: " << errno << std::endl;
+                        return errno;
                     }
                     fileStats stats;
                     ret = root.get(filename, &stats); // get file stats
                     if (ret < 0) {
                         std::cout << "Root.get errno: " << errno << std::endl;
+                        return errno;
                     }
                     uint16_t currentBlock;
                     uint16_t nextBlock;
                     ret = dmap.getFreeBlock(&currentBlock);
                     if (ret < 0) {
                         std::cout << "DMap.getFreeBlock errno: " << errno << std::endl;
+                        return errno;
                     }
                     stats.first_block = currentBlock;
 
@@ -117,16 +121,19 @@ int main(int argc, char *argv[]) {
                         ret = blockDevice.write(DATA_START + currentBlock, buffer);
                         if (ret < 0) {
                             std::cout << "BlockDevice.write errno: " << errno << std::endl;
+                            return errno;
                         }
                         dmap.set(currentBlock);
                         stats.size += retRead;
                         ret = dmap.getFreeBlock(&nextBlock);
                         if (ret < 0) {
                             std::cout << "DMap.getFreeBlock errno: " << errno << std::endl;
+                            return errno;
                         }
                         ret = fat.addNextToFAT(currentBlock, nextBlock);
                         if (ret < 0) {
                             std::cout << "FAT.addToFAT errno: " << errno << std::endl;
+                            return errno;
                         }
                         currentBlock = nextBlock;
 
@@ -137,6 +144,7 @@ int main(int argc, char *argv[]) {
                     ret = root.update(stats);
                     if (ret < 0) {
                         std::cout << "Root.update errno: " << errno << std::endl;
+                        return errno;
                     }
                     superblock.emptySpaceSize -= stats.size;
 
@@ -155,13 +163,15 @@ int main(int argc, char *argv[]) {
             fsIO.writeDevice(ROOT_START, rootArray);
             }else {
                 std::cout << "The files to copy are to big for the filesystem. Aborting" << std::endl;
+                return errno;
             }
             
         }
     } else {
-        // error: name of containerfile missing
+        std::cout << "Invalid Arguments: Name of Containerfile missing!" << std::endl;
+        return errno = 666;
     }
-    return errno;
+    return 0;
 }
 
 
