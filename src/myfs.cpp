@@ -407,6 +407,8 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
 
         // TODO: Implement your initialization methods here!
 
+        blockDevice.open(((MyFsInfo *) fuse_get_context()->private_data)->contFile);
+
         uint16_t* fatArray = new uint16_t[DATA_BLOCKS];
         uint8_t* dMapArray = new uint8_t[(DATA_BLOCKS + 1) / 8];
         fileStats* rootArray = new fileStats[ROOT_ARRAY_SIZE];

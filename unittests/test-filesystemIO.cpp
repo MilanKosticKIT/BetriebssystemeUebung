@@ -14,7 +14,6 @@
 #include "helper.hpp"
 #include "constants.h"
 #include "filesystemIO.h"
-#include "fsIO-new.h"
 
 #define BD_PATH "Test_Blockdevice.bin"
 
@@ -57,7 +56,7 @@ TEST_CASE( "filsystemIO.Read/Write struct, on stack", "[filsystemIO]" ) {
     remove(BD_PATH);
     BlockDevice blockdevice = BlockDevice();
     blockdevice.create(BD_PATH);
-    NewFilesystemIO fsIO = NewFilesystemIO(blockdevice);
+    FilesystemIO fsIO = FilesystemIO(blockdevice);
     
     SECTION("struct < BLOCK_SIZE") {
         fileStats input;
@@ -94,7 +93,7 @@ TEST_CASE( "filsystemIO.Read/Write array, on stack", "[filsystemIO]" ) {
     remove(BD_PATH);
     BlockDevice blockdevice = BlockDevice();
     blockdevice.create(BD_PATH);
-    NewFilesystemIO fsIO = NewFilesystemIO(blockdevice);
+    FilesystemIO fsIO = FilesystemIO(blockdevice);
     
     SECTION("array < BLOCK_SIZE") {
         uint16_t input[10];
@@ -129,7 +128,7 @@ TEST_CASE( "filsystemIO.Read/Write struct, on heap", "[filsystemIO]" ) {
     remove(BD_PATH);
     BlockDevice blockdevice = BlockDevice();
     blockdevice.create(BD_PATH);
-    NewFilesystemIO fsIO = NewFilesystemIO(blockdevice);
+    FilesystemIO fsIO = FilesystemIO(blockdevice);
     
     SECTION("struct < BLOCK_SIZE") {
         fileStats* input = new fileStats;
@@ -170,7 +169,7 @@ TEST_CASE( "filsystemIO.Read/Write array, on heap", "[filsystemIO]" ) {
     remove(BD_PATH);
     BlockDevice blockdevice = BlockDevice();
     blockdevice.create(BD_PATH);
-    NewFilesystemIO fsIO = NewFilesystemIO(blockdevice);
+    FilesystemIO fsIO = FilesystemIO(blockdevice);
     
     SECTION("array < BLOCK_SIZE") {
         uint16_t arraySize = 10;
