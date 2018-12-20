@@ -407,36 +407,73 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
 
         // TODO: Implement your initialization methods here!
 
-        blockDevice.open(((MyFsInfo *) fuse_get_context()->private_data)->contFile);
+        if (blockDevice.open(((MyFsInfo *) fuse_get_context()->private_data)->contFile) == 0) {
+            uint16_t* fatArray = new uint16_t[DATA_BLOCKS];
+            uint8_t* dMapArray = new uint8_t[(DATA_BLOCKS + 1) / 8];
+            fileStats* rootArray = new fileStats[ROOT_ARRAY_SIZE];
 
-        uint16_t* fatArray = new uint16_t[DATA_BLOCKS];
-        uint8_t* dMapArray = new uint8_t[(DATA_BLOCKS + 1) / 8];
-        fileStats* rootArray = new fileStats[ROOT_ARRAY_SIZE];
 
-        fsIO.readDevice(SUPERBLOCK_START, &superblock, sizeof(superblock));
-        fsIO.readDevice(DMAP_START, dMapArray, sizeof(*dMapArray) * (DATA_BLOCKS + 1) / 8);
-        fsIO.readDevice(FAT_START, fatArray, sizeof(*fatArray) * DATA_BLOCKS);
-        fsIO.readDevice(ROOT_START, rootArray, sizeof(*rootArray) * ROOT_ARRAY_SIZE);
+            int ret = 0;
+            ret = blockDevice.read(SUPERBLOCK_START, (char*)&superblock);
+            if (ret < 0) {
+                LOG("Error at blockdevice.read() (Reading superblock manually)");
+                LOGI(ret);
+                LOG("Errno:");
+                LOGI(errno);
+            }
+            ret = fsIO.readDevice(SUPERBLOCK_START, &superblock, sizeof(superblock));
+            if (ret < 0) {
+                LOG("Error at blockdevice.read() (Reading superblock)");
+                LOGI(ret);
+                LOG("Errno:");
+                LOGI(errno);
+            }
+            ret = fsIO.readDevice(DMAP_START, dMapArray, sizeof(*dMapArray) * (DATA_BLOCKS + 1) / 8);
+            if (ret < 0) {
+                LOG("Error at blockdevice.read() (Reading dmap)");
+                LOGI(ret);
+                LOG("Errno:");
+                LOGI(errno);
+            }
+            ret = fsIO.readDevice(FAT_START, fatArray, sizeof(*fatArray) * DATA_BLOCKS);
+            if (ret < 0) {
+                LOG("Error at blockdevice.read() (Reading fat)");
+                LOGI(ret);
+                LOG("Errno:");
+                LOGI(errno);
+            }
+            ret = fsIO.readDevice(ROOT_START, rootArray, sizeof(*rootArray) * ROOT_ARRAY_SIZE);
+            if (ret < 0) {
+                LOG("Error at blockdevice.read() (Reading root)");
+                LOGI(ret);
+                LOG("Errno:");
+                LOGI(errno);
+            }
 
-        dmap.setAll(dMapArray);
-        fat.setAll(fatArray);
-        root.setAll(rootArray);
+            dmap.setAll(dMapArray);
+            fat.setAll(fatArray);
+            root.setAll(rootArray);
 
-        LOG("----------Root Array----------");
-        for(int i = 0; i < ROOT_ARRAY_SIZE; i++) {
-            LOG("Root array index: ");
-            LOGI(i);
-            fileStats stats;
-            root.get(i, &stats);
-            LOG("size");
-            LOGI((int) stats.size);
-            LOG("------------------");
+            LOG("----------Root Array----------");
+            for(int i = 0; i < ROOT_ARRAY_SIZE; i++) {
+                LOG("Root array index: ");
+                LOGI(i);
+                fileStats stats;
+                root.get(i, &stats);
+                LOG("size");
+                LOGI((int) stats.size);
+                LOG("------------------");
+            }
+
+            blockDevice.close();
+            delete[] dMapArray;
+            delete[] fatArray;
+            delete[] rootArray;
+        } else {
+            LOG("Error at blockdevice.open()");
         }
-
-        delete[] dMapArray;
-        delete[] fatArray;
-        delete[] rootArray;
     }
+
     RETURN(0);
 }
 

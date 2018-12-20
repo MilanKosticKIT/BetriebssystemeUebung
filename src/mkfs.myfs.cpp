@@ -44,7 +44,6 @@ int main(int argc, char *argv[]) {
         std::cout << "Creating Blockdevice: " << argv[1] << std::endl;
         remove(argv[1]);
         blockDevice.create(argv[1]);
-        //blockDevice.create("./Blockdevice.bin");
 
         // write empty filesystem
         uint16_t* fatArray = new uint16_t[DATA_BLOCKS];
@@ -163,12 +162,13 @@ int main(int argc, char *argv[]) {
             delete[] fatArray;
             delete[] rootArray;
 
-            }else {
+            } else {
                 std::cout << "The files to copy are to big for the filesystem. Aborting" << std::endl;
                 return errno;
             }
-
         }
+
+        blockDevice.close();
     } else {
         std::cout << "Invalid Arguments: Name of Containerfile missing!" << std::endl;
         return errno = 666;

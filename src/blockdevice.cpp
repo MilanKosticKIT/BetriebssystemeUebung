@@ -88,12 +88,16 @@ int BlockDevice::read(u_int32_t blockNo, char *buffer) {
     fprintf(stderr, "BlockDevice: Reading block %d\n", blockNo);
 #endif
     off_t pos = (blockNo) * this->blockSize;
-    if (lseek (this->contFile, pos, SEEK_SET) != pos)
+    if (lseek (this->contFile, pos, SEEK_SET) != pos) {
+        errno = pos;
         return -1;
-
+    }
     int size = (this->blockSize);
-    if (::read (this->contFile, buffer, size) != size)
-        return -1;
+    ssize_t retRead = ::read (this->contFile, buffer, size);
+    if (retRead != size) {
+        errno = retRead;
+        return -2;
+    }
     return 0;
 }
 

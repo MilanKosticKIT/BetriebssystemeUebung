@@ -33,37 +33,45 @@ public:
      * @param data The data, an array, that should be written.
      */
     template<class T>
-    void writeDevice(size_t block, const T *data, size_t size) {
+    int writeDevice(size_t block, const T *data, size_t size) {
         const char *rawData = reinterpret_cast<const char *>(data);
         static char buffer[BLOCK_SIZE];
         size_t blockCount = size / BLOCK_SIZE;
         size_t currentBlock = block;
+        int ret = 0;
         for (; currentBlock < block + blockCount; ++currentBlock) {
-            blockDevice.write(currentBlock, rawData + ((currentBlock - block) * BLOCK_SIZE));
+            ret = blockDevice.write(currentBlock, rawData + ((currentBlock - block) * BLOCK_SIZE));
+            if (ret < 0) return ret;
         }
         memcpy(buffer, rawData + ((currentBlock - block) * BLOCK_SIZE), size % BLOCK_SIZE);
-        blockDevice.write(currentBlock, buffer);
+        ret = blockDevice.write(currentBlock, buffer);
+        if (ret < 0) return ret;
+        return 0;
     }
 
-    /** todo clean
+    /** todo clean comments
      * Reads a generic type of data-array from the blockdevice. The position which should be read from is block.
      * @tparam T The generic type of the data should be read.
      * @tparam N The size of the data array, that should be read.
      * @param block The number of the block where the data should be read from.
      * @param data Return parameter, the data, an array, that was to be read.
-     * todo size
+     *
      */
     template<class T>
-    void readDevice(size_t block, T* data, size_t size) {
+    int readDevice(size_t block, T* data, size_t size) {
         char *rawData = reinterpret_cast<char *>(data);
         static char buffer[BLOCK_SIZE];
         size_t blockCount = size / BLOCK_SIZE;
         size_t currentBlock = block;
+        int ret = 0;
         for (; currentBlock < block + blockCount; ++currentBlock) {
-            blockDevice.read(currentBlock, rawData + ((currentBlock - block) * BLOCK_SIZE));
+            ret = blockDevice.read(currentBlock, rawData + ((currentBlock - block) * BLOCK_SIZE));
+            if (ret < 0) return ret;
         }
-        blockDevice.read(currentBlock, buffer);
+        ret = blockDevice.read(currentBlock, buffer);
+        if (ret < 0) return ret;
         memcpy(rawData + ((currentBlock - block) * BLOCK_SIZE), buffer, size % BLOCK_SIZE);
+        return 0;
     }
 
 };
