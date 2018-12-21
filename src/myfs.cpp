@@ -414,13 +414,6 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
 
 
             int ret = 0;
-            ret = blockDevice.read(SUPERBLOCK_START, (char*)&superblock);
-            if (ret < 0) {
-                LOG("Error at blockdevice.read() (Reading superblock manually)");
-                LOGI(ret);
-                LOG("Errno:");
-                LOGI(errno);
-            }
             ret = fsIO.readDevice(SUPERBLOCK_START, &superblock, sizeof(superblock));
             if (ret < 0) {
                 LOG("Error at blockdevice.read() (Reading superblock)");
@@ -449,13 +442,102 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
                 LOG("Errno:");
                 LOGI(errno);
             }
+            blockDevice.close();
+
+
+            BlockDevice testDevice = BlockDevice();
+            ret = testDevice.open(((MyFsInfo *) fuse_get_context()->private_data)->contFile);
+            if (ret < 0) {
+                LOG("Error at blockdevice.open() (testDevice)");
+                LOGI(ret);
+                LOG("Errno:");
+                LOGI(errno);
+            }
+            FilesystemIO testIO = FilesystemIO(testDevice);
+
+            uint16_t testRead[BLOCK_SIZE / 2];
+            ret = testDevice.read(DMAP_START, (char*)testRead);
+            if (ret < 0) {
+                LOG("Error at blockdevice.read() (testDevice - dmap first block)");
+                LOGI(ret);
+                LOG("Errno:");
+                LOGI(errno);
+            } else {
+                LOG("_____ dmap first entries (read with testdevice) _____");
+                for (int i = 0; i < 10; i++) {
+                    LOGI(testRead[i]);
+                }
+            }
+            ret = testDevice.read(FAT_START, (char*)testRead);
+            if (ret < 0) {
+                LOG("Error at blockdevice.read() (testDevice - fat first block)");
+                LOGI(ret);
+                LOG("Errno:");
+                LOGI(errno);
+            } else {
+                LOG("_____ fat first entries (read with testdevice)_____");
+                for (int i = 0; i < 10; i++) {
+                    LOGI(testRead[i]);
+                }
+            }
+
+            ret = testIO.readDevice(SUPERBLOCK_START, &superblock, sizeof(superblock));
+            if (ret < 0) {
+                LOG("Error at blockdevice.read() (Reading superblock with testDevice)");
+                LOGI(ret);
+                LOG("Errno:");
+                LOGI(errno);
+            }
+            ret = testIO.readDevice(DMAP_START, dMapArray, sizeof(*dMapArray) * ((DATA_BLOCKS + 1) / 8));
+            LOG("Reading dmap:");
+            LOGI((int)(sizeof(*dMapArray) * ((DATA_BLOCKS + 1) / 8)) / BLOCK_SIZE);
+            LOG("Blocks");
+            if (ret < 0) {
+                LOG("Error at blockdevice.read() (Reading dmap with testDevice)");
+                LOGI(ret);
+                LOG("Errno:");
+                LOGI(errno);
+            }
+            ret = testIO.readDevice(FAT_START, fatArray, sizeof(*fatArray) * DATA_BLOCKS);
+            LOG("Reading fat:");
+            LOGI((int)(sizeof(*fatArray) * DATA_BLOCKS) / BLOCK_SIZE);
+            LOG("Blocks");
+            if (ret < 0) {
+                LOG("Error at blockdevice.read() (Reading fat with testDevice)");
+                LOGI(ret);
+                LOG("Errno:");
+                LOGI(errno);
+            }
+            ret = testIO.readDevice(ROOT_START, rootArray, sizeof(*rootArray) * ROOT_ARRAY_SIZE);
+            LOG("Reading root:");
+            LOGI((int)(sizeof(*rootArray) * ROOT_ARRAY_SIZE) / BLOCK_SIZE);
+            LOG("Blocks");
+            if (ret < 0) {
+                LOG("Error at blockdevice.read() (Reading root with testDevice)");
+                LOGI(ret);
+                LOG("Errno:");
+                LOGI(errno);
+            }
+            testDevice.close();
+
+
 
             dmap.setAll(dMapArray);
             fat.setAll(fatArray);
             root.setAll(rootArray);
 
-            LOG("----------Root Array----------");
-            for(int i = 0; i < ROOT_ARRAY_SIZE; i++) {
+            LOG("----------dmap Array (first entries)----------");
+            for(int i = 0; i < 10; i++) {
+                LOGI((int) dMapArray[i]);
+            }
+
+            LOG("----------FAT Array (first entries)----------");
+            for(int i = 0; i < 10; i++) {
+                LOGI((int) fatArray[i]);
+            }
+
+            LOG("----------Root Array (first entries)----------");
+            for(int i = 0; i < 10; i++) {
                 LOG("Root array index: ");
                 LOGI(i);
                 fileStats stats;
@@ -465,7 +547,7 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
                 LOG("------------------");
             }
 
-            blockDevice.close();
+            //blockDevice.close(); todo
             delete[] dMapArray;
             delete[] fatArray;
             delete[] rootArray;

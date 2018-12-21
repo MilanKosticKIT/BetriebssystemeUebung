@@ -15,6 +15,7 @@
 #include <libgen.h>
 #include <iostream>
 #include <string.h>
+#include <myfs-structs.h>
 
 #include "myfs.h"
 #include "myfs-structs.h"
@@ -150,9 +151,28 @@ int main(int argc, char *argv[]) {
 
             }
             std::cout << "Writing Filesystem data" << std::endl;
+
             dmap.getAll(dMapArray);
             fat.getAll(fatArray);
             root.getAll(rootArray);
+
+            std::cout << "First contents of data structures:" << std::endl;
+            std::cout << "dmap:" << std::endl;
+            for(int i = 0; i < 10; i++) {
+                std::cout << (int)dMapArray[i] << " ";
+            }
+            std::cout << std::endl;
+            std::cout << "fat:" << std::endl;
+            for(int i = 0; i < 10; i++) {
+                std::cout << fatArray[i] << " ";
+            }
+            std::cout << std::endl;
+            std::cout << "root (size):" << std::endl;
+            for(int i = 0; i < 10; i++) {
+                std::cout << rootArray[i].size << " ";
+            }
+            std::cout << std::endl;
+
             fsIO.writeDevice(SUPERBLOCK_START, &superblock, sizeof(superblock));
             fsIO.writeDevice(DMAP_START, dMapArray, sizeof(*dMapArray) * (DATA_BLOCKS + 1) / 8);
             fsIO.writeDevice(FAT_START, fatArray, sizeof(*fatArray) * DATA_BLOCKS);
