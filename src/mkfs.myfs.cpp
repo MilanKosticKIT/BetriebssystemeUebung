@@ -156,6 +156,7 @@ int main(int argc, char *argv[]) {
             fat.getAll(fatArray);
             root.getAll(rootArray);
 
+            std::cout << "--------------------------------------------------------------------------------" << std::endl;
             std::cout << "First contents of data structures:" << std::endl;
             std::cout << "dmap:" << std::endl;
             for(int i = 0; i < 10; i++) {
@@ -177,6 +178,51 @@ int main(int argc, char *argv[]) {
             fsIO.writeDevice(DMAP_START, dMapArray, sizeof(*dMapArray) * (DATA_BLOCKS + 1) / 8);
             fsIO.writeDevice(FAT_START, fatArray, sizeof(*fatArray) * DATA_BLOCKS);
             fsIO.writeDevice(ROOT_START, rootArray, sizeof(*rootArray) * ROOT_ARRAY_SIZE);
+
+            for (int i = 0; i < (DATA_BLOCKS + 1) / 8; i++) {
+                dMapArray[i] = 0;
+            }
+            for (int i = 0; i < DATA_BLOCKS; i++) {
+                fatArray[i] = 0;
+            }
+            for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
+                rootArray[i] = fileStats {};
+            }
+
+            std::cout << "--------------------------------------------------------------------------------" << std::endl;
+            std::cout << "Reading out first contents of data structures from blockDevice:" << std::endl;
+            int ret = 0;
+            ret = fsIO.readDevice(SUPERBLOCK_START, &superblock, sizeof(superblock));
+            if (ret < 0) {
+                std::cout << "Error at blockdevice.read() (Reading superblock):" << ret << " (description: " << errno << ")" << std::endl;
+            }
+            ret = fsIO.readDevice(DMAP_START, dMapArray, sizeof(*dMapArray) * (DATA_BLOCKS + 1) / 8);
+            if (ret < 0) {
+                std::cout << "Error at blockdevice.read() (Reading dmap):" << ret << " (description: " << errno << ")" << std::endl;
+            }
+            ret = fsIO.readDevice(FAT_START, fatArray, sizeof(*fatArray) * DATA_BLOCKS);
+            if (ret < 0) {
+                std::cout << "Error at blockdevice.read() (Reading fat):" << ret << " (description: " << errno << ")" << std::endl;
+            }
+            ret = fsIO.readDevice(ROOT_START, rootArray, sizeof(*rootArray) * ROOT_ARRAY_SIZE);
+            if (ret < 0) {
+                std::cout << "Error at blockdevice.read() (Reading root):" << ret << " (description: " << errno << ")" << std::endl;
+            }
+            std::cout << "dmap:" << std::endl;
+            for(int i = 0; i < 10; i++) {
+                std::cout << (int)dMapArray[i] << " ";
+            }
+            std::cout << std::endl;
+            std::cout << "fat:" << std::endl;
+            for(int i = 0; i < 10; i++) {
+                std::cout << fatArray[i] << " ";
+            }
+            std::cout << std::endl;
+            std::cout << "root (size):" << std::endl;
+            for(int i = 0; i < 10; i++) {
+                std::cout << rootArray[i].size << " ";
+            }
+            std::cout << std::endl;
 
             delete[] dMapArray;
             delete[] fatArray;

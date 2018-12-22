@@ -455,6 +455,14 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
             }
             FilesystemIO testIO = FilesystemIO(testDevice);
 
+            //writing the testDevice
+            LOG("Writing first block of dmap in testDevice. (to 0xFF)");
+            uint16_t buffer[BLOCK_SIZE / 16];
+            for(int i = 0; i < BLOCK_SIZE / 16; i++) {
+                buffer[i] = 0xFFFF;
+            }
+            testDevice.write(DMAP_START, (char*)buffer);
+
             uint16_t testRead[BLOCK_SIZE / 2];
             ret = testDevice.read(DMAP_START, (char*)testRead);
             if (ret < 0) {
