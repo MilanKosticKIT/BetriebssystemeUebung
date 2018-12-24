@@ -23,7 +23,7 @@ class MyFS {
 private:
     static MyFS *_instance;
     FILE *logFile;
-    BlockDevice blockDevice = BlockDevice();
+    BlockDevice* blockDevice = new BlockDevice();
     FilesystemIO fsIO = FilesystemIO(blockDevice);
     FAT fat = FAT();
     DMap dmap = DMap();

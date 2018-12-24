@@ -33,7 +33,7 @@
 //MARK: -
 
 int main(int argc, char *argv[]) {
-    BlockDevice blockDevice = BlockDevice();
+    BlockDevice* blockDevice = new BlockDevice();
     FilesystemIO fsIO = FilesystemIO(blockDevice);
     FAT fat = FAT();
     DMap dmap = DMap();
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 
         std::cout << "Creating Blockdevice: " << argv[1] << std::endl;
         remove(argv[1]);
-        blockDevice.create(argv[1]);
+        blockDevice->create(argv[1]);
 
         // write empty filesystem
         uint16_t* fatArray = new uint16_t[DATA_BLOCKS];
@@ -129,7 +129,7 @@ int main(int argc, char *argv[]) {
 
                             retRead = read(fileDescriptor, buffer, BLOCK_SIZE);
                             std::cout << currentBlock << ",";
-                            ret = blockDevice.write(DATA_START + currentBlock, buffer);
+                            ret = blockDevice->write(DATA_START + currentBlock, buffer);
                             if (ret < 0) {
                                 std::cout << "BlockDevice.write errno: " << errno << std::endl;
                                 return errno;
@@ -165,7 +165,7 @@ int main(int argc, char *argv[]) {
                 std::cout << std::endl;
 
                 std::cout << "Closing blockdevice: ";
-                ret = blockDevice.close();
+                ret = blockDevice->close();
                 if (ret < 0) {
                     std::cout << "failed" << std::endl;
                     std::cout << "Error at blockdevice.close():" << ret << " (description: " << errno << ")" << std::endl;
@@ -174,7 +174,7 @@ int main(int argc, char *argv[]) {
                 }
 
                 std::cout << "Opening blockdevice: ";
-                ret = blockDevice.open(argv[1]);
+                ret = blockDevice->open(argv[1]);
                 if (ret < 0) {
                     std::cout << "failed" << std::endl;
                     std::cout << "Error at blockdevice.open(" << argv[1] << "):" << ret << " (description: " << errno << ")" << std::endl;
@@ -278,7 +278,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        blockDevice.close();
+        blockDevice->close();
     } else {
         std::cout << "Invalid Arguments: Name of Containerfile missing!" << std::endl;
         return errno = 666;

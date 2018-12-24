@@ -260,12 +260,12 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
     }
 
     char buffer[BLOCK_SIZE];
-    blockDevice.read(blocks[0], buffer);
+    blockDevice->read(blocks[0], buffer);
     memcpy(buf, buffer + blockOffset, BLOCK_SIZE - offset);
     for (int j = 1; j < howManyBlocks - 1; j++) {
-        blockDevice.read(blocks[j], buf + blockOffset + BLOCK_SIZE * (j - 1));
+        blockDevice->read(blocks[j], buf + blockOffset + BLOCK_SIZE * (j - 1));
     }
-    blockDevice.read(blocks[howManyBlocks - 1], buffer);
+    blockDevice->read(blocks[howManyBlocks - 1], buffer);
     memcpy(buf + blockOffset + (howManyBlocks - 2) * BLOCK_SIZE, buffer, (size + blockOffset) % BLOCK_SIZE);
 
 
@@ -407,7 +407,7 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
 
         // TODO: Implement your initialization methods here!
 
-        if (blockDevice.open(((MyFsInfo *) fuse_get_context()->private_data)->contFile) == 0) {
+        if (blockDevice->open(((MyFsInfo *) fuse_get_context()->private_data)->contFile) == 0) {
             uint16_t* fatArray = new uint16_t[DATA_BLOCKS];
             uint8_t* dMapArray = new uint8_t[(DATA_BLOCKS + 1) / 8];
             fileStats* rootArray = new fileStats[ROOT_ARRAY_SIZE];
@@ -442,7 +442,7 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
                 LOG("Errno:");
                 LOGI(errno);
             }
-            blockDevice.close();
+            blockDevice->close();
 
 
             BlockDevice testDevice = BlockDevice();
@@ -453,7 +453,7 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
                 LOG("Errno:");
                 LOGI(errno);
             }
-            FilesystemIO testIO = FilesystemIO(testDevice);
+            FilesystemIO testIO = FilesystemIO(&testDevice);
 
             //writing the testDevice
             LOG("Writing first block of dmap in testDevice. (to 0xFF)");
@@ -555,7 +555,7 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
                 LOG("------------------");
             }
 
-            //blockDevice.close(); todo
+            //blockDevice->close(); todo
             delete[] dMapArray;
             delete[] fatArray;
             delete[] rootArray;

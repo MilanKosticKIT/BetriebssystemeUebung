@@ -14,14 +14,14 @@
 
 class FilesystemIO {
 private:
-    BlockDevice blockDevice;
+    BlockDevice* blockDevice;
 
 public:
 
     /**
      * Creates a new IO-Interface for a blockdevice.
      */
-    FilesystemIO(BlockDevice &blockdevice) {
+    FilesystemIO(BlockDevice* blockdevice) {
         blockDevice = blockdevice;
     }
 
@@ -40,11 +40,11 @@ public:
         size_t currentBlock = block;
         int ret = 0;
         for (; currentBlock < block + blockCount; ++currentBlock) {
-            ret = blockDevice.write(currentBlock, rawData + ((currentBlock - block) * BLOCK_SIZE));
+            ret = blockDevice->write(currentBlock, rawData + ((currentBlock - block) * BLOCK_SIZE));
             if (ret < 0) return ret;
         }
         memcpy(buffer, rawData + ((currentBlock - block) * BLOCK_SIZE), size % BLOCK_SIZE);
-        ret = blockDevice.write(currentBlock, buffer);
+        ret = blockDevice->write(currentBlock, buffer);
         if (ret < 0) return ret;
         return 0;
     }
@@ -65,10 +65,10 @@ public:
         size_t currentBlock = block;
         int ret = 0;
         for (; currentBlock < block + blockCount; ++currentBlock) {
-            ret = blockDevice.read(currentBlock, rawData + ((currentBlock - block) * BLOCK_SIZE));
+            ret = blockDevice->read(currentBlock, rawData + ((currentBlock - block) * BLOCK_SIZE));
             if (ret < 0) return ret;
         }
-        ret = blockDevice.read(currentBlock, buffer);
+        ret = blockDevice->read(currentBlock, buffer);
         if (ret < 0) return ret;
         memcpy(rawData + ((currentBlock - block) * BLOCK_SIZE), buffer, size % BLOCK_SIZE);
         return 0;
