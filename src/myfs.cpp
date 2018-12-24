@@ -43,18 +43,14 @@ MyFS::~MyFS() {
 int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
     LOGM();
 
-    char* name = (char*) malloc(strlen(path));
-    strcpy(name, path);
-    LOG("Path:");
-    LOG(path);
-    LOG("Name:");
-    LOG(name);
-
-   // LOGP(name);
+    char pathCopy[strlen(path) + 1];
+    strcpy(pathCopy, path);
+    const char* name = basename(pathCopy);
 
     fileStats fileStats1;
     int res = root.get(name, &fileStats1);
     if (res == -1){
+        LOG(name);
         RETURN(-errno);
     }
 
@@ -331,22 +327,14 @@ int MyFS::fuseReaddir(const char *path, void *buf, fuse_fill_dir_t filler, off_t
 
     filler(buf, ".", NULL, 0);
     filler(buf, "..", NULL, 0);
-    filler(buf, "Testdatei", NULL, 0);
 
     for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
         if (root.exists(i)) {
-            LOG("Eintrag existiert: ");
-            LOGI(i);
-            LOG("Size:");
             fileStats test;
             root.get(i, &test);
-            LOGI((int)test.size);
             struct stat s;
             char* name;
-            LOG("getName successful:");
-            LOGI(root.getName(i, &name));
-            LOG("Name:");
-            LOG(name);
+            root.getName(i, &name);
             fuseGetattr(name, &s);
             filler(buf, name, &s, 0);
         }
@@ -444,92 +432,6 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
             }
             blockDevice->close();
 
-
-            BlockDevice testDevice = BlockDevice();
-            ret = testDevice.open(((MyFsInfo *) fuse_get_context()->private_data)->contFile);
-            if (ret < 0) {
-                LOG("Error at blockdevice.open() (testDevice)");
-                LOGI(ret);
-                LOG("Errno:");
-                LOGI(errno);
-            }
-            FilesystemIO testIO = FilesystemIO(&testDevice);
-
-            //writing the testDevice
-            LOG("Writing first block of dmap in testDevice. (to 0xFF)");
-            uint16_t buffer[BLOCK_SIZE / 16];
-            for(int i = 0; i < BLOCK_SIZE / 16; i++) {
-                buffer[i] = 0xFFFF;
-            }
-            testDevice.write(DMAP_START, (char*)buffer);
-
-            uint16_t testRead[BLOCK_SIZE / 2];
-            ret = testDevice.read(DMAP_START, (char*)testRead);
-            if (ret < 0) {
-                LOG("Error at blockdevice.read() (testDevice - dmap first block)");
-                LOGI(ret);
-                LOG("Errno:");
-                LOGI(errno);
-            } else {
-                LOG("_____ dmap first entries (read with testdevice) _____");
-                for (int i = 0; i < 10; i++) {
-                    LOGI(testRead[i]);
-                }
-            }
-            ret = testDevice.read(FAT_START, (char*)testRead);
-            if (ret < 0) {
-                LOG("Error at blockdevice.read() (testDevice - fat first block)");
-                LOGI(ret);
-                LOG("Errno:");
-                LOGI(errno);
-            } else {
-                LOG("_____ fat first entries (read with testdevice)_____");
-                for (int i = 0; i < 10; i++) {
-                    LOGI(testRead[i]);
-                }
-            }
-
-            ret = testIO.readDevice(SUPERBLOCK_START, &superblock, sizeof(superblock));
-            if (ret < 0) {
-                LOG("Error at blockdevice.read() (Reading superblock with testDevice)");
-                LOGI(ret);
-                LOG("Errno:");
-                LOGI(errno);
-            }
-            ret = testIO.readDevice(DMAP_START, dMapArray, sizeof(*dMapArray) * ((DATA_BLOCKS + 1) / 8));
-            LOG("Reading dmap:");
-            LOGI((int)(sizeof(*dMapArray) * ((DATA_BLOCKS + 1) / 8)) / BLOCK_SIZE);
-            LOG("Blocks");
-            if (ret < 0) {
-                LOG("Error at blockdevice.read() (Reading dmap with testDevice)");
-                LOGI(ret);
-                LOG("Errno:");
-                LOGI(errno);
-            }
-            ret = testIO.readDevice(FAT_START, fatArray, sizeof(*fatArray) * DATA_BLOCKS);
-            LOG("Reading fat:");
-            LOGI((int)(sizeof(*fatArray) * DATA_BLOCKS) / BLOCK_SIZE);
-            LOG("Blocks");
-            if (ret < 0) {
-                LOG("Error at blockdevice.read() (Reading fat with testDevice)");
-                LOGI(ret);
-                LOG("Errno:");
-                LOGI(errno);
-            }
-            ret = testIO.readDevice(ROOT_START, rootArray, sizeof(*rootArray) * ROOT_ARRAY_SIZE);
-            LOG("Reading root:");
-            LOGI((int)(sizeof(*rootArray) * ROOT_ARRAY_SIZE) / BLOCK_SIZE);
-            LOG("Blocks");
-            if (ret < 0) {
-                LOG("Error at blockdevice.read() (Reading root with testDevice)");
-                LOGI(ret);
-                LOG("Errno:");
-                LOGI(errno);
-            }
-            testDevice.close();
-
-
-
             dmap.setAll(dMapArray);
             fat.setAll(fatArray);
             root.setAll(rootArray);
@@ -539,23 +441,21 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
                 LOGI((int) dMapArray[i]);
             }
 
-            LOG("----------FAT Array (first entries)----------");
+            LOG("----------fat Array (first entries)-----------");
             for(int i = 0; i < 10; i++) {
                 LOGI((int) fatArray[i]);
             }
 
-            LOG("----------Root Array (first entries)----------");
+            LOG("-------Root Array (first entries (size))-------");
             for(int i = 0; i < 10; i++) {
-                LOG("Root array index: ");
-                LOGI(i);
                 fileStats stats;
                 root.get(i, &stats);
-                LOG("size");
                 LOGI((int) stats.size);
-                LOG("------------------");
             }
+            LOG("-----------------------------------------------");
 
-            //blockDevice->close(); todo
+            blockDevice->close();
+
             delete[] dMapArray;
             delete[] fatArray;
             delete[] rootArray;
