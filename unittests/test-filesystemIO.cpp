@@ -44,8 +44,8 @@ typedef struct {
 
 TEST_CASE( "filsystemIO.Read/Write struct, on stack", "[filsystemIO]" ) {
     remove(BD_PATH);
-    BlockDevice blockdevice = BlockDevice();
-    blockdevice.create(BD_PATH);
+    BlockDevice* blockdevice = new BlockDevice();
+    blockdevice->create(BD_PATH);
     FilesystemIO fsIO = FilesystemIO(blockdevice);
     
     SECTION("struct < BLOCK_SIZE") {
@@ -77,14 +77,15 @@ TEST_CASE( "filsystemIO.Read/Write struct, on stack", "[filsystemIO]" ) {
         
         REQUIRE(memcmp(&input, &output, sizeof(testData)) == 0);
     }
-    
+
+    blockdevice->close();
     remove(BD_PATH);
 }
 
 TEST_CASE( "filsystemIO.Read/Write array, on stack", "[filsystemIO]" ) {
     remove(BD_PATH);
-    BlockDevice blockdevice = BlockDevice();
-    blockdevice.create(BD_PATH);
+    BlockDevice* blockdevice = new BlockDevice();
+    blockdevice->create(BD_PATH);
     FilesystemIO fsIO = FilesystemIO(blockdevice);
     
     SECTION("array < BLOCK_SIZE") {
@@ -112,14 +113,15 @@ TEST_CASE( "filsystemIO.Read/Write array, on stack", "[filsystemIO]" ) {
         
         REQUIRE(memcmp(input, output, sizeof(input)) == 0);
     }
-    
+
+    blockdevice->close();
     remove(BD_PATH);
 }
 
 TEST_CASE( "filsystemIO.Read/Write struct, on heap", "[filsystemIO]" ) {
     remove(BD_PATH);
-    BlockDevice blockdevice = BlockDevice();
-    blockdevice.create(BD_PATH);
+    BlockDevice* blockdevice = new BlockDevice();
+    blockdevice->create(BD_PATH);
     FilesystemIO fsIO = FilesystemIO(blockdevice);
     
     SECTION("struct < BLOCK_SIZE") {
@@ -153,14 +155,15 @@ TEST_CASE( "filsystemIO.Read/Write struct, on heap", "[filsystemIO]" ) {
         delete putput;
         delete output;
     }
-    
+
+    blockdevice->close();
     remove(BD_PATH);
 }
 
 TEST_CASE( "filsystemIO.Read/Write array, on heap", "[filsystemIO]" ) {
     remove(BD_PATH);
-    BlockDevice blockdevice = BlockDevice();
-    blockdevice.create(BD_PATH);
+    BlockDevice* blockdevice = new BlockDevice();
+    blockdevice->create(BD_PATH);
     FilesystemIO fsIO = FilesystemIO(blockdevice);
     
     SECTION("array < BLOCK_SIZE") {
@@ -194,7 +197,8 @@ TEST_CASE( "filsystemIO.Read/Write array, on heap", "[filsystemIO]" ) {
         delete[] input;
         delete[] output;
     }
-    
+
+    blockdevice->close();
     remove(BD_PATH);
 }
 
