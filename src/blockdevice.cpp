@@ -76,10 +76,7 @@ int BlockDevice::open(const char *path) {
 
 
 int BlockDevice::close() {
-
-    ::close(this->contFile);
-
-    return 0;
+    return ::close(this->contFile);
 }
 
 // this method returns 0 if successful, -1 otherwise
@@ -110,7 +107,7 @@ int BlockDevice::write(u_int32_t blockNo, const char *buffer) {
 
     int __size = (this->blockSize);
     if (::write (this->contFile, buffer, __size) != __size)
-        return -1;
+        return -2;
 
     return 0;
 }
