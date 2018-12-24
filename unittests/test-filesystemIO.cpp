@@ -13,20 +13,10 @@
 
 #include "helper.hpp"
 #include "constants.h"
+#include "myfs-structs.h"
 #include "filesystemIO.h"
 
 #define BD_PATH "Test_Blockdevice.bin"
-
-typedef struct {
-    char name[NAME_LENGTH];
-    off_t size;
-    uid_t userID;
-    gid_t groupID;
-    time_t last_time;
-    time_t modi_time;
-    time_t change_time;
-    uint16_t  first_block;
-} fileStats;
 
 typedef struct {
     uint64_t one;
@@ -62,7 +52,8 @@ TEST_CASE( "filsystemIO.Read/Write struct, on stack", "[filsystemIO]" ) {
         fileStats input;
         fileStats output;
         input.size = 1024;
-        
+        output.size = 2345;
+
         fsIO.writeDevice(15, &input, sizeof(input));
         fsIO.readDevice(15, &output, sizeof(output));
         
@@ -71,7 +62,6 @@ TEST_CASE( "filsystemIO.Read/Write struct, on stack", "[filsystemIO]" ) {
     
     SECTION("struct > BLOCK_SIZE") {
         testData input;
-        testData output;
         input.before = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
         input.first = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
         input.second = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
@@ -79,6 +69,8 @@ TEST_CASE( "filsystemIO.Read/Write struct, on stack", "[filsystemIO]" ) {
         input.fourth = {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4};
         input.fifth = {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5};
         input.after = {11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+        testData output;
+        output.before = {333, 444, 555, 666, 777, 888, 999, 0, 1111, 2222, 3333};
         
         fsIO.writeDevice(2, &input, sizeof(input));
         fsIO.readDevice(2, &output, sizeof(output));
@@ -99,11 +91,11 @@ TEST_CASE( "filsystemIO.Read/Write array, on stack", "[filsystemIO]" ) {
         uint16_t input[10];
         uint16_t output[10];
         for(int i = 0; i < 10; i++) {
-            input[i] = i * i;
+            input[i] = (uint16_t)(i * i);
         }
         
-        fsIO.writeDevice(21, &input, sizeof(input));
-        fsIO.readDevice(21, &output, sizeof(output));
+        fsIO.writeDevice(21, input, sizeof(input));
+        fsIO.readDevice(21, output, sizeof(output));
         
         REQUIRE(memcmp(input, output, sizeof(input)) == 0);
     }
@@ -112,11 +104,11 @@ TEST_CASE( "filsystemIO.Read/Write array, on stack", "[filsystemIO]" ) {
         uint64_t input[201];
         uint64_t output[201];
         for(int i = 0; i < 201; i++) {
-            input[i] = i + 1;
+            input[i] = (uint16_t)(i + 1);
         }
         
-        fsIO.writeDevice(5, &input, sizeof(input));
-        fsIO.readDevice(5, &output, sizeof(output));
+        fsIO.writeDevice(5, input, sizeof(input));
+        fsIO.readDevice(5, output, sizeof(output));
         
         REQUIRE(memcmp(input, output, sizeof(input)) == 0);
     }
@@ -182,7 +174,7 @@ TEST_CASE( "filsystemIO.Read/Write array, on heap", "[filsystemIO]" ) {
         fsIO.writeDevice(21, input, sizeof(*input) * arraySize);
         fsIO.readDevice(21, output, sizeof(*output) * arraySize);
         
-        REQUIRE(memcmp(input, output, sizeof(*input)) == 0);
+        REQUIRE(memcmp(input, output, sizeof(*input) * arraySize) == 0);
         delete[] input;
         delete[] output;
     }
@@ -195,10 +187,10 @@ TEST_CASE( "filsystemIO.Read/Write array, on heap", "[filsystemIO]" ) {
             input[i] = i + 1;
         }
         
-        fsIO.writeDevice(5, input, sizeof(*input));
-        fsIO.readDevice(5, output, sizeof(*output));
+        fsIO.writeDevice(5, input, sizeof(*input) * arraySize);
+        fsIO.readDevice(5, output, sizeof(*output) * arraySize);
         
-        REQUIRE(memcmp(input, output, sizeof(*input)) == 0);
+        REQUIRE(memcmp(input, output, sizeof(*input) * arraySize) == 0);
         delete[] input;
         delete[] output;
     }
