@@ -160,10 +160,10 @@ int MyFS::fuseUtime(const char *path, struct utimbuf *ubuf) {
 
 int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
     LOGM();
-    fileStats file;
-    int exists = root.get(path, &file);
 
-    if ( exists == -1){
+    const char* name = path + 1; //remove '/' at beginning
+    fileStats file;
+    if (root.get(name, &file) == -1){
         RETURN(-errno);
     }
 
@@ -210,6 +210,16 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
             }
         }
     }
+
+    LOG("fileInfo flags:");
+    LOGI(fileInfo->flags);
+    LOG("Read-only");
+    LOGI(O_RDONLY);
+    LOG("Write-only");
+    LOGI(O_WRONLY);
+    LOG("Read-Write");
+    LOGI(O_RDWR);
+
     errno = EACCES;
     RETURN(-errno);
 }
@@ -217,11 +227,11 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
 int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
 
-
+    const char* name = path + 1;
     fileStats file;
-    root.get(path, &file);
-
-
+    if (root.get(name, &file) == -1){
+        RETURN(-errno);
+    }
     if ( file.size < offset){
         RETURN(0);
     }
