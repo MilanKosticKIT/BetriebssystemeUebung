@@ -59,7 +59,7 @@ int Root::deleteEntry(const char *name) {
 }
 
 // creates a new root entry for the file with the given name.
-int Root::createEntry(const char *name) {
+int Root::createEntry(const char *name, mode_t mode) {
     if (strlen(name) > NAME_LENGTH) {
         errno = ENAMETOOLONG;
         return -1;
@@ -80,6 +80,7 @@ int Root::createEntry(const char *name) {
             stats.modi_time = currentTime;
             stats.last_time = currentTime;
             stats.change_time = currentTime;
+            stats.mode = S_IFREG | mode; // regular file
             stats.nlink = 1;
             rootArray[i] = stats;
             return 0;
@@ -87,6 +88,11 @@ int Root::createEntry(const char *name) {
     }
     errno = ENFILE;
     return -1;
+}
+
+// create file with default mode
+int Root::createEntry(const char *name) {
+    return createEntry(name, 0666); // default mode: read/write
 }
 
 // get the filestats of the given file

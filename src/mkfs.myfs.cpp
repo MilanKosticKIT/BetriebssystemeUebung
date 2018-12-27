@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
                         ssize_t retRead = 1;
                         char buffer[BLOCK_SIZE];
 
-                        ret = root.createEntry(filename); // "create file"
+                        ret = root.createEntry(filename, 0444); // "create file"
                         if (ret < 0) {
                             std::cout << "Root.createEntry errno: " << errno << std::endl;
                             return errno;

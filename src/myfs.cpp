@@ -65,16 +65,6 @@ int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
     stats.st_mtime = fileStats1.modi_time;
     stats.st_nlink = fileStats1.nlink;
 
-    LOG("Stats:\n------------------------");
-    LOG("name:");
-    LOG(name);
-    LOG("size:");
-    LOGI((int)stats.st_size);
-    LOG("uid:");
-    LOGI((int)stats.st_uid);
-    LOG("current user id:");
-    LOGI((int)geteuid());
-
     *statbuf = stats;
 
     RETURN(res);
@@ -90,10 +80,9 @@ int MyFS::fuseMknod(const char *path, mode_t mode, dev_t dev) {
 
     // TODO: Implement this!
 
-    root.createEntry(path);
+    root.createEntry(path, mode);
     fileStats stats;
     root.get(path, &stats);
-    stats.mode = mode;
     uint16_t firstBlock;
     dmap.getFreeBlock(&firstBlock);
     dmap.set(firstBlock);
@@ -339,12 +328,11 @@ int MyFS::fuseReaddir(const char *path, void *buf, fuse_fill_dir_t filler, off_t
 
         for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
             if (root.exists(i)) {
-                //struct stat s = {};
+                struct stat s = {};
                 char* name;
                 root.getName(i, &name);
-                //fuseGetattr(name, &s);
-                //filler(buf, name, &s, 0);
-                filler(buf, name, NULL, 0);
+                fuseGetattr(name, &s);
+                filler(buf, name, &s, 0);
             }
         }
         RETURN(0);
