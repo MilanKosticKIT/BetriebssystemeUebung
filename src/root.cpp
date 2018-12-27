@@ -122,11 +122,11 @@ int Root::update(fileStats filestats) {
 
 
 //return filestats of the file under given number
-void Root::get(uint16_t num, fileStats* filestats) {
-    *filestats = rootArray[num];
+void Root::get(int index, fileStats* filestats) {
+    *filestats = rootArray[index];
 }
 
-bool Root::exists(uint16_t index) {
+bool Root::exists(int index) {
     if (index <= ROOT_ARRAY_SIZE) {
         if (rootArray[index].size >= 0) {
             return true;
@@ -135,7 +135,7 @@ bool Root::exists(uint16_t index) {
     return false;
 }
 
-int Root::getName(uint16_t index, char** name) {
+int Root::getName(int index, char** name) {
     if (index <= ROOT_ARRAY_SIZE) {
         if (rootArray[index].size >= 0) {
             *name = rootArray[index].name;
@@ -151,7 +151,7 @@ int Root::getName(uint16_t index, char** name) {
 
 //get filestats info from new file and add it to given position
 //in array
-int Root::set(uint16_t num, char* filePath) {
+int Root::set(int num, char* filePath) {
     struct stat sb;
     stat(filePath, &sb);
     char *filename = basename(filePath);

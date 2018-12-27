@@ -63,11 +63,19 @@ int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
     stats.st_atime = fileStats1.last_time;
     stats.st_ctime = fileStats1.change_time;
     stats.st_mtime = fileStats1.modi_time;
+    stats.st_nlink = fileStats1.nlink;
+
+    LOG("Stats:\n------------------------");
+    LOG("name:");
+    LOG(name);
+    LOG("size:");
+    LOGI((int)stats.st_size);
+    LOG("uid:");
+    LOGI((int)stats.st_uid);
+    LOG("current user id:");
+    LOGI((int)geteuid());
 
     *statbuf = stats;
-
-    LOG(name);
-    LOGI((int)statbuf->st_size);
 
     RETURN(res);
 }
@@ -323,24 +331,27 @@ int MyFS::fuseOpendir(const char *path, struct fuse_file_info *fileInfo) {
 int MyFS::fuseReaddir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
 
-    filler(buf, ".", NULL, 0);
-    filler(buf, "..", NULL, 0);
-
-    for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
-        if (root.exists(i)) {
-            fileStats test;
-            root.get(i, &test);
-            struct stat s;
-            char* name;
-            root.getName(i, &name);
-            fuseGetattr(name, &s);
-            filler(buf, name, &s, 0);
-        }
-    }
-
     // TODO: Implement this!
 
-    RETURN(0);
+    if (strcmp("/", path) == 0) {
+        filler(buf, ".", NULL, 0);
+        filler(buf, "..", NULL, 0);
+
+        for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
+            if (root.exists(i)) {
+                //struct stat s = {};
+                char* name;
+                root.getName(i, &name);
+                //fuseGetattr(name, &s);
+                //filler(buf, name, &s, 0);
+                filler(buf, name, NULL, 0);
+            }
+        }
+        RETURN(0);
+    } else {
+        errno = ENOTDIR;
+        RETURN(-errno);
+    }
 }
 
 int MyFS::fuseReleasedir(const char *path, struct fuse_file_info *fileInfo) {
