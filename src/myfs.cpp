@@ -15,13 +15,14 @@
 #define DEBUG_METHODS
 #define DEBUG_RETURN_VALUES
 
+#include <errno.h>
+#include <string>
+
 #include "macros.h"
 #include "constants.h"
 #include "myfs.h"
 #include "myfs-info.h"
 #include "myfs-structs.h"
-#include <errno.h>
-#include <string>
 
 MyFS* MyFS::_instance = NULL;
 
@@ -63,13 +64,10 @@ int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
     stats.st_ctime = fileStats1.change_time;
     stats.st_mtime = fileStats1.modi_time;
 
-    if (strcmp("/", name) == 0) {
-        stats.st_nlink = 2;
-    } else {
-        stats.st_nlink = 1;
-    }
-
     *statbuf = stats;
+
+    LOG(name);
+    LOGI((int)statbuf->st_size);
 
     RETURN(res);
 }

@@ -17,10 +17,11 @@
 #include "myfs-structs.h"
 
 #define ROOT_ARRAY_SIZE NUM_DIR_ENTRIES
+#define DIR_STATS (rootArray[ROOT_ARRAY_SIZE])
 
 class Root {
 private:
-    fileStats *rootArray = new fileStats[ROOT_ARRAY_SIZE];
+    fileStats *rootArray = new fileStats[ROOT_ARRAY_SIZE + 1];
 public:
     Root();
     ~Root();

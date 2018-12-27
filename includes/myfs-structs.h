@@ -20,11 +20,12 @@ typedef struct {
     off_t size;
     uid_t userID;
     gid_t groupID;
-    time_t last_time;
-    time_t modi_time;
+    time_t last_time; // last access
+    time_t modi_time; // last modification
     time_t change_time;
     uint16_t  first_block;
     mode_t mode;
+    nlink_t nlink;
 } fileStats;
 
 typedef struct {

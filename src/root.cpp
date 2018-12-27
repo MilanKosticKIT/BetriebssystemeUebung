@@ -2,8 +2,8 @@
 // Created by test on 05.11.2018.
 //
 #include <errno.h>
-#include "myfs-structs.h"
 
+#include "myfs-structs.h"
 #include "root.h"
 
 
@@ -12,6 +12,15 @@ Root::Root() {
     for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
         rootArray[i].size = -1;
     }
+    DIR_STATS = {};
+    DIR_STATS.mode = S_IFDIR | 0555;
+    DIR_STATS.userID = geteuid();
+    DIR_STATS.groupID = getegid();
+    time_t currentTime = time(NULL);
+    DIR_STATS.last_time = currentTime;
+    DIR_STATS.change_time = currentTime;
+    DIR_STATS.modi_time = currentTime;
+    DIR_STATS.nlink = 2;
 }
 
 Root::~Root() {
@@ -28,6 +37,9 @@ void Root::getAll(fileStats* filestats) {
 void Root::setAll(fileStats* filestats) {
     for (int i = 0; i < ROOT_ARRAY_SIZE; i++){
         rootArray[i] = *(filestats + i);
+        if (exists((uint16_t) i)) {
+            DIR_STATS.size += rootArray[i].size;
+        }
     }
 }
 
@@ -36,6 +48,7 @@ void Root::setAll(fileStats* filestats) {
 int Root::deleteEntry(const char *name) {
     for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
         if (rootArray[i].size >= 0 && strcmp(rootArray[i].name, name) == 0) {
+            DIR_STATS.size -= rootArray[i].size;
             rootArray[i] = {};
             rootArray[i].size = -1;
             return 0;
@@ -57,17 +70,17 @@ int Root::createEntry(const char *name) {
             return -1;
         }
     }
-    fileStats stats = {};
-    strcpy(stats.name, name);
-    stats.userID = geteuid();
-    stats.groupID = getegid();
-    time_t currentTime;
-    time(&currentTime);
-    stats.modi_time = currentTime;
-    stats.last_time = currentTime;
-    stats.change_time = currentTime;
     for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
         if (rootArray[i].size < 0) {
+            fileStats stats = {};
+            strcpy(stats.name, name);
+            stats.userID = geteuid();
+            stats.groupID = getegid();
+            time_t currentTime = time(NULL);
+            stats.modi_time = currentTime;
+            stats.last_time = currentTime;
+            stats.change_time = currentTime;
+            stats.nlink = 1;
             rootArray[i] = stats;
             return 0;
         }
@@ -79,11 +92,7 @@ int Root::createEntry(const char *name) {
 // get the filestats of the given file
 int Root::get(const char* name, fileStats* filestats) {
     if (strcmp("/", name) == 0) {
-        fileStats stats;
-        stats.mode = S_IFDIR | 0555;
-        stats.userID = geteuid();
-        stats.groupID = getegid();
-        *filestats = stats;
+        *filestats = DIR_STATS;
         return 0;
     } else {
         for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
@@ -101,6 +110,8 @@ int Root::get(const char* name, fileStats* filestats) {
 int Root::update(fileStats filestats) {
     for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
         if (rootArray[i].size >= 0 && strcmp(rootArray[i].name, filestats.name) == 0) {
+            DIR_STATS.size -= rootArray[i].size;
+            DIR_STATS.size += filestats.size;
             rootArray[i] = filestats;
             return 0;
         }
