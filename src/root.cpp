@@ -13,6 +13,7 @@ Root::Root() {
         rootArray[i].size = -1;
     }
     DIR_STATS = {};
+    strcpy(DIR_STATS.name, ".");
     DIR_STATS.mode = S_IFDIR | 0555;
     DIR_STATS.userID = geteuid();
     DIR_STATS.groupID = getegid();
