@@ -44,16 +44,19 @@ MyFS::~MyFS() {
 int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
     LOGM();
 
-    const char* name;
-    if (strcmp(path, "/") == 0) {
-        name = ".";
-    } else {
-        name = path + 1;
+    const char* name = path;
+    if (*path == '/') {
+        if (strlen(path) == 1) {
+            name = ".";
+        } else {
+            name++;
+        }
     }
 
     fileStats fileStats1;
     int res = root.get(name, &fileStats1);
     if (res == -1){
+        LOG(path);
         LOG(name);
         RETURN(-errno);
     }
@@ -70,6 +73,8 @@ int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
 
     *statbuf = stats;
 
+    LOG(path);
+    LOG(name);
     RETURN(res);
 }
 
@@ -343,8 +348,6 @@ int MyFS::fuseReaddir(const char *path, void *buf, fuse_fill_dir_t filler, off_t
     // TODO: Implement this!
 
     if (strcmp("/", path) == 0) {
-        filler(buf, "..", NULL, 0);
-
         for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
             if (root.exists(i)) {
                 struct stat s = {};
@@ -354,6 +357,8 @@ int MyFS::fuseReaddir(const char *path, void *buf, fuse_fill_dir_t filler, off_t
                 filler(buf, name, &s, 0);
             }
         }
+        filler(buf, "..", NULL, 0);
+
         RETURN(0);
     } else {
         errno = ENOTDIR;

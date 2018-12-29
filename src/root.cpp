@@ -38,9 +38,6 @@ void Root::getAll(fileStats* filestats) {
 void Root::setAll(fileStats* filestats) {
     for (int i = 0; i < ROOT_ARRAY_SIZE; i++){
         rootArray[i] = *(filestats + i);
-        if (exists((uint16_t) i)) {
-            DIR_STATS.size += rootArray[i].size;
-        }
     }
 }
 
