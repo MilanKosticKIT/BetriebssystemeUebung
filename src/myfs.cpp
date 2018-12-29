@@ -44,9 +44,7 @@ MyFS::~MyFS() {
 int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
     LOGM();
 
-    char pathCopy[strlen(path) + 1];
-    strcpy(pathCopy, path);
-    const char* name = basename(pathCopy);
+    const char* name = path + 1;
 
     fileStats fileStats1;
     int res = root.get(name, &fileStats1);
@@ -80,7 +78,9 @@ int MyFS::fuseMknod(const char *path, mode_t mode, dev_t dev) {
 
     // TODO: Implement this!
 
-    root.createEntry(path, mode);
+    const char* name = path + 1;
+
+    root.createEntry(name, mode);
     fileStats stats;
     root.get(path, &stats);
     uint16_t firstBlock;
@@ -101,8 +101,10 @@ int MyFS::fuseMkdir(const char *path, mode_t mode) {
 int MyFS::fuseUnlink(const char *path) {
     LOGM();
 
+    const char* name = path + 1;
+
     fileStats file;
-    root.get(path, &file);
+    root.get(name, &file);
 
     std::list<uint16_t >::const_iterator iterator;
     std::list<uint16_t> list;
@@ -113,7 +115,7 @@ int MyFS::fuseUnlink(const char *path) {
     fat.deleteFromFAT(file.first_block);
 
     superblock.emptySpaceSize += file.size;
-    root.deleteEntry(path);
+    root.deleteEntry(name);
 
     RETURN(0);
 }
@@ -161,7 +163,8 @@ int MyFS::fuseUtime(const char *path, struct utimbuf *ubuf) {
 int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
     LOGM();
 
-    const char* name = path + 1; //remove '/' at beginning
+    const char* name = path + 1;
+
     fileStats file;
     if (root.get(name, &file) == -1){
         RETURN(-errno);
@@ -228,6 +231,7 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
     LOGM();
 
     const char* name = path + 1;
+
     fileStats file;
     if (root.get(name, &file) == -1){
         RETURN(-errno);
@@ -277,17 +281,16 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
 
 int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
-
     // TODO: Implement this!
+
+    const char* name = path + 1;
 
     RETURN(0);
 }
 
 int MyFS::fuseStatfs(const char *path, struct statvfs *statInfo) {
     LOGM();
-
     return 0;
-
 }
 
 int MyFS::fuseFlush(const char *path, struct fuse_file_info *fileInfo) {
@@ -299,6 +302,8 @@ int MyFS::fuseRelease(const char *path, struct fuse_file_info *fileInfo) {
     LOGM();
 
     // TODO: Implement this!
+
+    const char* name = path + 1;
 
     RETURN(0);
 }
@@ -374,6 +379,8 @@ int MyFS::fuseCreate(const char *path, mode_t mode, struct fuse_file_info *fileI
     LOGM();
 
     // TODO: Implement this!
+
+    const char* name = path + 1;
 
     RETURN(0);
 }
