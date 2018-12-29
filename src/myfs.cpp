@@ -44,7 +44,12 @@ MyFS::~MyFS() {
 int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
     LOGM();
 
-    const char* name = path + 1;
+    const char* name;
+    if (strcmp(path, "/") == 0) {
+        name = ".";
+    } else {
+        name = path + 1;
+    }
 
     fileStats fileStats1;
     int res = root.get(name, &fileStats1);
@@ -338,7 +343,6 @@ int MyFS::fuseReaddir(const char *path, void *buf, fuse_fill_dir_t filler, off_t
     // TODO: Implement this!
 
     if (strcmp("/", path) == 0) {
-        filler(buf, ".", NULL, 0);
         filler(buf, "..", NULL, 0);
 
         for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
