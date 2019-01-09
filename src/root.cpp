@@ -14,7 +14,7 @@ Root::Root() {
     }
     DIR_STATS = {};
     strcpy(DIR_STATS.name, ".");
-    DIR_STATS.mode = S_IFDIR | 0x0555;
+    DIR_STATS.mode = S_IFDIR | 0555;
     DIR_STATS.userID = geteuid();
     DIR_STATS.groupID = getegid();
     time_t currentTime = time(NULL);
@@ -90,7 +90,7 @@ int Root::createEntry(const char *name, mode_t mode) {
 
 // create file with default mode
 int Root::createEntry(const char *name) {
-    return createEntry(name, 0x0666); // default mode: read/write
+    return createEntry(name, 0666); // default mode: read/write
 }
 
 // get the filestats of the given file

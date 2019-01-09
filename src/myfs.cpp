@@ -258,8 +258,8 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
     if (root.get(name, &file) == -1){
         RETURN(-errno);
     }
-    if ( file.size < offset){
-        RETURN(0);
+    if (file.size <= offset){
+        RETURN(0); //EOF
     }
     if ((uint64_t)file.size < offset + size) {
         size = file.size - offset;
@@ -267,8 +267,15 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
 
     off_t blockNo = offset / BLOCK_SIZE; // block number of file (not block number in filesystem!)
     off_t blockOffset = offset % BLOCK_SIZE; // offset in the block
-    int howManyBlocks = ceil(double(size + blockOffset) / double(BLOCK_SIZE)); //number of blocks you need to read for this operation (upper limit)
+    int howManyBlocksOld = ceil(double(size + blockOffset) / double(BLOCK_SIZE)); //number of blocks you need to read for this operation (upper limit)
 
+    int howManyBlocks = (size + blockOffset) / BLOCK_SIZE;
+    if ((size + blockOffset) % BLOCK_SIZE != 0) howManyBlocks++;
+
+    LOG("\t\t\t\t<----");
+    LOG("How many blocks");
+    LOGI(howManyBlocksOld);
+    LOGI(howManyBlocks);
 
     std::list<uint16_t> list;
     fat.iterateFAT(file.first_block, &list);
