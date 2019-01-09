@@ -252,6 +252,33 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
 int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
 
+    char testBlock[BLOCK_SIZE + 1];
+    for (int i = 0; i < BLOCK_SIZE; i++) {
+        testBlock[i] = 'A';
+    }
+    for(int i = DATA_START; i < DATA_START + 10; i++) {
+        if (blockDevice->read(i, testBlock) < 0) {
+            LOG("ERROR!!!!!!!!!!!!!!!!!!!!!!!!");
+            LOGI(errno);
+        }
+        testBlock[BLOCK_SIZE] = '\0';
+        LOG(testBlock);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     const char* name = path + 1;
 
     fileStats file;
@@ -267,26 +294,21 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
 
     off_t blockNo = offset / BLOCK_SIZE; // block number of file (not block number in filesystem!)
     off_t blockOffset = offset % BLOCK_SIZE; // offset in the block
-    int howManyBlocksOld = ceil(double(size + blockOffset) / double(BLOCK_SIZE)); //number of blocks you need to read for this operation (upper limit)
 
+    //number of blocks you need to read for this operation (upper limit)
     int howManyBlocks = (size + blockOffset) / BLOCK_SIZE;
     if ((size + blockOffset) % BLOCK_SIZE != 0) howManyBlocks++;
 
-    LOG("\t\t\t\t<----");
-    LOG("How many blocks");
-    LOGI(howManyBlocksOld);
-    LOGI(howManyBlocks);
 
     std::list<uint16_t> list;
     fat.iterateFAT(file.first_block, &list);
 
     std::list<uint16_t >::const_iterator iterator = list.begin();
-    int blocks[howManyBlocks];    //saves all block locations needed for this operation
+    uint16_t blocks[howManyBlocks]; //saves all block locations needed for this operation
 
     for ( int t = 0; t < blockNo ; t++){
         ++iterator;
     }
-
 
     for(int i = 0; i < howManyBlocks; i++){
         blocks[i] = *iterator;
@@ -294,16 +316,13 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
     }
 
     char buffer[BLOCK_SIZE];
-    blockDevice->read(blocks[0], buffer);
-    memcpy(buf, buffer + blockOffset, BLOCK_SIZE - offset);
+    blockDevice->read(DATA_START + blocks[0], buffer);
+    memcpy(buf, buffer + blockOffset, BLOCK_SIZE - blockOffset);
     for (int j = 1; j < howManyBlocks - 1; j++) {
-        blockDevice->read(blocks[j], buf + blockOffset + BLOCK_SIZE * (j - 1));
+        blockDevice->read(DATA_START + blocks[j], buf - blockOffset + BLOCK_SIZE * j);
     }
-    blockDevice->read(blocks[howManyBlocks - 1], buffer);
-    memcpy(buf + blockOffset + (howManyBlocks - 2) * BLOCK_SIZE, buffer, (size + blockOffset) % BLOCK_SIZE);
-
-
-
+    blockDevice->read(DATA_START + blocks[howManyBlocks - 1], buffer);
+    memcpy(buf - blockOffset + (howManyBlocks - 1) * BLOCK_SIZE, buffer, (size + blockOffset) % BLOCK_SIZE);
 
     RETURN((int)size);
 }
@@ -312,7 +331,7 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
     LOGM();
     // TODO: Implement this!
 
-    const char* name = path + 1;
+    //const char* name = path + 1;
 
     RETURN(0);
 }
@@ -332,7 +351,7 @@ int MyFS::fuseRelease(const char *path, struct fuse_file_info *fileInfo) {
 
     // TODO: Implement this!
 
-    const char* name = path + 1;
+    //const char* name = path + 1;
 
     RETURN(0);
 }
@@ -408,13 +427,15 @@ int MyFS::fuseCreate(const char *path, mode_t mode, struct fuse_file_info *fileI
 
     // TODO: Implement this!
 
-    const char* name = path + 1;
+    //const char* name = path + 1;
 
     RETURN(0);
 }
 
 void MyFS::fuseDestroy() {
     LOGM();
+
+    blockDevice->close();
 }
 
 void* MyFS::fuseInit(struct fuse_conn_info *conn) {
@@ -472,7 +493,6 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
                 LOG("Errno:");
                 LOGI(errno);
             }
-            blockDevice->close();
 
             dmap.setAll(dMapArray);
             fat.setAll(fatArray);
@@ -495,8 +515,6 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
                 LOGI((int) stats.size);
             }
             LOG("-----------------------------------------------");
-
-            blockDevice->close();
 
             delete[] dMapArray;
             delete[] fatArray;
