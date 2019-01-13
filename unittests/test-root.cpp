@@ -161,7 +161,7 @@ TEST_CASE("Root.exists","[Root]") {
     }
     SECTION("On invalid indices") {
         Root root = Root();
-        REQUIRE(!root.exists(65.536));
+        REQUIRE(!root.exists(ROOT_ARRAY_SIZE + 1));
     }SECTION("With existing file") {
         Root root = Root();
         int ret = root.createEntry("TestEntry");

@@ -130,6 +130,7 @@ void Root::get(int index, fileStats* filestats) {
     *filestats = rootArray[index];
 }
 
+///returns true if index <= Root_Array_Size
 bool Root::exists(int index) {
     if (index <= ROOT_ARRAY_SIZE) {
         if (rootArray[index].size >= 0) {
