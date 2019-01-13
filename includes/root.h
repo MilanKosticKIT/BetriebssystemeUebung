@@ -16,7 +16,7 @@
 #include "constants.h"
 #include "myfs-structs.h"
 
-#define ROOT_ARRAY_SIZE NUM_DIR_ENTRIES
+#define ROOT_ARRAY_SIZE (NUM_DIR_ENTRIES + 1)
 #define DIR_STATS rootArray[ROOT_ARRAY_SIZE - 1]
 
 class Root {

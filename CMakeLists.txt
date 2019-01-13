@@ -40,7 +40,6 @@ set(UNITTEST
         unittests/test-fat.cpp
         unittests/test-root.cpp
         unittests/helper.cpp
-        unittests/test-myfs-mkfs.cpp
         includes/log.h)
 
 include_directories(includes)

@@ -22,7 +22,7 @@ TEST_CASE("Root.setAll / Root.getAll", "[Root]"){
         fileStats rootArray[ROOT_ARRAY_SIZE];
         root.getAll(rootArray);
         bool successfulInit = true;
-        for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
+        for (int i = 0; i < NUM_DIR_ENTRIES; i++) {
             if (rootArray[i].size != -1) {
                 successfulInit = false;
                 break;
@@ -64,7 +64,7 @@ TEST_CASE("Root.createEntry", "[Root]"){
         char* name;
 
         int successfulCreat = true;
-        for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
+        for (int i = 0; i < NUM_DIR_ENTRIES; i++) {
             name = (char*) malloc(i + 2);
             name[i + 1] = '\0';
             gen_random(name, i + 1);
@@ -75,9 +75,9 @@ TEST_CASE("Root.createEntry", "[Root]"){
         }
         REQUIRE(successfulCreat);
 
-        name = (char*) malloc(ROOT_ARRAY_SIZE + 3);
-        name[ROOT_ARRAY_SIZE + 2] = '\0';
-        gen_random(name, ROOT_ARRAY_SIZE + 2);
+        name = (char*) malloc(NUM_DIR_ENTRIES + 3);
+        name[NUM_DIR_ENTRIES + 2] = '\0';
+        gen_random(name, NUM_DIR_ENTRIES + 2);
         REQUIRE((root.createEntry(name) < 0 && errno == ENFILE));
         free(name);
     }
@@ -154,7 +154,7 @@ TEST_CASE("Root.update", "[Root]") {
     }
 }
 
-TEST_CASE("Root.exists","[Root&") {
+TEST_CASE("Root.exists","[Root]") {
     SECTION("Empty Root"){
         Root root = Root();
         REQUIRE(!root.exists(0));
