@@ -24,6 +24,7 @@ public:
 	void addLastToFAT(uint16_t lastAddress);
 	void setAll(uint16_t* p);
 	void getAll(uint16_t* p);
+    int getNext(uint16_t currentBlock, uint16_t* nextBlock);
 
 };
 
