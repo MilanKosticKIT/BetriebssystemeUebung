@@ -75,7 +75,7 @@ int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
 
     LOG(path);
     LOG(name);
-    RETURN(res);
+    RETURN(0);
 }
 
 int MyFS::fuseReadlink(const char *path, char *link, size_t size) {
@@ -176,61 +176,64 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
     const char* name = path + 1;
 
     fileStats file;
-    if (root.get(name, &file) == -1){
+    int fd = root.get(name, &file); // file descriptor
+    if (fd == -1){
         RETURN(-errno);
     }
 
+
     LOG("mode");
     LOGI(file.mode);
+    bool success = false;
     if (file.userID == geteuid()) {
         if ((fileInfo->flags & O_RDWR) != 0) {
             LOG("User RDWR");
             if ((file.mode & S_IRWXU) != 0) {
-                RETURN(0);
+                success = true;
             }
         } else if ((fileInfo->flags & O_WRONLY) != 0) {
             LOG("User WRONLY");
             if ((file.mode & S_IWUSR) != 0) {
-                RETURN(0);
+                success = true;
             }
         } else {
             LOG("User RDONLY");
             if ((file.mode & S_IRUSR) != 0) {
-                RETURN(0);
+                success = true;
             }
         }
     } else if (file.groupID == getegid()) {
         if ((fileInfo->flags & O_RDWR) != 0) {
             LOG("Group RDWR");
             if ((file.mode & S_IRWXG) != 0) {
-                RETURN(0);
+                success = true;
             }
         } else if ((fileInfo->flags & O_WRONLY) != 0) {
             LOG("Group WRONLY");
             if ((file.mode & S_IWGRP) != 0) {
-                RETURN(0);
+                success = true;
             }
         } else {
             LOG("Group RDONLY");
             if ((file.mode & S_IRGRP) != 0) {
-                RETURN(0);
+                success = true;
             }
         }
     } else {
         if ((fileInfo->flags & O_RDWR) != 0) {
             LOG("Other RDWR");
             if ((file.mode & S_IRWXO) != 0) {
-                RETURN(0);
+                success = true;
             }
         } else if ((fileInfo->flags & O_WRONLY) != 0) {
             LOG("Other WRONLY");
             if ((file.mode & S_IWOTH) != 0) {
-                RETURN(0);
+                success = true;
             }
         } else {
             LOG("Other RDONLY");
             if ((file.mode & S_IROTH) != 0) {
-                RETURN(0);
+                success = true;
             }
         }
     }
@@ -244,40 +247,17 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
     LOG("Read-Write");
     LOGI(O_RDWR);
 
-
-    errno = EACCES;
-    RETURN(-errno);
+    if (success) {
+        fileInfo->fh = (uint64_t) fd;
+        //TODO open file
+    } else {
+        errno = EACCES;
+        RETURN(-errno);
+    }
 }
 
 int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
-
-    char testBlock[BLOCK_SIZE + 1];
-    for (int i = 0; i < BLOCK_SIZE; i++) {
-        testBlock[i] = 'A';
-    }
-    for(int i = DATA_START; i < DATA_START + 10; i++) {
-        if (blockDevice->read(i, testBlock) < 0) {
-            LOG("ERROR!!!!!!!!!!!!!!!!!!!!!!!!");
-            LOGI(errno);
-        }
-        testBlock[BLOCK_SIZE] = '\0';
-        LOG(testBlock);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     const char* name = path + 1;
 

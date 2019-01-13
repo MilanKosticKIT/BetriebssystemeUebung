@@ -95,21 +95,16 @@ int Root::createEntry(const char *name) {
     return createEntry(name, 0666); // default mode: read/write
 }
 
-// get the filestats of the given file
+// get the filestats of the given file, returns a number that can be used as a file descriptor
 int Root::get(const char* name, fileStats* filestats) {
-    if (strcmp("/", name) == 0) {
-        *filestats = DIR_STATS;
-        return 0;
-    } else {
-        for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
-            if (rootArray[i].size >= 0 && strcmp(rootArray[i].name, name) == 0) {
-                *filestats = rootArray[i];
-                return 0;
-            }
+    for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
+        if (rootArray[i].size >= 0 && strcmp(rootArray[i].name, name) == 0) {
+            *filestats = rootArray[i];
+            return i;
         }
-        errno = ENOENT;
-        return -1;
     }
+    errno = ENOENT;
+    return -1;
 }
 
 // set the filestats of the given file to the given values, if it exists (names are compared).
