@@ -24,8 +24,6 @@ TEST_CASE("Creating simple Filsystem","[mkfs.myfs]"){
         REQUIRE(system("./mkfs.myfs Binary.bin Makefile") == 0);
     }
     SECTION("Using not exsitng File to copy into FS"){
-        int status = system("./mkfs.myfs Binary.bin neverExisting.bin");
-        std::cout << "Test status: " << status << std::endl;
-        REQUIRE(status < 0);
+        REQUIRE(system("./mkfs.myfs Binary.bin neverExisting.bin") != 0);
     }
 }

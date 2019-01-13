@@ -250,6 +250,7 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
     if (success) {
         fileInfo->fh = (uint64_t) fd;
         //TODO open file
+	RETURN(0);
     } else {
         errno = EACCES;
         RETURN(-errno);
