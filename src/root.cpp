@@ -2,6 +2,7 @@
 // Created by test on 05.11.2018.
 //
 #include <errno.h>
+#include <myfs-structs.h>
 
 #include "myfs-structs.h"
 #include "root.h"
@@ -80,6 +81,7 @@ int Root::createEntry(const char *name, mode_t mode) {
             stats.change_time = currentTime;
             stats.mode = S_IFREG | mode; // regular file
             stats.nlink = 1;
+            stats.first_block = FAT_TERMINATOR;
             rootArray[i] = stats;
             return 0;
         }
