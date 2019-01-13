@@ -195,7 +195,7 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
             }
         } else {
             LOG("User RDONLY");
-            if ((file.mode & S_IRUSR) != 0) {                      // hier
+            if ((file.mode & S_IRUSR) != 0) {
                 RETURN(0);
             }
         }
@@ -212,7 +212,7 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
             }
         } else {
             LOG("Group RDONLY");
-            if ((file.mode & S_IRGRP) != 0) {                      // hier
+            if ((file.mode & S_IRGRP) != 0) {
                 RETURN(0);
             }
         }
@@ -229,7 +229,7 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
             }
         } else {
             LOG("Other RDONLY");
-            if ((file.mode & S_IROTH) != 0) {                      // hier
+            if ((file.mode & S_IROTH) != 0) {
                 RETURN(0);
             }
         }

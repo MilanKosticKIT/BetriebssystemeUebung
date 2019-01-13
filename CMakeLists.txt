@@ -41,7 +41,6 @@ set(UNITTEST
         unittests/test-root.cpp
         unittests/helper.cpp
         unittests/test-myfs-mkfs.cpp
-        unittests/test-myfs-time.cpp
         includes/log.h)
 
 include_directories(includes)

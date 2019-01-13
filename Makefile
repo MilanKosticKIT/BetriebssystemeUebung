@@ -94,8 +94,7 @@ UNITTESTS_OBJS = $(OBJDIR)/main.o \
 	$(OBJDIR)/test-dmap.o \
 	$(OBJDIR)/test-fat.o \
     $(OBJDIR)/test-root.o \
-	$(OBJDIR)/test-myfs-mkfs.o \
-	$(OBJDIR)/test-myfs-time
+	$(OBJDIR)/test-myfs-mkfs.o
 
 # test targets
 TTARGETS = test
