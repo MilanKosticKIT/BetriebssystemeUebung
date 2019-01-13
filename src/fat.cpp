@@ -66,10 +66,9 @@ int FAT::addToFAT(uint16_t firstBlock, uint16_t nextAddress) {
 }
 
 int FAT::addNextToFAT(uint16_t currentLastBlock, uint16_t nextBlock) {
-    if (currentLastBlock == nextBlock){
-
+    if (!(currentLastBlock == nextBlock)){
+        fat[currentLastBlock] = nextBlock;
     }
-    fat[currentLastBlock] = nextBlock;
     return 0;
 }
 
