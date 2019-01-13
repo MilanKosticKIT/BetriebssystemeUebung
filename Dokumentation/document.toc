@@ -7,3 +7,4 @@
 \contentsline {subsection}{\numberline {2.1}Superblock}{3}
 \contentsline {subsection}{\numberline {2.2}DMAP}{3}
 \contentsline {subsection}{\numberline {2.3}FAT}{3}
+\contentsline {subsection}{\numberline {2.4}ROOT}{4}

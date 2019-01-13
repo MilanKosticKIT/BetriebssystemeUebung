@@ -48,11 +48,16 @@ Im Endeffekt handelt es sich um einen Integer Array dessen Länge, der Anzahl vor
 \\
 Die Klasse DMAP stellt 5 öffentliche Methoden, es können Blöcke als belegt und frei gesetzt werden.
 Außerdem gibt die Methode "getFreeBlock" den nächsten freien Block zurück. Wir haben uns dazu entschlossen, den Wert für den nächsten freien Block jederzeit im Hintergrund als private Variable zu halten und erst nachdem dieser Block beschrieben wurde, den neuen nächsten freien Block zu berechnen.
+ % TODO eigener Abschnitt zum Thema sichern und laden
 Für die Initialisierung, wurden zwei Methoden implementiert "getAll" welchen den kompletten DMAP Array zurückgibt, und "setAll" welche den DMAP Array mit dem übergebenen Array überschreibt. Diese zwei Methoden werden benutzt, um die komplette DMAP in die Containerdatei auf der Festplatte zu schreiben bzw. sie wiederherzustellen.
 
 \subsection{FAT}
-Die Aufgabe der FAT ist die Verbindung zwischen einzelner Datenblöcke zu einer Datei herzustellen.
-
+Die Aufgabe der FAT ist die Verbindung zwischen einzelner Datenblöcke zu einer Datei herzustellen. Die FAT realisieren wir als einen Array. Die Größe entspricht dabei der Menge an Datenblöcke die unser Dateisystem zur Verfügung hat. In unserem Fall 65535. Die Verknüpfung erfolgt dabei indem der Wert des Arrays an einer bestimmten Stelle denn Index des nächsten Datenblocks beinhaltet. Hinzu kommt noch ein Terminierendes Zeichen, welches zeigt, dass die Datei zu ende ist, bei uns erfüllt diese Aufgabe der Index 65535 da dieser außerhalb des Arrays liegt. 
+Zum auslesen der FAT wurde eine Methode "iterateFat" implementiert, diese bekommt den Index des ersten Datenblockes, sowie eine leere Liste übergeben. Die Methode geht die Verkettung beginnend mit dem ersten Datenblock durch und speichert die Indexe aller zusammenhängenden Datenblöcke chronologisch in die Liste. Zum Löschen einer Datei aus der FAT wird nur der erste Datenblock  an die Methode "deleteFromFAT" übergeben. In dieser wird durch die Verkettung iteriert und alle zusammenhängende Einträge gelöscht.  
+Zum einfügen neuer Informationen in die FAT stellt diese zwei verschiedene Methoden zur Verfügung. Zum einen "addNextToFAT" dieser werden zwei Indexe übergeben, die Methode stellt eine Verkettung zwischen den ersten und dem zweiten Datenblock her.
+Und die zweite Methode "addLastToFAT", welche an den übergebenen Index den Terminalen Index schreibt.
+ 
+\subsection{ROOT}
 
 
 \begin{comment}
