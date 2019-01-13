@@ -97,11 +97,33 @@ TEST_CASE("Root.createEntry", "[Root]"){
         REQUIRE((root.createEntry(name) < 0 && errno == ENAMETOOLONG));
         free(name);
     }
+    SECTION("Created fileStats point onto Terminator") {
+        Root root = Root();
+        root.createEntry("testFile");
+        fileStats stats;
+        root.get("testFile", &stats);
+        REQUIRE(stats.first_block == FAT_TERMINATOR);
+    }
+    SECTION("File with mode") {
+        Root root = Root();
+        fileStats stats;
+        root.createEntry("testFile", S_IRWXU | S_IRGRP | S_IROTH | S_IWGRP);
+        root.get("testFile", &stats);
+        REQUIRE((S_IRWXU | S_IRGRP | S_IROTH | S_IWGRP | S_IFREG) == stats.mode);
+    }
 }
 
 TEST_CASE("Root.get", "[Root]") {
     // Get created file is tested in Root.createEntry
-
+    SECTION("Returend correct index of file") {
+        Root root = Root();
+        root.createEntry("testFile");
+        fileStats stats;
+        int index = root.get("testFile", &stats);
+        fileStats statArray[ROOT_ARRAY_SIZE];
+        root.getAll(statArray);
+        REQUIRE(memcmp(&stats, &(statArray[index]), sizeof(fileStats)) == 0);
+    }
     SECTION("Get nonexisting file") {
         Root root = Root();
         fileStats stats;
@@ -176,4 +198,14 @@ TEST_CASE("Root.exists","[Root]") {
         REQUIRE(ret >= 0);
         REQUIRE(!root.exists(0));
     }
+}
+
+TEST_CASE("Root.getName", "[Root]") {
+    Root root = Root();
+    root.createEntry("testFile");
+    fileStats stats;
+    int index = root.get("testFile", &stats);
+    char* returnValue;
+    root.getName(index, &returnValue);
+    REQUIRE(strcmp("testFile", returnValue) == 0);
 }
