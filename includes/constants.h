@@ -24,7 +24,7 @@
 #define SUPERBLOCK_SIZE 1
 #define DMAP_SIZE 16
 #define FAT_SIZE 256
-#define ROOT_SIZE 64 // todo
+#define ROOT_SIZE 64 // todo #32
 
 #define SUPERBLOCK_START 0
 #define DMAP_START (SUPERBLOCK_START + SUPERBLOCK_SIZE)
