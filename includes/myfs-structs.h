@@ -42,4 +42,9 @@ typedef struct {
     uint16_t dataSize;
 } SuperBlock;
 
+typedef struct {
+    uint16_t blockNumber; // block number in data section (without DATA_START)
+    char content[BLOCK_SIZE];
+} readBuffer;
+
 #endif /* myfs_structs_h */

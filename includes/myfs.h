@@ -29,15 +29,18 @@ private:
     DMap dmap = DMap();
     Root root = Root();
     SuperBlock superblock;
-    
+
+    int openFiles[NUM_OPEN_FILES];
+    readBuffer readbuffer[NUM_OPEN_FILES];
+
 public:
     static MyFS *Instance();
-    
+
     // TODO: Add attributes of your file system here
-    
+
     MyFS();
     ~MyFS();
-    
+
     // --- Methods called by FUSE ---
     // For Documentation see https://libfuse.github.io/doxygen/structfuse__operations.html
     int fuseGetattr(const char *path, struct stat *statbuf);
@@ -77,9 +80,9 @@ public:
     int fuseTruncate(const char *path, off_t offset, struct fuse_file_info *fileInfo);
     int fuseCreate(const char *, mode_t, struct fuse_file_info *);
     void fuseDestroy();
-    
+
     // TODO: Add methods of your file system here
-    
+
 };
 
 #endif /* myfs_h */

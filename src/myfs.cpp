@@ -176,11 +176,10 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
     const char* name = path + 1;
 
     fileStats file;
-    int fd = root.get(name, &file); // file descriptor
-    if (fd == -1){
+    int rootIndex = root.get(name, &file);
+    if (rootIndex == -1){
         RETURN(-errno);
     }
-
 
     LOG("mode");
     LOGI(file.mode);
@@ -248,9 +247,15 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
     LOGI(O_RDWR);
 
     if (success) {
-        fileInfo->fh = (uint64_t) fd;
-        //TODO open file
-	RETURN(0);
+        for (int i = 0; i < NUM_OPEN_FILES; i++) {
+            if (openFiles[i] < 0) {
+                openFiles[i] = rootIndex;
+                fileInfo->fh = i;
+                RETURN(0);
+            }
+        }
+        errno = EMFILE;
+	    RETURN(-errno);
     } else {
         errno = EACCES;
         RETURN(-errno);
@@ -260,10 +265,14 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
 int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
 
-    const char* name = path + 1;
+    if (openFiles[fileInfo->fh] < 0) {
+        errno = EBADF;
+        RETURN(-errno);
+    }
 
+    int rootIndex = openFiles[fileInfo->fh];
     fileStats file;
-    if (root.get(name, &file) == -1){
+    if (root.get(rootIndex, &file) == -1){
         RETURN(-errno);
     }
     if (file.size <= offset){
@@ -280,30 +289,32 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
     int howManyBlocks = (size + blockOffset) / BLOCK_SIZE;
     if ((size + blockOffset) % BLOCK_SIZE != 0) howManyBlocks++;
 
-
-    std::list<uint16_t> list;
-    fat.iterateFAT(file.first_block, &list);
-
-    std::list<uint16_t >::const_iterator iterator = list.begin();
+    int currentBlock = file.first_block;
     uint16_t blocks[howManyBlocks]; //saves all block locations needed for this operation
-
-    for ( int t = 0; t < blockNo ; t++){
-        ++iterator;
+    for ( int t = 0; t < blockNo ; t++){ // skip blockNo blocks
+        fat.getNext(currentBlock, &currentBlock);
     }
-
-    for(int i = 0; i < howManyBlocks; i++){
-        blocks[i] = *iterator;
-        ++iterator;
+    for(int i = 0; i < howManyBlocks; i++){ // save blocks for reading
+        blocks[i] = curentBlock;
+        fat.getNext(currentBlock, &currentBlock);
     }
 
     char buffer[BLOCK_SIZE];
-    blockDevice->read(DATA_START + blocks[0], buffer);
-    memcpy(buf, buffer + blockOffset, BLOCK_SIZE - blockOffset);
+    if (readbuffer[fileInfo->fh].blockNumber == blocks[0]) {
+        memcpy(buf, readbuffer[fileInfo->fh].content + blockOffset, BLOCK_SIZE - blockOffset);
+    } else {
+        blockDevice->read(DATA_START + blocks[0], buffer);
+        memcpy(buf, buffer + blockOffset, BLOCK_SIZE - blockOffset);
+    }
     for (int j = 1; j < howManyBlocks - 1; j++) {
         blockDevice->read(DATA_START + blocks[j], buf - blockOffset + BLOCK_SIZE * j);
     }
-    blockDevice->read(DATA_START + blocks[howManyBlocks - 1], buffer);
-    memcpy(buf - blockOffset + (howManyBlocks - 1) * BLOCK_SIZE, buffer, (size + blockOffset) % BLOCK_SIZE);
+    if (howManyBlocks > 1) {
+        blockDevice->read(DATA_START + blocks[howManyBlocks - 1], buffer);
+        memcpy(buf - blockOffset + (howManyBlocks - 1) * BLOCK_SIZE, buffer, (size + blockOffset) % BLOCK_SIZE);
+    }
+
+    memcpy(readbuffer[fileInfo->fh].content, buffer, BLOCK_SIZE);
 
     RETURN((int)size);
 }
@@ -330,11 +341,13 @@ int MyFS::fuseFlush(const char *path, struct fuse_file_info *fileInfo) {
 int MyFS::fuseRelease(const char *path, struct fuse_file_info *fileInfo) {
     LOGM();
 
-    // TODO: Implement this!
-
-    //const char* name = path + 1;
-
-    RETURN(0);
+    if (openFiles[fileInfo->fh] >= 0) {
+        openFiles[fileInfo] = -1;
+        RETURN(0);
+    } else {
+        errno = EBADF;
+        RETURN(-errno);
+    }
 }
 
 int MyFS::fuseFsync(const char *path, int datasync, struct fuse_file_info *fi) {
@@ -444,7 +457,6 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
             uint8_t* dMapArray = new uint8_t[(DATA_BLOCKS + 1) / 8];
             fileStats* rootArray = new fileStats[ROOT_ARRAY_SIZE];
 
-
             int ret = 0;
             ret = fsIO.readDevice(SUPERBLOCK_START, &superblock, sizeof(superblock));
             if (ret < 0) {
@@ -500,6 +512,11 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
             delete[] dMapArray;
             delete[] fatArray;
             delete[] rootArray;
+
+            for (int i = 0; i < NUM_OPEN_FILES; i++) {
+                openFiles[i] = -1;
+                readbuffer[i].blockNumber = FAT_TERMINATOR;
+            }
         } else {
             LOG("Error at blockdevice.open()");
         }
