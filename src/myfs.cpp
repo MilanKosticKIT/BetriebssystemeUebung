@@ -141,6 +141,13 @@ int MyFS::fuseSymlink(const char *path, const char *link) {
 }
 
 int MyFS::fuseRename(const char *path, const char *newpath) {
+
+    const char* oldname = path + 1;
+    const char* newname = newpath + 1;
+    int fd = root.rename(oldname, newname);
+    if (fd == -1){
+        RETURN(-errno);
+    }
     LOGM();
     return 0;
 }
