@@ -82,7 +82,7 @@ public:
     void fuseDestroy();
 
     // TODO: Add methods of your file system here
-
+    int initializeFilesystem(char* containerFile);
 };
 
 #endif /* myfs_h */
