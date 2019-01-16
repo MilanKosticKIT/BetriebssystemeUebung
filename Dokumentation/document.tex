@@ -40,7 +40,7 @@ Diese ruft Methoden aus den Klassen auf, um die Ausführung des Programms zu steu
 \section{Implementierung}
 \subsection{Superblock}
 Der Superblock enthält wichtige Informationen über das Dateisystem an sich. In ihm werden sowohl Informationen die für das Betriebssystem und den Benutzer relevant sind wie Größe des Dateisystems, der freie Speicherplatz und maximale Speichergröße. Als auch für den Betrieb des Dateisystems wichtige Daten wie die jeweiligen Startadressen der Bestandteile und die Größe dieser. Von der Implementierung handelt es sich um eine Struct mit 16 bit unsigned Integer werten.
-
+%TODO Quellcode einfügen
 
 \subsection{DMAP}
 Die DMAP ist dazu da, einen Überblick zu schaffen, welche Datenblöcke frei sind.
@@ -48,21 +48,46 @@ Im Endeffekt handelt es sich um einen Integer Array dessen Länge, der Anzahl vor
 \\
 Die Klasse DMAP stellt 5 öffentliche Methoden, es können Blöcke als belegt und frei gesetzt werden.
 Außerdem gibt die Methode "getFreeBlock" den nächsten freien Block zurück. Wir haben uns dazu entschlossen, den Wert für den nächsten freien Block jederzeit im Hintergrund als private Variable zu halten und erst nachdem dieser Block beschrieben wurde, den neuen nächsten freien Block zu berechnen.
- % TODO eigener Abschnitt zum Thema sichern und laden
 Für die Initialisierung, wurden zwei Methoden implementiert "getAll" welchen den kompletten DMAP Array zurückgibt, und "setAll" welche den DMAP Array mit dem übergebenen Array überschreibt. Diese zwei Methoden werden benutzt, um die komplette DMAP in die Containerdatei auf der Festplatte zu schreiben bzw. sie wiederherzustellen.
+%TODO Quellcode einfügen
 
 \subsection{FAT}
 Die Aufgabe der FAT ist die Verbindung zwischen einzelner Datenblöcke zu einer Datei herzustellen. Die FAT realisieren wir als einen Array. Die Größe entspricht dabei der Menge an Datenblöcke die unser Dateisystem zur Verfügung hat. In unserem Fall 65535. Somit ist gewährleistet, dass zu jeder Datei ein Index in der FAT vorhanden ist. Die Verknüpfung erfolgt dabei indem der Wert des Arrays an einer bestimmten Stelle denn Index des nächsten Datenblocks beinhaltet. Hinzu kommt noch ein Terminierendes Zeichen, welches zeigt, dass die Datei zu ende ist, bei uns erfüllt diese Aufgabe der Index 65535 da dieser außerhalb des Arrays liegt. 
-Zum auslesen der FAT wurde eine Methode "iterateFat" implementiert, diese bekommt den Index des ersten Datenblockes, sowie eine leere Liste übergeben. Die Methode geht die Verkettung beginnend mit dem ersten Datenblock durch und speichert die Indexe aller zusammenhängenden Datenblöcke chronologisch in die Liste. Zum Löschen einer Datei aus der FAT wird nur der erste Datenblock  an die Methode "deleteFromFAT" übergeben. In dieser wird durch die Verkettung iteriert und alle zusammenhängende Einträge gelöscht.  
-Zum einfügen neuer Informationen in die FAT stellt diese zwei verschiedene Methoden zur Verfügung. Zum einen "addNextToFAT" dieser werden zwei Indexe übergeben, die Methode stellt eine Verkettung zwischen den ersten und dem zweiten Datenblock her.
+Zum auslesen der FAT wurde eine Methode "getNext" implementiert, diese bekommt den Index des letzten bekannten Datenblocks übergeben und liefert den Eintrag an dieser stelle im FAT Array, also den Index des nächsten Datenblocks. Zum Löschen einer Datei aus der FAT wird nur der erste Datenblock  an die Methode "deleteFromFAT" übergeben. In dieser wird durch die Verkettung iteriert und alle zusammenhängende Einträge gelöscht.  
+Zum einfügen neuer Informationen in die FAT stellt diese zwei verschiedene Methoden zur Verfügung. Zum einen "addNextToFAT" dieser werden zwei Indizes übergeben, die Methode stellt eine Verkettung zwischen den ersten und dem zweiten Datenblock her.
 Und die zweite Methode "addLastToFAT", welche an den übergebenen Index den Terminalen Index schreibt.
-%TODO Verbesserung der Performance im Vergleich zu "addToFAT"
+%TODO Quellcode einfügen
  
 \subsection{ROOT}
-Im ROOT Abschnitt werden Dateien spezifische Informationen gespeichert wie zum Beispiel der Name, letzter Änderungszeitpunkt, Index des ersten Blocks, Größe der Datei und weitere Metadaten. Gespeichert werden die Informationen in einem Array, dessen Größe abhängig von der Maximalen Anzahl Dateien in dem Dateisystem ist, sodass es zu jeder möglichen Datei genau einen Index im Rootarrray gibt. Als Datentyp des Arrays haben wir von uns geschriebenes Struct "filestats" gewählt. Zum Auslesen der Informationen stellt die Klasse eine Methode "get" welche überladen ist, einmal kann die Methode mit dem Parameter Dateiname und einer leeren fileStats Struct aufgerufen werden und einmal mit dem Parameter Index im ROOT Array und einer leeren fileStats Struct dabei werden jeweils die Korrekte Struct aus dem Array gefunden, entweder durch Vergleich des Dateinamens oder direkt durch die Position im Array und in die übergebene leere Struct reingeschrieben. Des weiteren wurden Methoden für zum Löschen von Einträgen, zum Überschreiben einer FileStat im Array, eine Überladene Methode zum erstellen neuer leerer Einträge dabei muss der Dateiname eingegeben werden, die Eingabe der Lese/Schreibrechte ist optional.Es besteht auch die Möglichkeit zu Überprüfen, ob ein Array Eintrag unter dem übergebenen Index vorhanden ist, als auch zum auslesen des Dateinamens.
+Im ROOT Abschnitt werden Dateien spezifische Informationen gespeichert wie zum Beispiel der Name, letzter Änderungszeitpunkt, Index des ersten Blocks, Größe der Datei und weitere Metadaten. Gespeichert werden die Informationen in einem Array, dessen Größe abhängig von der Maximalen Anzahl Dateien in dem Dateisystem ist, sodass es zu jeder möglichen Datei genau einen Index im Rootarrray gibt. Als Datentyp des Arrays haben wir von uns geschriebenes Struct "filestats" gewählt. Zum Auslesen der Informationen stellt die Klasse eine Methode "get" welche überladen ist, einmal kann die Methode mit dem Parameter Dateiname und einer leeren fileStats Struct aufgerufen werden und einmal mit dem Parameter Index im ROOT Array und einer leeren fileStats Struct dabei werden jeweils die Korrekte Struct aus dem Array gefunden, entweder durch Vergleich des Dateinamens oder direkt durch die Position im Array und in die übergebene leere Struct reingeschrieben. Des weiteren wurden Methoden für zum Löschen von Einträgen, zum Überschreiben einer FileStat im Array, eine Überladene Methode zum erstellen neuer leerer Einträge dabei muss der Dateiname eingegeben werden, die Eingabe der Lese/Schreibrechte ist optional. Es besteht auch die Möglichkeit zu Überprüfen, ob ein Array Eintrag unter dem übergebenen Index vorhanden ist, als auch zum auslesen des Dateinamens.
 Eine wichtige Methode stellt dabei die "set" Methode dar, ihr wird ein Index im Array und der Pfad zu einer Datei übergeben. Die Methode liest die Eigenschaften der Datei unter dem gegeben Pfad aus und speichert diese in einer FileStat unter dem gegebenen Index ab. 
 Hinzu kommen Methoden zum überprüfen ob ein Eintrag unter dem übergebenen Index existiert und eine extra Methode zum auslesen des Dateinamens aus einem bestimmten Index.
+%TODO Quellcode einfügen
 
+\subsection{FilesystemIO}
+Da in unserem Dateisystem selten Daten einzeln vorliegen, sondern meistens in komplexeren Datenstrukturen wurde eine extra Klasse geschrieben, mithilfe welcher eine komplette Datenstruktur auf die Festplatte geschrieben werden kann.
+Die Klasse FilesystemIO stellt zwei generische Methoden, eine zum lesen von der Festplatte und eine zum schreiben. Die Parameter sind jeweils die Blocknummer ab welcher gelesen bzw. geschrieben werden soll, die Datenstruktur an sich und die Größe der Datenstruktur. Die Methoden funktionieren ähnlich, deswegen wird aus Gründen der Lesbarkeit die Funktion anhand der Schreibmethode erklärt. \\
+Übergabeparameter sind:  
+\begin{enumerate}
+	\item block  $\Rightarrow$ \textit{erster Block der Containerdatei welcher beschrieben werden soll} 
+	\item data $\Rightarrow$ \textit{Pointer auf die zu schreibende Datenstruktur}
+	\item size	$\Rightarrow$ \textit{Größe der Datenstruktur}  
+\end{enumerate}
+Da die Methode generisch mit verschiedenen Datenstrukturen funktioniert, wird die Datenstruktur zuallererst in einen char pointer gecastet. Anschließend wir ein char Buffer der genau die Größe eines Blockes besitzt. Mithilfe der übergebenen Größe der Dateistruktur wird berechnet wie viele Blöcke zu beschreiben sind. Dann kommt der eigentliche Schreibvorgang welcher in zwei Abschnitte unterteilt wurde, dem ersten, bei dem in einer For-Schleife die Bytes aus der Datenstruktur in den Bufffer kopiert werden und dieser mittels der gegebenen Blockdevice Klasse auf die Festplatte geschrieben. Dies geschieht, bis nur noch der letzte Block übrig bleibt da nicht gewährleistet ist, dass genau so viele Bytes übrig sind wie in einen Block passen. Deshalb wird der letzte Block separat geschrieben, indem zuerst mithilfe der Größe der Datenstruktur modulo der Blockgröße berechnet, wie viele Bytes noch übrig bleiben, diese werden dann in den Buffer geladen und auf die Festplatte geschrieben.   
+%TODO Quellcode einfügen
+
+\newpage
+\section{Persistenz}
+Um sicherzustellen, dass das Dateisystem Persistent ist, wird in regelmäßigen %TODO????
+Abständen das Komplette Dateisystem auf der Festplatte gesichert, für diesen Zweck wurden in den Klassen FAT, ROOT und DMAP, die Klassen "getAll" und "setAll" implementiert. Die 
+%TODO Quellcode einfügen
+
+\section{Optimierungen}
+\subsection{FAT Performance}
+Die ursprüngliche Idee für das Auslesen war es, die komplette Verkettung als Liste wiederzugeben daher wurde eine Methode implementiert, welche den Index des ersten Datenblocks und eine leere Liste übergeben bekommt. Die Methode geht durch die komplette Verkettung durch und speichert die Indizes in der mit übergebenen Liste chronologisch ab. Dies hat sich jedoch beim Testen als sehr langsam und für unsere Zwecke nicht optimal herausgestellt.
+Als Lösung des Problems wurde ein anderer Ansatz gewählt. Die neue Methode bekommt den letzten bekannten Index übergeben und liefert den nächsten verketteten Index. Dieser Ansatz hat sich als deutlich Performanter herausgestellt, vor allem für größere Dateien.
+Nachdem selben Prinzip wurde auch die Methode zum hinzufügen neuer Datenblöcke der Verkettung überarbeitet. Auch dies brachte einen großen Geschwindigkeitsvorteil. 
+%TODO Quellcode einfügen
 
 \begin{comment}
 \lstinputlisting

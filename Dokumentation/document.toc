@@ -8,3 +8,7 @@
 \contentsline {subsection}{\numberline {2.2}DMAP}{3}
 \contentsline {subsection}{\numberline {2.3}FAT}{3}
 \contentsline {subsection}{\numberline {2.4}ROOT}{4}
+\contentsline {subsection}{\numberline {2.5}FilesystemIO}{5}
+\contentsline {section}{\numberline {3}Persistenz}{5}
+\contentsline {section}{\numberline {4}Optimierungen}{6}
+\contentsline {subsection}{\numberline {4.1}FAT Performance}{6}
