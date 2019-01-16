@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
             if (sizeOK) {   //The files fit in the filesystem
                 std::cout << "The files fit in the filesystem.\n" << std::endl;
                 for (int i = 2; i < argc; i++) { // copy files
-                    char *filename = argv[i];
+                    char *filename = basename(argv[i]);
                     std::cout << "Copying file: " << argv[i] << std::endl;
                     int fileDescriptor = open(filename, O_RDONLY);
                     if (fileDescriptor < 0) {
