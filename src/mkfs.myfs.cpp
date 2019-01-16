@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
                         std::cout << "errno: " << errno << std::endl;
                         return errno;
                     } else {
-                        ret = root.createEntry(filename, 0444); // "create file"
+                        ret = root.createEntry(filename, 0644); // "create file"
                         if (ret < 0) {
                             std::cout << "Root.createEntry errno: " << errno << std::endl;
                             return errno;
