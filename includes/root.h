@@ -39,7 +39,7 @@ public:
 
     //Methods with position(--> file descriptor):
 
-    void get(int num, fileStats* filestats);
+    int get(int num, fileStats* filestats);
     int set(int num, char* filePath);
     bool exists(int index);
     int getName(int index, char** name);

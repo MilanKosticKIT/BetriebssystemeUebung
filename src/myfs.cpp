@@ -299,7 +299,7 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
     int howManyBlocks = (size + blockOffset) / BLOCK_SIZE;
     if ((size + blockOffset) % BLOCK_SIZE != 0) howManyBlocks++;
 
-    int currentBlock = file.first_block;
+    uint16_t currentBlock = file.first_block;
     uint16_t blocks[howManyBlocks]; //saves all block locations needed for this operation
     for ( int t = 0; t < blockNo ; t++){ // skip blockNo blocks
         fat.getNext(currentBlock, &currentBlock);
@@ -406,10 +406,10 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
 
     for (int i = 0; i < NUM_OPEN_FILES; i++) {
         if (openFiles[i] == rootIndex) {
-            readbuffer[i].content = FAT_TERMINATOR;
+            readbuffer[i].blockNumber = FAT_TERMINATOR;
         }
     }
-    if (file.size < offset + size) {
+    if ((uint_least64_t)file.size < offset + size) {
         file.size = offset + size;
         root.update(file);
     }
