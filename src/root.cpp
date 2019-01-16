@@ -94,6 +94,20 @@ int Root::createEntry(const char *name) {
     return createEntry(name, 0666); // default mode: read/write
 }
 
+int Root::rename(const char *oldname, const char *newname) {
+    if (strlen(newname) > NAME_LENGTH) {
+        errno = ENAMETOOLONG;
+        return -1;
+    }
+    for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
+        if (rootArray[i].size >= 0 && strcmp(rootArray[i].name, oldname) == 0) {
+            strcpy(rootArray[i].name, newname);
+        }
+    }
+
+
+}
+
 // get the filestats of the given file, returns a number that can be used as a file descriptor
 int Root::get(const char* name, fileStats* filestats) {
     for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {

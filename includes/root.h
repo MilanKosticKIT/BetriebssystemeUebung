@@ -35,6 +35,7 @@ public:
     int deleteEntry(const char* name);
     int createEntry(const char* name, mode_t mode);
     int createEntry(const char* name);
+    int rename (const char* oldname, const char* newname);
 
     //Methods with position(--> file descriptor):
 
