@@ -305,7 +305,7 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
         fat.getNext(currentBlock, &currentBlock);
     }
     for(int i = 0; i < howManyBlocks; i++){ // save blocks for reading
-        blocks[i] = curentBlock;
+        blocks[i] = currentBlock;
         fat.getNext(currentBlock, &currentBlock);
     }
 
@@ -359,7 +359,7 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
 
     uint16_t currentBlock = file.first_block;
     for (int t = 0; t < blockNo ; t++){ // skip blockNo blocks
-        fat.ge //EOFtNext(currentBlock, &currentBlock);
+        fat.getNext(currentBlock, &currentBlock);
     }
 
     uint16_t blocks[howManyBlocks]; //saves all block locations needed for this operation

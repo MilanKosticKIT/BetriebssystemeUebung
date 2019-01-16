@@ -137,8 +137,12 @@ int Root::update(fileStats filestats) {
 
 
 //return filestats of the file under given number
-void Root::get(int index, fileStats* filestats) {
-    *filestats = rootArray[index];
+int Root::get(int index, fileStats* filestats) {
+    if (index < ROOT_ARRAY_SIZE) {
+        *filestats = rootArray[index];
+        return 0;
+    }
+    return -1;
 }
 
 ///returns true if index <= Root_Array_Size
