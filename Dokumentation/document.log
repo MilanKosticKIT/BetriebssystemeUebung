@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6500 64-bit) (preloaded format=pdflatex 2018.11.12)  13 JAN 2019 16:41
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6500 64-bit) (preloaded format=pdflatex 2018.11.12)  16 JAN 2019 09:03
 entering extended mode
 **./document.tex
 (document.tex
@@ -269,21 +269,32 @@ Underfull \hbox (badness 10000) in paragraph at lines 24--26
 
  []
 
-[2] [3] Excluding 'comment' comment. [4] (document.aux) ) 
+[2] [3] Excluding 'comment' comment.
+Overfull \hbox (3.32094pt too wide) in paragraph at lines 62--82
+\OT1/cmr/m/n/12 eingegeben wer-den, die Eingabe der Lese/Schreibrechte ist op-t
+ional.Es besteht
+ []
+
+
+Overfull \hbox (19.37076pt too wide) in paragraph at lines 62--82
+\OT1/cmr/m/n/12 auch die Moglichkeit zu []Uberprufen, ob ein Ar-ray Ein-trag 
+unter dem ubergebenen
+ []
+
+[4] (document.aux) ) 
 Here is how much of TeX's memory you used:
- 4225 strings out of 493308
- 56127 string characters out of 3138770
- 122670 words of memory out of 3000000
- 7721 multiletter control sequences out of 15000+200000
+ 4226 strings out of 493308
+ 56135 string characters out of 3138770
+ 123670 words of memory out of 3000000
+ 7722 multiletter control sequences out of 15000+200000
  10150 words of font info for 38 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 41i,5n,35p,584b,219s stack positions out of 5000i,500n,10000p,200000b,50000s
-<C:/Program Files/MiKT
-eX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program Files/MiKTeX 2.9/f
-onts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type
-1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public
-/amsfonts/cm/cmti12.pfb>
-Output written on document.pdf (4 pages, 63809 bytes).
+ 41i,5n,35p,1384b,219s stack positions out of 5000i,500n,10000p,200000b,50000s
+<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm
+/cmbx12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.p
+fb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/P
+rogram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti12.pfb>
+Output written on document.pdf (4 pages, 65762 bytes).
 PDF statistics:
  31 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
