@@ -328,27 +328,92 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
 
     RETURN((int)size);
 }
-//a & m
+
 int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
 
-    const char* name = path + 1;
-
-    fileStats file;
-    if (root.get(name, &file) == -1){
+    if (openFiles[fileInfo->fh] < 0) { // is file open?
+        errno = EBADF;
         RETURN(-errno);
+    }
+    int rootIndex = openFiles[fileInfo->fh];
+    fileStats file;
+    if (root.get(rootIndex, &file) == -1){ // get file stats
+        RETURN(-errno);
+    }
+    if (file.size < offset){
+        //TODO fill with 0
+        RETURN(0);
     }
 
     file.last_time = time(NULL);
     file.modi_time= time(NULL);
     root.update(file);
 
+    off_t blockNo = offset / BLOCK_SIZE; // block number of file (not block number in filesystem!)
+    off_t blockOffset = offset % BLOCK_SIZE; // offset in the block
 
-    // TODO: Implement this!
+    //number of blocks you need to write in this operation (upper limit)
+    int howManyBlocks = (size + blockOffset) / BLOCK_SIZE;
+    if ((size + blockOffset) % BLOCK_SIZE != 0) howManyBlocks++;
 
-    //const char* name = path + 1;
+    uint16_t currentBlock = file.first_block;
+    for (int t = 0; t < blockNo ; t++){ // skip blockNo blocks
+        fat.ge //EOFtNext(currentBlock, &currentBlock);
+    }
 
-    RETURN(0);
+    uint16_t blocks[howManyBlocks]; //saves all block locations needed for this operation
+    uint16_t previousBlock = currentBlock;
+    int existingBlockCount = 0;
+    while (currentBlock != FAT_TERMINATOR && existingBlockCount < howManyBlocks) {
+        blocks[existingBlockCount] = currentBlock;
+        existingBlockCount++;
+        previousBlock = currentBlock;
+        fat.getNext(currentBlock, &currentBlock);
+    }
+    int missingBlockCount = howManyBlocks - existingBlockCount;
+    uint16_t nextBlock = currentBlock;
+    if (missingBlockCount > 0) {
+        while (missingBlockCount > 0) {
+            previousBlock = nextBlock;
+            dmap.getFreeBlock(&nextBlock);
+            dmap.set(nextBlock);
+            fat.addNextToFAT(previousBlock, nextBlock);
+            blocks[howManyBlocks - missingBlockCount] = nextBlock;
+
+            missingBlockCount--;
+        }
+        fat.addLastToFAT(nextBlock);
+    }
+
+    char buffer[BLOCK_SIZE];
+    if (readbuffer[fileInfo->fh].blockNumber == blocks[0]) {
+        memcpy(readbuffer[fileInfo->fh].content + blockOffset, buf, BLOCK_SIZE - blockOffset);
+        blockDevice->write(DATA_START + blocks[0], readbuffer[fileInfo->fh].content);
+    } else {
+        blockDevice->read(DATA_START + blocks[0], buffer);
+        memcpy(buffer + blockOffset, buf, BLOCK_SIZE - blockOffset);
+        blockDevice->write(DATA_START + blocks[0], buffer);
+    }
+    for (int j = 1; j < howManyBlocks - 1; j++) {
+        blockDevice->write(DATA_START + blocks[j], buf - blockOffset + BLOCK_SIZE * j);
+    }
+    if (howManyBlocks > 1) {
+        blockDevice->read(DATA_START + blocks[howManyBlocks - 1], buffer);
+        memcpy(buffer, buf - blockOffset + (howManyBlocks - 1) * BLOCK_SIZE, (size + blockOffset) % BLOCK_SIZE);
+        blockDevice->write(DATA_START + blocks[howManyBlocks - 1], buffer);
+    }
+
+    for (int i = 0; i < NUM_OPEN_FILES; i++) {
+        if (openFiles[i] == rootIndex) {
+            readbuffer[i].content = FAT_TERMINATOR;
+        }
+    }
+    if (file.size < offset + size) {
+        file.size = offset + size;
+        root.update(file);
+    }
+    RETURN((int)size);
 }
 
 int MyFS::fuseStatfs(const char *path, struct statvfs *statInfo) {
@@ -365,7 +430,8 @@ int MyFS::fuseRelease(const char *path, struct fuse_file_info *fileInfo) {
     LOGM();
 
     if (openFiles[fileInfo->fh] >= 0) {
-        openFiles[fileInfo] = -1;
+        openFiles[fileInfo->fh] = -1;
+        readbuffer[fileInfo->fh].blockNumber = FAT_TERMINATOR;
         RETURN(0);
     } else {
         errno = EBADF;
