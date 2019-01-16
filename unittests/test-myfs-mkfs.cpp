@@ -26,4 +26,10 @@ TEST_CASE("Creating simple Filsystem","[mkfs.myfs]"){
     SECTION("Using not exsitng File to copy into FS"){
         REQUIRE(system("./mkfs.myfs Binary.bin neverExisting.bin") != 0);
     }
+    SECTION("Using same file to copy twice") {
+        REQUIRE(system("./mkfs.myfs Binary.bin Makefile Makefile") != 0);
+    }
+    SECTION("Using files with same name from different directory") {
+        REQUIRE(system("./mkfs.myfs Binary.bin Makefile ./file/Makefile") != 0);
+    }
 }
