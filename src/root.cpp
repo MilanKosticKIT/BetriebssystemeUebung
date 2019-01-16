@@ -102,10 +102,11 @@ int Root::rename(const char *oldname, const char *newname) {
     for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
         if (rootArray[i].size >= 0 && strcmp(rootArray[i].name, oldname) == 0) {
             strcpy(rootArray[i].name, newname);
+            return 0;
         }
     }
-
-
+    errno = ENOENT;
+    return -1;
 }
 
 // get the filestats of the given file, returns a number that can be used as a file descriptor
