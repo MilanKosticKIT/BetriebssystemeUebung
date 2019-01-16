@@ -80,6 +80,7 @@ int main(int argc, char *argv[]) {
             std::cout << "\nChecking if files fit in filesystem: ";
             int freeSpace = DATA_BYTES;
             struct stat buffer1 = {};
+            struct stat bufferTime = {};
             bool sizeOK = true;
             for (int i = 2; i < argc; i++) {
                 stat(argv[i], &buffer1);
@@ -95,6 +96,7 @@ int main(int argc, char *argv[]) {
                     char *filename = basename(argv[i]);
                     std::cout << "Copying file: " << argv[i] << std::endl;
                     int fileDescriptor = open(filename, O_RDONLY);
+
                     if (fileDescriptor < 0) {
                         std::cout << "errno: " << errno << std::endl;
                         return errno;
@@ -106,6 +108,9 @@ int main(int argc, char *argv[]) {
                         }
                         fileStats stats;
                         ret = root.get(filename, &stats); // get file stats
+                        stat(argv[i], &bufferTime);
+                        stats.change_time = bufferTime.st_ctime;
+                        root.update(stats);
                         if (ret < 0) {
                             std::cout << "Root.get errno: " << errno << std::endl;
                             return errno;

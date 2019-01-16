@@ -280,6 +280,9 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
         size = file.size - offset;
     }
 
+    file.last_time = time(NULL);    //set the access time to current time
+    root.update(file);
+
     off_t blockNo = offset / BLOCK_SIZE; // block number of file (not block number in filesystem!)
     off_t blockOffset = offset % BLOCK_SIZE; // offset in the block
 
@@ -314,9 +317,22 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
 
     RETURN((int)size);
 }
-
+//a & m
 int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
+
+    const char* name = path + 1;
+
+    fileStats file;
+    if (root.get(name, &file) == -1){
+        RETURN(-errno);
+    }
+
+    file.last_time = time(NULL);
+    file.modi_time= time(NULL);
+    root.update(file);
+
+
     // TODO: Implement this!
 
     //const char* name = path + 1;
