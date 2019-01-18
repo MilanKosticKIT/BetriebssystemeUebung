@@ -17,10 +17,12 @@
 // TODO: Write tests
 
 TEST_CASE("MyFS.Methode", "[MyFS]") {
+    MyFS* myfs = new MyFS();
+    system("./mkfs.myfs " TEST_FILESYSTEM " Makefile");
+    myfs->initializeFilesystem(TEST_FILESYSTEM);
+
     SECTION("Beschreibung") {
-        MyFS* myfs = new MyFS();
-        system("./mkfs.myfs " TEST_FILESYSTEM " Makefile");
-        myfs->initializeFilesystem(TEST_FILESYSTEM);
+
 
     }
 
@@ -28,10 +30,11 @@ TEST_CASE("MyFS.Methode", "[MyFS]") {
 }
 
 TEST_CASE("MyFS.open", "[MyFS]") {
-    SECTION("Funktioniert das so?") {
+    MyFS *myfs = new MyFS();
+    system("./mkfs.myfs " TEST_FILESYSTEM " " TEST_FILE);
+
+    SECTION("Open one file") {
 #define TEST_FILE "Makefile"
-        MyFS *myfs = new MyFS();
-        system("./mkfs.myfs " TEST_FILESYSTEM " " TEST_FILE);
         myfs->initializeFilesystem(TEST_FILESYSTEM);
 
         Root root = myfs->getRoot();
