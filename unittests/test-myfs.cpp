@@ -23,6 +23,7 @@ TEST_CASE("MyFS.Methode", "[MyFS]") {
 
     SECTION("Beschreibung") {
         // TODO: Implement test. This is a template for tests.
+        REQUIRE(0 == 0); // TODO: add assertions
     }
 
     delete myfs;
@@ -32,7 +33,6 @@ TEST_CASE("MyFS.Methode", "[MyFS]") {
 TEST_CASE("MyFS.open, MyFS.close", "[MyFS]") {
 #define TEST_FILE "Makefile"
 #define NONEXISTING_FILE "Nonexisting"
-#define BUFFER_SIZE 100
     MyFS *myfs = new MyFS();
     system("./mkfs.myfs " TEST_FILESYSTEM " " TEST_FILE);
     myfs->initializeFilesystem((char*) TEST_FILESYSTEM);
@@ -42,8 +42,8 @@ TEST_CASE("MyFS.open, MyFS.close", "[MyFS]") {
         fileInfo.flags = O_RDONLY;
         int ret = myfs->fuseOpen(TEST_FILE, &fileInfo);
         REQUIRE(ret == 0);
-        char buffer[BUFFER_SIZE];
-        size_t size = BUFFER_SIZE;
+        size_t size = 100;
+        char buffer[size];
         off_t offset = 0;
         ret = myfs->fuseRead(TEST_FILE, buffer, size, offset, &fileInfo);
         REQUIRE(ret == 0);
@@ -56,8 +56,8 @@ TEST_CASE("MyFS.open, MyFS.close", "[MyFS]") {
         fileInfo.flags = O_WRONLY;
         int ret = myfs->fuseOpen(TEST_FILE, &fileInfo);
         REQUIRE(ret == 0);
-        char buffer[BUFFER_SIZE];
-        size_t size = BUFFER_SIZE;
+        size_t size = 100;
+        char buffer[size];
         off_t offset = 0;
         ret = myfs->fuseRead(TEST_FILE, buffer, size, offset, &fileInfo);
         REQUIRE(ret == -9); // EBADF
