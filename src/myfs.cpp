@@ -11,7 +11,7 @@
 #undef DEBUG
 
 // TODO: Comment this to reduce debug messages
-#define DEBUG
+//#define DEBUG
 #define DEBUG_METHODS
 #define DEBUG_RETURN_VALUES
 
@@ -34,7 +34,7 @@ MyFS* MyFS::Instance() {
 }
 
 MyFS::MyFS() {
-    this->logFile= stderr;
+    this->logFile = stderr;
 }
 
 MyFS::~MyFS() {
@@ -88,7 +88,14 @@ int MyFS::fuseMknod(const char *path, mode_t mode, dev_t dev) {
 
     // TODO: Implement this!
 
-    const char* name = path + 1;
+    const char* name = path;
+    if (*path == '/') {
+        if (strlen(path) == 1) {
+            name = ".";
+        } else {
+            name++;
+        }
+    }
 
     root.createEntry(name, mode);
     fileStats stats;
@@ -111,7 +118,14 @@ int MyFS::fuseMkdir(const char *path, mode_t mode) {
 int MyFS::fuseUnlink(const char *path) {
     LOGM();
 
-    const char* name = path + 1;
+    const char* name = path;
+    if (*path == '/') {
+        if (strlen(path) == 1) {
+            name = ".";
+        } else {
+            name++;
+        }
+    }
 
     fileStats file;
     root.get(name, &file);
@@ -142,8 +156,21 @@ int MyFS::fuseSymlink(const char *path, const char *link) {
 
 int MyFS::fuseRename(const char *path, const char *newpath) {
 
-    const char* oldname = path + 1;
-    const char* newname = newpath + 1;
+    const char* oldname = path;
+    if (*path == '/') {
+        if (strlen(path) == 1) {
+        } else {
+            oldname++;
+        }
+    }
+    const char* newname = newpath;
+    if (*newpath == '/') {
+        if (strlen(newpath) == 1) {
+        } else {
+            newname++;
+        }
+    }
+
     int fd = root.rename(oldname, newname);
     if (fd == -1){
         RETURN(-errno);
@@ -180,7 +207,14 @@ int MyFS::fuseUtime(const char *path, struct utimbuf *ubuf) {
 int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
     LOGM();
 
-    const char* name = path + 1;
+    const char* name = path;
+    if (*path == '/') {
+        if (strlen(path) == 1) {
+            name = ".";
+        } else {
+            name++;
+        }
+    }
 
     fileStats file;
     int rootIndex = root.get(name, &file);
@@ -523,8 +557,7 @@ void MyFS::fuseDestroy() {
 
 void* MyFS::fuseInit(struct fuse_conn_info *conn) {
     // Open logfile
-
-    this->logFile= fopen(((MyFsInfo *) fuse_get_context()->private_data)->logFile, "w+");
+    this->logFile= fopen(((MyFsInfo*) fuse_get_context()->private_data)->logFile, "w+");
     if(this->logFile == NULL) {
         fprintf(stderr, "ERROR: Cannot open logfile %s\n", ((MyFsInfo *) fuse_get_context()->private_data)->logFile);
     } else {
@@ -541,74 +574,7 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
 
         // TODO: Implement your initialization methods here!
 
-        if (blockDevice->open(((MyFsInfo *) fuse_get_context()->private_data)->contFile) == 0) {
-            uint16_t* fatArray = new uint16_t[DATA_BLOCKS];
-            uint8_t* dMapArray = new uint8_t[(DATA_BLOCKS + 1) / 8];
-            fileStats* rootArray = new fileStats[ROOT_ARRAY_SIZE];
-
-            int ret = 0;
-            ret = fsIO.readDevice(SUPERBLOCK_START, &superblock, sizeof(superblock));
-            if (ret < 0) {
-                LOG("Error at blockdevice.read() (Reading superblock)");
-                LOGI(ret);
-                LOG("Errno:");
-                LOGI(errno);
-            }
-            ret = fsIO.readDevice(DMAP_START, dMapArray, sizeof(*dMapArray) * (DATA_BLOCKS + 1) / 8);
-            if (ret < 0) {
-                LOG("Error at blockdevice.read() (Reading dmap)");
-                LOGI(ret);
-                LOG("Errno:");
-                LOGI(errno);
-            }
-            ret = fsIO.readDevice(FAT_START, fatArray, sizeof(*fatArray) * DATA_BLOCKS);
-            if (ret < 0) {
-                LOG("Error at blockdevice.read() (Reading fat)");
-                LOGI(ret);
-                LOG("Errno:");
-                LOGI(errno);
-            }
-            ret = fsIO.readDevice(ROOT_START, rootArray, sizeof(*rootArray) * ROOT_ARRAY_SIZE);
-            if (ret < 0) {
-                LOG("Error at blockdevice.read() (Reading root)");
-                LOGI(ret);
-                LOG("Errno:");
-                LOGI(errno);
-            }
-
-            dmap.setAll(dMapArray);
-            fat.setAll(fatArray);
-            root.setAll(rootArray);
-
-            LOG("----------dmap Array (first entries)----------");
-            for(int i = 0; i < 10; i++) {
-                LOGI((int) dMapArray[i]);
-            }
-
-            LOG("----------fat Array (first entries)-----------");
-            for(int i = 0; i < 10; i++) {
-                LOGI((int) fatArray[i]);
-            }
-
-            LOG("-------Root Array (first entries (size))-------");
-            for(int i = 0; i < 10; i++) {
-                fileStats stats;
-                root.get(i, &stats);
-                LOGI((int) stats.size);
-            }
-            LOG("-----------------------------------------------");
-
-            delete[] dMapArray;
-            delete[] fatArray;
-            delete[] rootArray;
-
-            for (int i = 0; i < NUM_OPEN_FILES; i++) {
-                openFiles[i] = -1;
-                readbuffer[i].blockNumber = FAT_TERMINATOR;
-            }
-        } else {
-            LOG("Error at blockdevice.open()");
-        }
+        initializeFilesystem(((MyFsInfo *) fuse_get_context()->private_data)->contFile);
     }
 
     RETURN(0);
@@ -633,3 +599,62 @@ int MyFS::fuseGetxattr(const char *path, const char *name, char *value, size_t s
 }
 
 // TODO: Add your own additional methods here!
+
+int MyFS::initializeFilesystem(char* containerFile) {
+    if (blockDevice->open(containerFile) == 0) {
+        uint16_t* fatArray = new uint16_t[DATA_BLOCKS];
+        uint8_t* dMapArray = new uint8_t[(DATA_BLOCKS + 1) / 8];
+        fileStats* rootArray = new fileStats[ROOT_ARRAY_SIZE];
+
+        int ret = 0;
+        ret = fsIO.readDevice(SUPERBLOCK_START, &superblock, sizeof(superblock));
+        if (ret < 0) {
+            LOG("Error at blockdevice.read() (Reading superblock)");
+            LOGI(ret);
+            LOG("Errno:");
+            LOGI(errno);
+        }
+        ret = fsIO.readDevice(DMAP_START, dMapArray, sizeof(*dMapArray) * (DATA_BLOCKS + 1) / 8);
+        if (ret < 0) {
+            LOG("Error at blockdevice.read() (Reading dmap)");
+            LOGI(ret);
+            LOG("Errno:");
+            LOGI(errno);
+        }
+        ret = fsIO.readDevice(FAT_START, fatArray, sizeof(*fatArray) * DATA_BLOCKS);
+        if (ret < 0) {
+            LOG("Error at blockdevice.read() (Reading fat)");
+            LOGI(ret);
+            LOG("Errno:");
+            LOGI(errno);
+        }
+        ret = fsIO.readDevice(ROOT_START, rootArray, sizeof(*rootArray) * ROOT_ARRAY_SIZE);
+        if (ret < 0) {
+            LOG("Error at blockdevice.read() (Reading root)");
+            LOGI(ret);
+            LOG("Errno:");
+            LOGI(errno);
+        }
+
+        dmap.setAll(dMapArray);
+        fat.setAll(fatArray);
+        root.setAll(rootArray);
+
+        delete[] dMapArray;
+        delete[] fatArray;
+        delete[] rootArray;
+
+        for (int i = 0; i < NUM_OPEN_FILES; i++) {
+            openFiles[i] = -1;
+            readbuffer[i].blockNumber = FAT_TERMINATOR;
+        }
+
+        RETURN(0);
+    }
+    LOG("Error at blockdevice.open()");
+    RETURN(-1);
+}
+
+Root MyFS::getRoot() {
+    return root;
+}

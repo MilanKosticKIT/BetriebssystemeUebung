@@ -98,7 +98,7 @@ TEST_CASE("FAT.addlasttoFAT", "[FAT]"){
 
 /*
  TEST_CASE("FAT.addToFAT", "[FAT]"){
- /* SECTION("On empty FAT"){
+ SECTION("On empty FAT"){
  FAT fat = FAT();
  uint16_t fatArray[DATA_BLOCKS];
  uint16_t readArray[DATA_BLOCKS];
