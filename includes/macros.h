@@ -34,6 +34,7 @@ do { fprintf(this->logFile, "\t%d\n", (int)); } while (0)
 #define LOGF(fmt, ...)
 #define LOG(text)
 #define LOGP(pointer)
+#define LOGI(int)
 #endif
 
 #ifdef DEBUG_METHODS

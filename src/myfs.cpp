@@ -11,7 +11,7 @@
 #undef DEBUG
 
 // TODO: Comment this to reduce debug messages
-#define DEBUG
+//#define DEBUG
 #define DEBUG_METHODS
 #define DEBUG_RETURN_VALUES
 
@@ -34,7 +34,7 @@ MyFS* MyFS::Instance() {
 }
 
 MyFS::MyFS() {
-    this->logFile= stderr;
+    this->logFile = stderr;
 }
 
 MyFS::~MyFS() {
@@ -88,7 +88,14 @@ int MyFS::fuseMknod(const char *path, mode_t mode, dev_t dev) {
 
     // TODO: Implement this!
 
-    const char* name = path + 1;
+    const char* name = path;
+    if (*path == '/') {
+        if (strlen(path) == 1) {
+            name = ".";
+        } else {
+            name++;
+        }
+    }
 
     root.createEntry(name, mode);
     fileStats stats;
@@ -111,7 +118,14 @@ int MyFS::fuseMkdir(const char *path, mode_t mode) {
 int MyFS::fuseUnlink(const char *path) {
     LOGM();
 
-    const char* name = path + 1;
+    const char* name = path;
+    if (*path == '/') {
+        if (strlen(path) == 1) {
+            name = ".";
+        } else {
+            name++;
+        }
+    }
 
     fileStats file;
     root.get(name, &file);
@@ -142,8 +156,21 @@ int MyFS::fuseSymlink(const char *path, const char *link) {
 
 int MyFS::fuseRename(const char *path, const char *newpath) {
 
-    const char* oldname = path + 1;
-    const char* newname = newpath + 1;
+    const char* oldname = path;
+    if (*path == '/') {
+        if (strlen(path) == 1) {
+        } else {
+            oldname++;
+        }
+    }
+    const char* newname = newpath;
+    if (*newpath == '/') {
+        if (strlen(newpath) == 1) {
+        } else {
+            newname++;
+        }
+    }
+
     int fd = root.rename(oldname, newname);
     if (fd == -1){
         RETURN(-errno);
@@ -180,7 +207,14 @@ int MyFS::fuseUtime(const char *path, struct utimbuf *ubuf) {
 int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
     LOGM();
 
-    const char* name = path + 1;
+    const char* name = path;
+    if (*path == '/') {
+        if (strlen(path) == 1) {
+            name = ".";
+        } else {
+            name++;
+        }
+    }
 
     fileStats file;
     int rootIndex = root.get(name, &file);
@@ -606,24 +640,6 @@ int MyFS::initializeFilesystem(char* containerFile) {
         fat.setAll(fatArray);
         root.setAll(rootArray);
 
-        LOG("----------dmap Array (first entries)----------");
-        for(int i = 0; i < 10; i++) {
-            LOGI((int) dMapArray[i]);
-        }
-
-        LOG("----------fat Array (first entries)-----------");
-        for(int i = 0; i < 10; i++) {
-            LOGI((int) fatArray[i]);
-        }
-
-        LOG("-------Root Array (first entries (size))-------");
-        for(int i = 0; i < 10; i++) {
-            fileStats stats;
-            root.get(i, &stats);
-            LOGI((int) stats.size);
-        }
-        LOG("-----------------------------------------------");
-
         delete[] dMapArray;
         delete[] fatArray;
         delete[] rootArray;
@@ -637,4 +653,8 @@ int MyFS::initializeFilesystem(char* containerFile) {
     }
     LOG("Error at blockdevice.open()");
     RETURN(-1);
+}
+
+Root MyFS::getRoot() {
+    return root;
 }
