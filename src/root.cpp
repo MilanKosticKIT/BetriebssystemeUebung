@@ -14,7 +14,7 @@ Root::Root() {
     }
     DIR_STATS = {};
     strcpy(DIR_STATS.name, ".");
-    DIR_STATS.mode = S_IFDIR | 0555;
+    DIR_STATS.mode = S_IFDIR | 0775;
     DIR_STATS.userID = geteuid();
     DIR_STATS.groupID = getegid();
     time_t currentTime = time(NULL);
