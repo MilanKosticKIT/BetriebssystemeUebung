@@ -30,7 +30,11 @@ TEST_CASE("Creating simple Filsystem","[mkfs.myfs]"){
         REQUIRE(system("./mkfs.myfs Binary.bin Makefile Makefile") != 0);
     }
     SECTION("Using files with same name from different directory") {
-        REQUIRE(system("./mkfs.myfs Binary.bin Makefile ./file/Makefile") != 0);
+        system("mkdir folder");
+        system("cp Makefile ./folder/Makefile");
+        int status = system("./mkfs.myfs Binary.bin Makefile ./file/Makefile");
+        system("rmdir folder -rf");
+        REQUIRE(status != 0);
     }
 }
 TEST_CASE("Creating Filesystem with a lot files", "[mkfs.myfs]") {
