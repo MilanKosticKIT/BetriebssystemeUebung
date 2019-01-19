@@ -13,6 +13,7 @@
 #include "myfs.h"
 
 #define TEST_FILESYSTEM "Test-Filesystem"
+#define TEST_FILE "Testfile"
 #define TEST_FILE "Makefile"
 #define NONEXISTENT_FILE "Nonexistent"
 
@@ -33,6 +34,37 @@ TEST_CASE("MyFS.Methode", "[MyFS]") {
     delete myfs;
     remove((char*) TEST_FILESYSTEM);
 }
+
+
+TEST_CASE("MyFS.write", "[MyFS]") {
+
+    MyFS* myfs = new MyFS();
+    system("./mkfs.myfs " TEST_FILESYSTEM TEST_FILE);
+    myfs->initializeFilesystem(TEST_FILESYSTEM);
+    fuse_file_info fileInfo = {};
+
+    SECTION("Anfang der Datei schreiben"){
+        const char* writebuffer= {"Test test test"};
+        size_t size = 14;
+        char* readbuffer = (char*) malloc(14);
+        off_t offset = 0;
+        fileInfo.flags = O_RDWR;
+
+        myfs->fuseOpen(TEST_FILE, &fileInfo);
+        myfs->fuseWrite(TEST_FILE, writebuffer, size, offset, &fileInfo);
+
+        myfs->fuseRead(TEST_FILE, readbuffer, size, offset, &fileInfo);
+
+        std::cout << readbuffer << std::endl;
+        std::cout << writebuffer << std::endl;
+        REQUIRE(memcmp(readbuffer, writebuffer, size) == 0);
+
+
+    }
+
+
+}
+
 
 TEST_CASE("MyFS.open, MyFS.close", "[MyFS]") {
     MyFS *myfs = new MyFS();
