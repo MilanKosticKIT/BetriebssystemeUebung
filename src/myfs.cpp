@@ -99,18 +99,18 @@ int MyFS::fuseMknod(const char *path, mode_t mode, dev_t dev) {
     int ret;
 
     ret = root.createEntry(name, mode);
-    if (ret < 0) [] { RETURN(-errno); };
+    if (ret < 0) RETURN(-errno);
     fileStats stats;
     ret = root.get(path, &stats);
-    if (ret < 0) [] { RETURN(-errno); };
+    if (ret < 0) RETURN(-errno);
     uint16_t firstBlock;
     ret = dmap.getFreeBlock(&firstBlock);
-    if (ret < 0) [] { RETURN(-errno); };
+    if (ret < 0) RETURN(-errno);
     dmap.set(firstBlock);
     stats.first_block = firstBlock;
     fat.addLastToFAT(firstBlock);
-    ret =root.update(stats);
-    if (ret < 0) [] { RETURN(-errno); };
+    ret = root.update(stats);
+    if (ret < 0) RETURN(-errno);
 
     RETURN(0);
 }
@@ -133,8 +133,8 @@ int MyFS::fuseUnlink(const char *path) {
     }
 
     fileStats file;
-    root.get(name, &file);
-
+    int ret = root.get(name, &file);
+    if (ret < 0) RETURN(-errno);
     std::list<uint16_t >::const_iterator iterator;
     std::list<uint16_t> list;
     fat.iterateFAT(file.first_block, &list);
@@ -144,7 +144,8 @@ int MyFS::fuseUnlink(const char *path) {
     fat.deleteFromFAT(file.first_block);
 
     superblock.emptySpaceSize += file.size;
-    root.deleteEntry(name);
+    ret = root.deleteEntry(name);
+    if (ret < 0) RETURN(-errno);
 
     RETURN(0);
 }
