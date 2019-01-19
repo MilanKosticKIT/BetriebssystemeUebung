@@ -558,8 +558,6 @@ int MyFS::fuseOpendir(const char *path, struct fuse_file_info *fileInfo) {
 int MyFS::fuseReaddir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
 
-    // TODO: Implement this!
-
     if (strcmp("/", path) == 0) {
         for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
             if (root.exists(i)) {

@@ -366,20 +366,43 @@ TEST_CASE("MyFS.read", "[MyFS]") {
 }
 
 TEST_CASE("MyFS.getAttr, Existing File", "[MyFS]"){
+    system("touch Test_File_1.txt");
+    system("chmod 0444 Test_File_1.txt");
     system("touch Test_File_2.txt");
-    system("chmod 0444 Test_File_2.txt");
+    system("chmod 0666 Test_File_2.txt");
+    system("touch Test_File_3.txt");
+    system("chmod 0777 Test_File_3.txt");
     MyFS* myfs = new MyFS();
-    system("./mkfs.myfs " TEST_FILESYSTEM " Test_File_2.txt");
+    system("./mkfs.myfs " TEST_FILESYSTEM " Test_File_1.txt Test_File_2.txt Test_File_3.txt");
     myfs->initializeFilesystem((char*) TEST_FILESYSTEM);
+    struct stat buf;
 
-    SECTION("File has All Read Permission") {
-        struct stat *buf = new struct stat();
-        REQUIRE(buf->st_mode == (0444 | S_IFREG));
-        delete(buf);
+    SECTION("File has All Read Permissions") {
+        buf = {};
+        REQUIRE(myfs->fuseGetattr("Test_File_1.txt", &buf) == 0);
+        REQUIRE(buf.st_mode == (0444 | S_IFREG));
+    }
+    SECTION("Files has All Write Permissions") {
+        buf = {};
+        REQUIRE(myfs->fuseGetattr("Test_File_2.txt", &buf) == 0);
+        REQUIRE(buf.st_mode == (0666 | S_IFREG));
+    }
+    SECTION("Files has All Permissions") {
+        buf = {};
+        REQUIRE(myfs->fuseGetattr("Test_File_3.txt", &buf) == 0);
+        REQUIRE(buf.st_mode == (0777 | S_IFREG));
     }
 
+    SECTION("Dir Permissions") {
+        buf = {};
+        REQUIRE(myfs->fuseGetattr("/",&buf) == 0);
+        REQUIRE(buf.st_mode == (0775 | S_IFDIR));
+    }
 
-    system("rm Test_File_2.txt");
+    remove("Test_File_1.txt");
+    remove("Test_File_2.txt");
+    remove("Test_File_3.txt");
+    remove(TEST_FILESYSTEM);
 }
 
 TEST_CASE("MyFS.getAttr, Error codes", "[MyFS]") {
@@ -398,6 +421,58 @@ TEST_CASE("MyFS.getAttr, Error codes", "[MyFS]") {
         REQUIRE(myfs->fuseGetattr(NONEXISTENT_FILE, &stats) == -ENOENT);
     }
 
+    SECTION("Directory") {
+        REQUIRE(myfs->fuseGetattr("/", &stats) == 0);
+    }
+
     delete myfs;
     remove((char*) TEST_FILESYSTEM);
 }
+
+TEST_CASE("MyFS.Mknod, MyFS.Unlink", "[MyFS]") {
+    MyFS* myfs = new MyFS();
+    system("./mkfs.myfs " TEST_FILESYSTEM " " TEST_FILE);
+    myfs->initializeFilesystem((char*) TEST_FILESYSTEM);
+
+    fuse_file_info fileInfo = {};
+    struct stat stats;
+
+    SECTION("Create file") {
+        myfs->fuseMknod((char*) "NeueDatei", 0777, 0);
+        REQUIRE(myfs->fuseGetattr("NeueDatei", &stats) == 0);
+    }
+
+    SECTION("Create already existing file") {
+        int ret = myfs->fuseMknod((char*) TEST_FILE, 0777, 0);
+        REQUIRE(ret == -EEXIST);
+    }
+
+    SECTION("Create same file twice") {
+        REQUIRE(myfs->fuseMknod((char*) "NeueDatei", 0777, 0) == 0);
+        REQUIRE(myfs->fuseGetattr("NeueDatei", &stats) == 0);
+        int ret = myfs->fuseMknod((char*) "NeueDatei", 0777, 0);
+        REQUIRE(ret == -EEXIST);
+    }
+
+    SECTION("Delete existing file") {
+        REQUIRE(myfs->fuseUnlink((char*) TEST_FILE) == 0);
+        REQUIRE(myfs->fuseGetattr(TEST_FILE, &stats) == -ENOENT);
+    }
+
+    SECTION("Delete nonexistent file") {
+        REQUIRE(myfs->fuseUnlink((char*) NONEXISTENT_FILE) == -ENOENT);
+    }
+
+    SECTION("Create and delete file") {
+        REQUIRE(myfs->fuseGetattr("NeueDatei", &stats) == -ENOENT);
+        REQUIRE(myfs->fuseMknod((char*) "NeueDatei", 0777, 0) == 0);
+        REQUIRE(myfs->fuseGetattr("NeueDatei", &stats) == 0);
+        REQUIRE(myfs->fuseUnlink((char*)"NeueDatei") == 0);
+        REQUIRE(myfs->fuseGetattr("NeueDatei", &stats) == -ENOENT);
+    }
+
+
+    delete myfs;
+    remove((char*) TEST_FILESYSTEM);
+}
+
