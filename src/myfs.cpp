@@ -448,7 +448,7 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
     off_t blockOffset = offset % BLOCK_SIZE; // offset in the block
 
     //number of blocks you need to write in this operation (upper limit)
-    int howManyBlocks = (size + blockOffset) / BLOCK_SIZE;
+    int howManyBlocks = (int)(size + blockOffset) / BLOCK_SIZE;
     if ((size + blockOffset) % BLOCK_SIZE != 0) howManyBlocks++;
 
     uint16_t currentBlock = file.first_block;
@@ -469,12 +469,12 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
     uint16_t nextBlock = currentBlock;
     if (missingBlockCount > 0) {
         while (missingBlockCount > 0) {
-            previousBlock = nextBlock;
             int ret = dmap.getFreeBlock(&nextBlock);
             if (ret < 0) { RETURN(-errno); };
             dmap.set(nextBlock);
             fat.addNextToFAT(previousBlock, nextBlock);
             blocks[howManyBlocks - missingBlockCount] = nextBlock;
+            previousBlock = nextBlock;
 
             missingBlockCount--;
         }
