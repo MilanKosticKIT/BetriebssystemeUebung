@@ -13,13 +13,17 @@
 #include "myfs.h"
 
 #define TEST_FILESYSTEM "Test-Filesystem"
+#define TEST_FILE "Makefile"
+#define NONEXISTENT_FILE "Nonexistent"
 
 // TODO: Write tests
 
 TEST_CASE("MyFS.Methode", "[MyFS]") {
     MyFS* myfs = new MyFS();
-    system("./mkfs.myfs " TEST_FILESYSTEM " Makefile");
+    system("./mkfs.myfs " TEST_FILESYSTEM " " TEST_FILE);
     myfs->initializeFilesystem((char*) TEST_FILESYSTEM);
+
+    fuse_file_info fileInfo = {};
 
     SECTION("Beschreibung") {
         // TODO: Implement test. This is a template for tests.
@@ -31,8 +35,6 @@ TEST_CASE("MyFS.Methode", "[MyFS]") {
 }
 
 TEST_CASE("MyFS.open, MyFS.close", "[MyFS]") {
-#define TEST_FILE "Makefile"
-#define NONEXISTING_FILE "Nonexisting"
     MyFS *myfs = new MyFS();
     system("./mkfs.myfs " TEST_FILESYSTEM " " TEST_FILE);
     myfs->initializeFilesystem((char*) TEST_FILESYSTEM);
@@ -74,31 +76,68 @@ TEST_CASE("MyFS.open, MyFS.close", "[MyFS]") {
         REQUIRE(ret == 0);
     }
 
-    SECTION("Open nonexisting file read-only") {
+    SECTION("Open nonexistent file read-only") {
         fileInfo.flags = O_RDONLY;
-        int ret = myfs->fuseOpen(NONEXISTING_FILE, &fileInfo);
+        int ret = myfs->fuseOpen(NONEXISTENT_FILE, &fileInfo);
         REQUIRE(ret == ENOENT);
-        ret = myfs->fuseRelease(NONEXISTING_FILE, &fileInfo);
+        ret = myfs->fuseRelease(NONEXISTENT_FILE, &fileInfo);
         REQUIRE(ret == EBADF);
     }
-    SECTION("Open nonexisting file write-only") {
+    SECTION("Open nonexistent file write-only") {
         fileInfo.flags = O_WRONLY;
-        int ret = myfs->fuseOpen(NONEXISTING_FILE, &fileInfo);
+        int ret = myfs->fuseOpen(NONEXISTENT_FILE, &fileInfo);
         REQUIRE(ret == ENOENT);
-        ret = myfs->fuseRelease(NONEXISTING_FILE, &fileInfo);
+        ret = myfs->fuseRelease(NONEXISTENT_FILE, &fileInfo);
         REQUIRE(ret == EBADF);
     }
-    SECTION("Open nonexisting file read-write") {
+    SECTION("Open nonexistent file read-write") {
         fileInfo.flags = O_RDWR;
-        int ret = myfs->fuseOpen(NONEXISTING_FILE, &fileInfo);
+        int ret = myfs->fuseOpen(NONEXISTENT_FILE, &fileInfo);
         REQUIRE(ret == ENOENT);
-        ret = myfs->fuseRelease(NONEXISTING_FILE, &fileInfo);
+        ret = myfs->fuseRelease(NONEXISTENT_FILE, &fileInfo);
         REQUIRE(ret == EBADF);
     }
 
     SECTION("Close existing not opened file file") {
         int ret = myfs->fuseRelease(TEST_FILE, &fileInfo);
         REQUIRE(ret == EBADF);
+    }
+
+    delete myfs;
+    remove((char*) TEST_FILESYSTEM);
+}
+
+TEST_CASE("MyFS.read", "[MyFS]") {
+    MyFS* myfs = new MyFS();
+    system("./mkfs.myfs " TEST_FILESYSTEM " " TEST_FILE);
+    myfs->initializeFilesystem((char*) TEST_FILESYSTEM);
+
+    fuse_file_info fileInfo = {};
+    int fd = open((char*)TEST_FILE, O_RDONLY);
+    REQUIRE(fd >= 0);
+    fileInfo.flags = O_RDONLY;
+    REQUIRE(myfs->fuseOpen(TEST_FILE, &fileInfo) == 0);
+
+    SECTION("Compare with test file outside of filesystem") {
+        size_t size = 100;
+        off_t offset = 0;
+        char buffer[size];
+        char otherBuffer[size];
+
+        ssize_t readBytes = 0;
+        int ret = 0;
+        bool sameValue = true;
+        do {
+            readBytes = read(fd, buffer, size);
+            ret = myfs->fuseRead(TEST_FILE, otherBuffer, size, offset, &fileInfo);
+            offset += size;
+            if(readBytes != ret || memcmp(buffer, otherBuffer, (size_t)readBytes) != 0) {
+                sameValue = false;
+                break;
+            }
+        } while(readBytes != 0);
+
+        REQUIRE(sameValue);
     }
 
     delete myfs;
