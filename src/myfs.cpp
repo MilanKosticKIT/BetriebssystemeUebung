@@ -421,8 +421,16 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
         RETURN(-errno);
     }
     if (file.size < offset){
-        //TODO fill with 0
-        RETURN(0);
+
+        size_t sizeZero = offset - file.size;
+       char bufferZero[sizeZero];
+       for (int i = 0; i < sizeof(bufferZero); i++) {
+           bufferZero[i] = 0;
+
+       }
+
+       fuseWrite(path, bufferZero, sizeZero, file.size, fileInfo);
+
     }
 
     file.last_time = time(NULL);

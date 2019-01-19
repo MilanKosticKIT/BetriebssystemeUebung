@@ -56,6 +56,8 @@ TEST_CASE("MyFS.write", "[MyFS]") {
         REQUIRE(ret == size);
         ret = myfs->fuseRead(TEST_FILE, readbuffer, size, offset, &fileInfo);
         REQUIRE(ret == size);
+
+        REQUIRE ((memcmp(readbuffer, writebuffer, size) == 0));
     }
 
     SECTION("Try writing a not opened file") {
@@ -82,6 +84,8 @@ TEST_CASE("MyFS.write", "[MyFS]") {
         REQUIRE(ret == size);
         ret = myfs->fuseRead(TEST_FILE, readbuffer, size, offset, &fileInfo);
         REQUIRE(ret == size);
+
+        REQUIRE ((memcmp(readbuffer, writebuffer, size) == 0));
     }
 
     SECTION("Try writing in the middle of a file"){
@@ -98,6 +102,8 @@ TEST_CASE("MyFS.write", "[MyFS]") {
         REQUIRE(ret == size);
         ret = myfs->fuseRead(TEST_FILE, readbuffer, size, offset, &fileInfo);
         REQUIRE(ret == size);
+
+        REQUIRE ((memcmp(readbuffer, writebuffer, size) == 0));
     }
 
     SECTION("Try writing with a negative offset"){
@@ -115,7 +121,45 @@ TEST_CASE("MyFS.write", "[MyFS]") {
         REQUIRE(ret == size);
     }
 
+    SECTION("Try writing over two blocks"){
+        const char writebuffer[] = {"Test test test Test test test Test test test"};
+        size_t size = sizeof(writebuffer);
+        char readbuffer[size];
+        off_t offset = BLOCK_SIZE - 1;
+        fileInfo.flags = O_RDWR;
 
+        int ret = myfs->fuseOpen(TEST_FILE, &fileInfo);
+        REQUIRE(ret == 0);
+        ret = myfs->fuseWrite(TEST_FILE, writebuffer, size, offset, &fileInfo);
+        REQUIRE(ret == size);
+        ret = myfs->fuseRead(TEST_FILE, readbuffer, size, offset, &fileInfo);
+        REQUIRE(ret == size);
+
+        REQUIRE ((memcmp(readbuffer, writebuffer, size) == 0));
+
+    }
+
+    SECTION("Try writing with an offset greater than the filesize"){
+        const char writebuffer[] = {"Test test test Test test test Test test test"};
+        size_t size = sizeof(writebuffer);
+        char readbuffer[size];
+        off_t offset = TESTFILE_SIZE + 50;
+        fileInfo.flags = O_RDWR;
+
+        int ret = myfs->fuseOpen(TEST_FILE, &fileInfo);
+        REQUIRE(ret == 0);
+        ret = myfs->fuseWrite(TEST_FILE, writebuffer, size, offset, &fileInfo);
+        REQUIRE(ret == size);
+        ret = myfs->fuseRead(TEST_FILE, readbuffer, size, offset, &fileInfo);
+        REQUIRE(ret == size);
+        char zeroBuffer[10];
+        char testZeroBuffer[10] = {0,0,0,0,0,0,0,0,0};
+        myfs->fuseRead(TEST_FILE, zeroBuffer, 10, TESTFILE_SIZE + 5, &fileInfo);
+        REQUIRE(memcmp(zeroBuffer, testZeroBuffer, 9) == 0);
+
+        REQUIRE ((memcmp(readbuffer, writebuffer, size) == 0));
+
+    }
     delete myfs;
     remove((char*) TEST_FILESYSTEM);
 
