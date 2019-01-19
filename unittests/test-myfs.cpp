@@ -46,9 +46,9 @@ TEST_CASE("MyFS.open, MyFS.close", "[MyFS]") {
         char buffer[size];
         off_t offset = 0;
         ret = myfs->fuseRead(TEST_FILE, buffer, size, offset, &fileInfo);
-        REQUIRE(ret == 0);
+        REQUIRE(ret == size);
         ret = myfs->fuseWrite(TEST_FILE, buffer, size, offset, &fileInfo);
-        REQUIRE(ret == -9); // EBADF
+        REQUIRE(ret == EBADF);
         ret = myfs->fuseRelease(TEST_FILE, &fileInfo);
         REQUIRE(ret == 0);
     }
@@ -60,9 +60,9 @@ TEST_CASE("MyFS.open, MyFS.close", "[MyFS]") {
         char buffer[size];
         off_t offset = 0;
         ret = myfs->fuseRead(TEST_FILE, buffer, size, offset, &fileInfo);
-        REQUIRE(ret == -9); // EBADF
+        REQUIRE(ret == EBADF);
         ret = myfs->fuseWrite(TEST_FILE, buffer, size, offset, &fileInfo);
-        REQUIRE(ret == 0);
+        REQUIRE(ret == size);
         ret = myfs->fuseRelease(TEST_FILE, &fileInfo);
         REQUIRE(ret == 0);
     }
@@ -77,28 +77,28 @@ TEST_CASE("MyFS.open, MyFS.close", "[MyFS]") {
     SECTION("Open nonexisting file read-only") {
         fileInfo.flags = O_RDONLY;
         int ret = myfs->fuseOpen(NONEXISTING_FILE, &fileInfo);
-        REQUIRE(ret == -2); //ENOENT
+        REQUIRE(ret == ENOENT);
         ret = myfs->fuseRelease(NONEXISTING_FILE, &fileInfo);
-        REQUIRE(ret == -9); //EBADF
+        REQUIRE(ret == EBADF);
     }
     SECTION("Open nonexisting file write-only") {
         fileInfo.flags = O_WRONLY;
         int ret = myfs->fuseOpen(NONEXISTING_FILE, &fileInfo);
-        REQUIRE(ret == -2); //ENOENT
+        REQUIRE(ret == ENOENT);
         ret = myfs->fuseRelease(NONEXISTING_FILE, &fileInfo);
-        REQUIRE(ret == -9); //EBADF
+        REQUIRE(ret == EBADF);
     }
     SECTION("Open nonexisting file read-write") {
         fileInfo.flags = O_RDWR;
         int ret = myfs->fuseOpen(NONEXISTING_FILE, &fileInfo);
-        REQUIRE(ret == -2); //ENOENT
+        REQUIRE(ret == ENOENT);
         ret = myfs->fuseRelease(NONEXISTING_FILE, &fileInfo);
-        REQUIRE(ret == -9); //EBADF
+        REQUIRE(ret == EBADF);
     }
 
     SECTION("Close existing not opened file file") {
         int ret = myfs->fuseRelease(TEST_FILE, &fileInfo);
-        REQUIRE(ret == -9); //EBADF
+        REQUIRE(ret == EBADF);
     }
 
     delete myfs;
