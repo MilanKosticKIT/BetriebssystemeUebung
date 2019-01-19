@@ -50,7 +50,7 @@ TEST_CASE("MyFS.open, MyFS.close", "[MyFS]") {
         ret = myfs->fuseRead(TEST_FILE, buffer, size, offset, &fileInfo);
         REQUIRE(ret == size);
         ret = myfs->fuseWrite(TEST_FILE, buffer, size, offset, &fileInfo);
-        REQUIRE(ret == EBADF);
+        REQUIRE(ret == -EBADF);
         ret = myfs->fuseRelease(TEST_FILE, &fileInfo);
         REQUIRE(ret == 0);
     }
@@ -62,7 +62,7 @@ TEST_CASE("MyFS.open, MyFS.close", "[MyFS]") {
         char buffer[size];
         off_t offset = 0;
         ret = myfs->fuseRead(TEST_FILE, buffer, size, offset, &fileInfo);
-        REQUIRE(ret == EBADF);
+        REQUIRE(ret == -EBADF);
         ret = myfs->fuseWrite(TEST_FILE, buffer, size, offset, &fileInfo);
         REQUIRE(ret == size);
         ret = myfs->fuseRelease(TEST_FILE, &fileInfo);
@@ -86,28 +86,28 @@ TEST_CASE("MyFS.open, MyFS.close", "[MyFS]") {
     SECTION("Open nonexistent file read-only") {
         fileInfo.flags = O_RDONLY;
         int ret = myfs->fuseOpen(NONEXISTENT_FILE, &fileInfo);
-        REQUIRE(ret == ENOENT);
+        REQUIRE(ret == -ENOENT);
         ret = myfs->fuseRelease(NONEXISTENT_FILE, &fileInfo);
-        REQUIRE(ret == EBADF);
+        REQUIRE(ret == -EBADF);
     }
     SECTION("Open nonexistent file write-only") {
         fileInfo.flags = O_WRONLY;
         int ret = myfs->fuseOpen(NONEXISTENT_FILE, &fileInfo);
-        REQUIRE(ret == ENOENT);
+        REQUIRE(ret == -ENOENT);
         ret = myfs->fuseRelease(NONEXISTENT_FILE, &fileInfo);
-        REQUIRE(ret == EBADF);
+        REQUIRE(ret == -EBADF);
     }
     SECTION("Open nonexistent file read-write") {
         fileInfo.flags = O_RDWR;
         int ret = myfs->fuseOpen(NONEXISTENT_FILE, &fileInfo);
-        REQUIRE(ret == ENOENT);
+        REQUIRE(ret == -ENOENT);
         ret = myfs->fuseRelease(NONEXISTENT_FILE, &fileInfo);
-        REQUIRE(ret == EBADF);
+        REQUIRE(ret == -EBADF);
     }
 
     SECTION("Close existing not opened file file") {
         int ret = myfs->fuseRelease(TEST_FILE, &fileInfo);
-        REQUIRE(ret == EBADF);
+        REQUIRE(ret == -EBADF);
     }
 
     delete myfs;
@@ -137,7 +137,7 @@ TEST_CASE("MyFS.read", "[MyFS]") {
         bool sameValue = true;
         do {
             readBytes = read(fd, buffer, size);
-            ret = myfs->fuseRead(TEST_FILE, otherBuffer, size, offset, &fileInfo);
+            //ret = myfs->fuseRead(TEST_FILE, otherBuffer, size, offset, &fileInfo);
             offset += size;
             if(readBytes != ret || memcmp(buffer, otherBuffer, (size_t)readBytes) != 0) {
                 sameValue = false;
@@ -157,7 +157,7 @@ TEST_CASE("MyFS.read", "[MyFS]") {
         off_t offset = 0;
         char buffer[size];
         int ret = myfs->fuseRead(TEST_FILE, buffer, size , offset, &fileInfo);
-        REQUIRE(ret == EBADF);
+        REQUIRE(ret == -EBADF);
     }
 
     delete myfs;
