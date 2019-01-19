@@ -68,10 +68,17 @@ TEST_CASE("MyFS.open, MyFS.close", "[MyFS]") {
         ret = myfs->fuseRelease(TEST_FILE, &fileInfo);
         REQUIRE(ret == 0);
     }
-    SECTION("Open one file read-write and close file") {
+    SECTION("Open one file read-write, try reading/writing and close file") {
         fileInfo.flags = O_RDWR;
         int ret = myfs->fuseOpen(TEST_FILE, &fileInfo);
         REQUIRE(ret == 0);
+        size_t size = 100;
+        char buffer[size];
+        off_t offset = 0;
+        ret = myfs->fuseRead(TEST_FILE, buffer, size, offset, &fileInfo);
+        REQUIRE(ret == size);
+        ret = myfs->fuseWrite(TEST_FILE, buffer, size, offset, &fileInfo);
+        REQUIRE(ret == size);
         ret = myfs->fuseRelease(TEST_FILE, &fileInfo);
         REQUIRE(ret == 0);
     }
@@ -113,12 +120,13 @@ TEST_CASE("MyFS.read", "[MyFS]") {
     myfs->initializeFilesystem((char*) TEST_FILESYSTEM);
 
     fuse_file_info fileInfo = {};
-    int fd = open((char*)TEST_FILE, O_RDONLY);
-    REQUIRE(fd >= 0);
-    fileInfo.flags = O_RDONLY;
-    REQUIRE(myfs->fuseOpen(TEST_FILE, &fileInfo) == 0);
 
     SECTION("Compare with test file outside of filesystem") {
+        int fd = open((char*)TEST_FILE, O_RDONLY);
+        REQUIRE(fd >= 0);
+        fileInfo.flags = O_RDONLY;
+        REQUIRE(myfs->fuseOpen(TEST_FILE, &fileInfo) == 0);
+
         size_t size = 100;
         off_t offset = 0;
         char buffer[size];
@@ -137,7 +145,19 @@ TEST_CASE("MyFS.read", "[MyFS]") {
             }
         } while(readBytes != 0);
 
+        close(fd);
+        myfs->fuseRelease((char*)TEST_FILE, &fileInfo);
+
         REQUIRE(sameValue);
+    }
+
+    SECTION("Try reading not opened file") {
+        fileInfo.flags = O_RDONLY;
+        size_t size = 100;
+        off_t offset = 0;
+        char buffer[size];
+        int ret = myfs->fuseRead(TEST_FILE, buffer, size , offset, &fileInfo);
+        REQUIRE(ret == EBADF);
     }
 
     delete myfs;
