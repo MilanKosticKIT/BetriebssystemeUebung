@@ -54,9 +54,7 @@ TEST_CASE("MyFS.write", "[MyFS]") {
         ret = myfs->fuseWrite(TEST_FILE, writebuffer, size, offset, &fileInfo);
         REQUIRE(ret == size);
         ret = myfs->fuseRead(TEST_FILE, readbuffer, size, offset, &fileInfo);
-        REQUIRE(size == sizeof(writebuffer));
         REQUIRE(ret == size);
-
     }
 
     delete myfs;
@@ -167,7 +165,7 @@ TEST_CASE("MyFS.read", "[MyFS]") {
         bool sameValue = true;
         do {
             readBytes = read(fd, buffer, size);
-            //ret = myfs->fuseRead(TEST_FILE, otherBuffer, size, offset, &fileInfo);
+            ret = myfs->fuseRead(TEST_FILE, otherBuffer, size, offset, &fileInfo);
             offset += size;
             if(readBytes != ret || memcmp(buffer, otherBuffer, (size_t)readBytes) != 0) {
                 sameValue = false;
