@@ -311,8 +311,12 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
 
 int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
+    if (offset < 0){
+        offset = 0;
+    }
 
     int fd = fileInfo->fh;
+
     if ((fd < 0) || (fd >= NUM_DIR_ENTRIES)) {
         errno = EBADF;
         RETURN(-errno);
@@ -387,6 +391,9 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
 
 int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
+    if (offset < 0){
+      offset = 0;
+    }
 
     int fd = fileInfo->fh;
     if (fd < 0 || fd >= NUM_DIR_ENTRIES) {

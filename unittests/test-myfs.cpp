@@ -15,6 +15,7 @@
 #define TEST_FILESYSTEM "Test-Filesystem"
 #define TEST_FILE "Makefile"
 #define NONEXISTENT_FILE "Nonexistent"
+#define TESTFILE_SIZE 2640
 
 // TODO: Write tests
 
@@ -42,7 +43,7 @@ TEST_CASE("MyFS.write", "[MyFS]") {
     myfs->initializeFilesystem((char*)TEST_FILESYSTEM);
     fuse_file_info fileInfo = {};
 
-    SECTION("Anfang der Datei schreiben"){
+    SECTION("Try writing at the beginning of a file"){
         const char writebuffer[] = {"Test test test"};
         size_t size = sizeof(writebuffer);
         char readbuffer[size];
@@ -57,8 +58,67 @@ TEST_CASE("MyFS.write", "[MyFS]") {
         REQUIRE(ret == size);
     }
 
+    SECTION("Try writing a not opened file") {
+        fileInfo.flags = O_RDONLY;
+        size_t size = 100;
+        off_t offset = 0;
+        const char buffer[100] = "test test test";
+        int ret = myfs->fuseWrite(TEST_FILE, buffer, size , offset, &fileInfo);
+        REQUIRE(ret == -EBADF);
+    }
+
+    SECTION("Try writing at the end of a file"){
+        const char writebuffer[] = {"Test test test"};
+        size_t size = sizeof(writebuffer);
+        char readbuffer[size];
+        off_t offset = TESTFILE_SIZE;
+        std::cout << "Size offset: " << offset << std::endl;
+        std::cout << "sizeof(Test_FILE): " << sizeof(TEST_FILE) << std::endl;
+        fileInfo.flags = O_RDWR;
+
+        int ret = myfs->fuseOpen(TEST_FILE, &fileInfo);
+        REQUIRE(ret == 0);
+        ret = myfs->fuseWrite(TEST_FILE, writebuffer, size, offset, &fileInfo);
+        REQUIRE(ret == size);
+        ret = myfs->fuseRead(TEST_FILE, readbuffer, size, offset, &fileInfo);
+        REQUIRE(ret == size);
+    }
+
+    SECTION("Try writing in the middle of a file"){
+        const char writebuffer[] = {"Test test test"};
+        size_t size = sizeof(writebuffer);
+        char readbuffer[size];
+        off_t offset = TESTFILE_SIZE/2;
+        std::cout << "Size offset: " << offset << std::endl;
+        fileInfo.flags = O_RDWR;
+
+        int ret = myfs->fuseOpen(TEST_FILE, &fileInfo);
+        REQUIRE(ret == 0);
+        ret = myfs->fuseWrite(TEST_FILE, writebuffer, size, offset, &fileInfo);
+        REQUIRE(ret == size);
+        ret = myfs->fuseRead(TEST_FILE, readbuffer, size, offset, &fileInfo);
+        REQUIRE(ret == size);
+    }
+
+    SECTION("Try writing with a negative offset"){
+        const char writebuffer[] = {"Test test test"};
+        size_t size = sizeof(writebuffer);
+        char readbuffer[size];
+        off_t offset = -100;
+        fileInfo.flags = O_RDWR;
+
+        int ret = myfs->fuseOpen(TEST_FILE, &fileInfo);
+        REQUIRE(ret == 0);
+        ret = myfs->fuseWrite(TEST_FILE, writebuffer, size, offset, &fileInfo);
+        REQUIRE(ret == size);
+        ret = myfs->fuseRead(TEST_FILE, readbuffer, size, offset, &fileInfo);
+        REQUIRE(ret == size);
+    }
+
+
     delete myfs;
     remove((char*) TEST_FILESYSTEM);
+
 }
 
 
