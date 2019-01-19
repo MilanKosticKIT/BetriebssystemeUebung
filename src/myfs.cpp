@@ -11,7 +11,7 @@
 #undef DEBUG
 
 // TODO: Comment this to reduce debug messages
-#define DEBUG
+//#define DEBUG
 //#define DEBUG_METHODS
 //#define DEBUG_RETURN_VALUES
 
@@ -215,6 +215,7 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
             name++;
         }
     }
+    LOGF("File Name: %s", name);
 
     fileStats file;
     int rootIndex = root.get(name, &file);
@@ -222,8 +223,6 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
         RETURN(-errno);
     }
 
-    LOG("mode");
-    LOGI(file.mode);
     bool success = false;
     bool read = false;
     bool write = false;
@@ -292,15 +291,6 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
         }
     }
 
-    LOG("fileInfo flags:");
-    LOGI(fileInfo->flags);
-    LOG("Read-only");
-    LOGI(O_RDONLY);
-    LOG("Write-only");
-    LOGI(O_WRONLY);
-    LOG("Read-Write");
-    LOGI(O_RDWR);
-
     if (success) {
         for (int i = 0; i < NUM_OPEN_FILES; i++) {
             if (openFiles[i].rootIndex < 0) {
@@ -321,15 +311,11 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
 
 int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
+    if (offset < 0){
+        offset = 0;
+    }
 
     int fd = fileInfo->fh;
-    if ((fd < 0) || (fd >= NUM_DIR_ENTRIES)) {
-        LOGF("fileInfo.fh invalid: %d", fd);
-        LOGF("Size: %d", (int)size);
-    } else {
-        LOGF("fileInfo.fh valid: %d", fd);
-        LOGF("Size: %d", (int)size);
-    }
 
     if ((fd < 0) || (fd >= NUM_DIR_ENTRIES)) {
         errno = EBADF;
@@ -351,7 +337,6 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
     if ((uint64_t)file.size < offset + size) {
         size = file.size - offset;
     }
-    LOGF("Size: %d", (int)size);
 
     file.last_time = time(NULL);    //set the access time to current time
     root.update(file);
@@ -373,7 +358,6 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
         fat.getNext(currentBlock, &currentBlock);
     }
 
-    uint16_t bufferBlockNumber = FAT_TERMINATOR;
     char buffer[BLOCK_SIZE];
     size_t readSize;
     if (blockOffset + size < BLOCK_SIZE) {
@@ -383,37 +367,33 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
     }
     if (openFiles[fd].bufferBlockNumber == blocks[0]) {
         memcpy(buf, openFiles[fd].buffer + blockOffset, readSize);
-        bufferBlockNumber = blocks[0];
     } else {
         blockDevice->read(DATA_START + blocks[0], buffer);
         memcpy(buf, buffer + blockOffset, readSize);
-        bufferBlockNumber = blocks[0];
+        if (howManyBlocks == 1) {
+            memcpy(openFiles[fd].buffer, buffer, BLOCK_SIZE);
+            openFiles[fd].bufferBlockNumber = blocks[howManyBlocks - 1];
+        }
     }
-
     for (int j = 1; j < howManyBlocks - 1; j++) {
         blockDevice->read(DATA_START + blocks[j], buf - blockOffset + BLOCK_SIZE * j);
     }
     if (howManyBlocks > 1) {
         blockDevice->read(DATA_START + blocks[howManyBlocks - 1], buffer);
         memcpy(buf - blockOffset + (howManyBlocks - 1) * BLOCK_SIZE, buffer, (size + blockOffset) % BLOCK_SIZE);
-        bufferBlockNumber = blocks[howManyBlocks - 1];
-    }
 
-    if ((fd < 0) || (fd >= NUM_DIR_ENTRIES)) {
-        LOGF("fileInfo.fh invalid: %d", fd);
-        LOGF("Size: %d", (int)size);
-    } else {
-        LOGF("fileInfo.fh valid: %d", fd);
-        LOGF("Size: %d", (int)size);
+        memcpy(openFiles[fd].buffer, buffer, BLOCK_SIZE);
+        openFiles[fd].bufferBlockNumber = blocks[howManyBlocks - 1];
     }
-    memcpy(openFiles[fd].buffer, buffer, BLOCK_SIZE);
-    openFiles[fd].bufferBlockNumber = bufferBlockNumber;
 
     RETURN((int)size);
 }
 
 int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
+    if (offset < 0){
+      offset = 0;
+    }
 
     int fd = fileInfo->fh;
     if (fd < 0 || fd >= NUM_DIR_ENTRIES) {
