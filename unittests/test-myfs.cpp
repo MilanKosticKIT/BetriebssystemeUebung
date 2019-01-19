@@ -248,6 +248,75 @@ TEST_CASE("MyFS.read", "[MyFS]") {
         REQUIRE(ret == -EBADF);
     }
 
+    SECTION("Compare with test file outside of filesystem (small pieces") {
+        int fd = open((char*)TEST_FILE, O_RDONLY);
+        REQUIRE(fd >= 0);
+        fileInfo.flags = O_RDONLY;
+        REQUIRE(myfs->fuseOpen(TEST_FILE, &fileInfo) == 0);
+
+        size_t size = 10;
+        off_t offset = 0;
+        char buffer[size];
+        char otherBuffer[size];
+
+        ssize_t readBytes = 0;
+        int ret = 0;
+        bool sameValue = true;
+        do {
+            readBytes = read(fd, buffer, size);
+            ret = myfs->fuseRead(TEST_FILE, otherBuffer, size, offset, &fileInfo);
+            offset += size;
+            if(readBytes != ret || memcmp(buffer, otherBuffer, (size_t)readBytes) != 0) {
+                sameValue = false;
+                break;
+            }
+        } while(readBytes != 0);
+
+        close(fd);
+        myfs->fuseRelease((char*)TEST_FILE, &fileInfo);
+
+        REQUIRE(sameValue);
+    }
+
+    SECTION("Repeatable read") {
+        fileInfo.flags = O_RDONLY;
+        REQUIRE(myfs->fuseOpen(TEST_FILE, &fileInfo) == 0);
+
+        size_t size = 100;
+        off_t offset = 0;
+        char buffer[size];
+        char otherBuffer[size];
+
+        ssize_t readBytes = 0;
+        int ret = 0;
+        int otherRet = 0;
+        bool sameValue = true;
+
+        ret = myfs->fuseRead(TEST_FILE, buffer, size, offset, &fileInfo);
+        otherRet = myfs->fuseRead(TEST_FILE, otherBuffer, size, offset, &fileInfo);
+
+        REQUIRE(ret == otherRet);
+        REQUIRE(memcmp(buffer, otherBuffer, (size_t) ret) == 0);
+
+        size = 47;
+        offset = 321;
+        ret = myfs->fuseRead(TEST_FILE, buffer, size, offset, &fileInfo);
+        otherRet = myfs->fuseRead(TEST_FILE, otherBuffer, size, offset, &fileInfo);
+        REQUIRE(ret == otherRet);
+        REQUIRE(memcmp(buffer, otherBuffer, (size_t) ret) == 0);
+
+        size = 6;
+        offset = 867;
+        ret = myfs->fuseRead(TEST_FILE, buffer, size, offset, &fileInfo);
+        otherRet = myfs->fuseRead(TEST_FILE, otherBuffer, size, offset, &fileInfo);
+        REQUIRE(ret == otherRet);
+        REQUIRE(memcmp(buffer, otherBuffer, (size_t) ret) == 0);
+
+        myfs->fuseRelease((char*)TEST_FILE, &fileInfo);
+
+        REQUIRE(sameValue);
+    }
+
     delete myfs;
     remove((char*) TEST_FILESYSTEM);
 }
