@@ -696,3 +696,7 @@ int MyFS::initializeFilesystem(char* containerFile) {
     LOG("Error at blockdevice.open()");
     RETURN(-1);
 }
+
+Root* MyFS::getRoot() {
+    return &root;
+}

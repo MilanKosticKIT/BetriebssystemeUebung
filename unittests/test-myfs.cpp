@@ -354,6 +354,43 @@ TEST_CASE("MyFS.getAttr, Error codes", "[MyFS]") {
         REQUIRE(myfs->fuseGetattr(NONEXISTENT_FILE, &stats) == -ENOENT);
     }
 
+    SECTION("Directory") {
+        REQUIRE(myfs->fuseGetattr("/", &stats) == 0);
+    }
+
     delete myfs;
     remove((char*) TEST_FILESYSTEM);
 }
+
+TEST_CASE("MyFS.Mknod", "[MyFS]") {
+    MyFS* myfs = new MyFS();
+    system("./mkfs.myfs " TEST_FILESYSTEM " " TEST_FILE);
+    myfs->initializeFilesystem((char*) TEST_FILESYSTEM);
+
+    fuse_file_info fileInfo = {};
+
+    SECTION("Create file") {
+        myfs->fuseMknod((char*) "NeueDatei", 0777, 0);
+        Root* root = myfs->getRoot();
+        fileStats stats;
+        REQUIRE(root->get("NeueDatei", &stats) >= 0);
+    }
+
+    SECTION("Create already existing file") {
+        int ret = myfs->fuseMknod((char*) TEST_FILE, 0777, 0);
+        REQUIRE(ret == -EEXIST);
+    }
+
+    SECTION("Create same file twice") {
+        REQUIRE(myfs->fuseMknod((char*) "NeueDatei", 0777, 0) == 0);
+        Root* root = myfs->getRoot();
+        fileStats stats;
+        REQUIRE(root->get("NeueDatei", &stats) >= 0);
+        int ret = myfs->fuseMknod((char*) "NeueDatei", 0777, 0);
+        REQUIRE(ret == -EEXIST);
+    }
+
+    delete myfs;
+    remove((char*) TEST_FILESYSTEM);
+}
+
