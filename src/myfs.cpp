@@ -96,16 +96,21 @@ int MyFS::fuseMknod(const char *path, mode_t mode, dev_t dev) {
             name++;
         }
     }
+    int ret;
 
-    root.createEntry(name, mode);
+    ret = root.createEntry(name, mode);
+    if (ret < 0) [] { RETURN(-errno); };
     fileStats stats;
-    root.get(path, &stats);
+    ret = root.get(path, &stats);
+    if (ret < 0) [] { RETURN(-errno); };
     uint16_t firstBlock;
-    dmap.getFreeBlock(&firstBlock);
+    ret = dmap.getFreeBlock(&firstBlock);
+    if (ret < 0) [] { RETURN(-errno); };
     dmap.set(firstBlock);
     stats.first_block = firstBlock;
     fat.addLastToFAT(firstBlock);
-    root.update(stats);
+    ret =root.update(stats);
+    if (ret < 0) [] { RETURN(-errno); };
 
     RETURN(0);
 }
@@ -418,8 +423,8 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
 
        }
 
-       fuseWrite(path, bufferZero, sizeZero, file.size, fileInfo);
-
+       int ret = fuseWrite(path, bufferZero, sizeZero, file.size, fileInfo);
+       if (ret < 0) { RETURN(-errno); };
     }
 
     file.last_time = time(NULL);
@@ -452,7 +457,8 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
     if (missingBlockCount > 0) {
         while (missingBlockCount > 0) {
             previousBlock = nextBlock;
-            dmap.getFreeBlock(&nextBlock);
+            int ret = dmap.getFreeBlock(&nextBlock);
+            if (ret < 0) { RETURN(-errno); };
             dmap.set(nextBlock);
             fat.addNextToFAT(previousBlock, nextBlock);
             blocks[howManyBlocks - missingBlockCount] = nextBlock;
@@ -493,7 +499,8 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
     }
     if ((uint_least64_t)file.size < offset + size) {
         file.size = offset + size;
-        root.update(file);
+        int ret = root.update(file);
+        if (ret < 0) { RETURN(-errno); };
     }
     RETURN((int)size);
 }
@@ -620,7 +627,6 @@ void* MyFS::fuseInit(struct fuse_conn_info *conn) {
         // you can get the containfer file name here:
         LOGF("Container file name: %s", ((MyFsInfo *) fuse_get_context()->private_data)->contFile);
 
-        // TODO: Implement your initialization methods here!
 
         initializeFilesystem(((MyFsInfo *) fuse_get_context()->private_data)->contFile);
     }
