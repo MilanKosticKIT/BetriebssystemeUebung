@@ -11,9 +11,9 @@
 #undef DEBUG
 
 // TODO: Comment this to reduce debug messages
-//#define DEBUG
-//#define DEBUG_METHODS
-//#define DEBUG_RETURN_VALUES
+#define DEBUG
+#define DEBUG_METHODS
+#define DEBUG_RETURN_VALUES
 
 #include <errno.h>
 #include <string>
@@ -86,8 +86,6 @@ int MyFS::fuseReadlink(const char *path, char *link, size_t size) {
 int MyFS::fuseMknod(const char *path, mode_t mode, dev_t dev) {
     LOGM();
 
-    // TODO: Implement this!
-
     const char* name = path;
     if (*path == '/') {
         if (strlen(path) == 1) {
@@ -99,18 +97,26 @@ int MyFS::fuseMknod(const char *path, mode_t mode, dev_t dev) {
     int ret;
 
     ret = root.createEntry(name, mode);
-    if (ret < 0) RETURN(-errno);
+    if (ret < 0) {
+        RETURN(-errno);
+    }
     fileStats stats;
-    ret = root.get(path, &stats);
-    if (ret < 0) RETURN(-errno);
+    ret = root.get(name, &stats);
+    if (ret < 0) {
+        RETURN(-errno);
+    }
     uint16_t firstBlock;
     ret = dmap.getFreeBlock(&firstBlock);
-    if (ret < 0) RETURN(-errno);
+    if (ret < 0) {
+        RETURN(-errno);
+    }
     dmap.set(firstBlock);
     stats.first_block = firstBlock;
     fat.addLastToFAT(firstBlock);
     ret = root.update(stats);
-    if (ret < 0) RETURN(-errno);
+    if (ret < 0) {
+        RETURN(-errno);
+    }
 
     RETURN(0);
 }
@@ -134,7 +140,9 @@ int MyFS::fuseUnlink(const char *path) {
 
     fileStats file;
     int ret = root.get(name, &file);
-    if (ret < 0) RETURN(-errno);
+    if (ret < 0){
+        RETURN(-errno);
+    }
     std::list<uint16_t >::const_iterator iterator;
     std::list<uint16_t> list;
     fat.iterateFAT(file.first_block, &list);
@@ -145,7 +153,9 @@ int MyFS::fuseUnlink(const char *path) {
 
     superblock.emptySpaceSize += file.size;
     ret = root.deleteEntry(name);
-    if (ret < 0) RETURN(-errno);
+    if (ret < 0) {
+        RETURN(-errno);
+    }
 
     RETURN(0);
 }
@@ -161,6 +171,7 @@ int MyFS::fuseSymlink(const char *path, const char *link) {
 }
 
 int MyFS::fuseRename(const char *path, const char *newpath) {
+    LOGM();
 
     const char* oldname = path;
     if (*path == '/') {
@@ -181,8 +192,7 @@ int MyFS::fuseRename(const char *path, const char *newpath) {
     if (fd == -1){
         RETURN(-errno);
     }
-    LOGM();
-    return 0;
+    RETURN(0);
 }
 
 int MyFS::fuseLink(const char *path, const char *newpath) {
@@ -498,7 +508,7 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
             openFiles[i].bufferBlockNumber = FAT_TERMINATOR;
         }
     }
-    if ((uint_least64_t)file.size < offset + size) {
+    if ((uint64_t)file.size < offset + size) {
         file.size = offset + size;
         int ret = root.update(file);
         if (ret < 0) { RETURN(-errno); };

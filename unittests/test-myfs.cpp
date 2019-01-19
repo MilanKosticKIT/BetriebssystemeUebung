@@ -160,6 +160,7 @@ TEST_CASE("MyFS.write", "[MyFS]") {
         REQUIRE ((memcmp(readbuffer, writebuffer, size) == 0));
 
     }
+
     delete myfs;
     remove((char*) TEST_FILESYSTEM);
 
