@@ -212,7 +212,9 @@ int MyFS::fuseChown(const char *path, uid_t uid, gid_t gid) {
 
 int MyFS::fuseTruncate(const char *path, off_t newSize) {
     LOGM();
-    return -ENOSYS;
+
+    RETURN(0); // TODO: don't lie
+    RETURN(-ENOSYS);
 }
 
 int MyFS::fuseUtime(const char *path, struct utimbuf *ubuf) {
@@ -601,7 +603,9 @@ int MyFS::fuseFsyncdir(const char *path, int datasync, struct fuse_file_info *fi
 
 int MyFS::fuseTruncate(const char *path, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
-    return -ENOSYS;
+
+    RETURN(0); // TODO: don't lie
+    RETURN(-ENOSYS);
 }
 
 int MyFS::fuseCreate(const char *path, mode_t mode, struct fuse_file_info *fileInfo) {
