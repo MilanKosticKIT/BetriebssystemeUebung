@@ -43,8 +43,11 @@ typedef struct {
 } SuperBlock;
 
 typedef struct {
-    uint16_t blockNumber; // block number in data section (without DATA_START)
-    char content[BLOCK_SIZE];
-} readBuffer;
+    int rootIndex;
+    bool read;
+    bool write;
+    uint16_t bufferBlockNumber; // block number in data section (without DATA_START)
+    char buffer[BLOCK_SIZE];
+} openFile;
 
 #endif /* myfs_structs_h */

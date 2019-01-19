@@ -30,8 +30,7 @@ private:
     Root root = Root();
     SuperBlock superblock;
 
-    int openFiles[NUM_OPEN_FILES];
-    readBuffer readbuffer[NUM_OPEN_FILES];
+    openFile* openFiles = new openFile[NUM_OPEN_FILES];
 
 public:
     static MyFS *Instance();
@@ -83,7 +82,7 @@ public:
 
     // TODO: Add methods of your file system here
     int initializeFilesystem(char* containerFile);
-    Root getRoot();
+
 };
 
 #endif /* myfs_h */
