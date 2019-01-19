@@ -410,8 +410,16 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
         RETURN(-errno);
     }
     if (file.size < offset){
-        //TODO fill with 0
-        RETURN(0);
+
+        size_t sizeZero = offset - file.size;
+       char bufferZero[sizeZero];
+       for (int i = 0; i < sizeof(bufferZero); i++) {
+           bufferZero[i] = 0;
+
+       }
+
+       fuseWrite(path, bufferZero, sizeZero, file.size, fileInfo);
+
     }
 
     file.last_time = time(NULL);
@@ -542,8 +550,6 @@ int MyFS::fuseOpendir(const char *path, struct fuse_file_info *fileInfo) {
 
 int MyFS::fuseReaddir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
-
-    // TODO: Implement this!
 
     if (strcmp("/", path) == 0) {
         for (int i = 0; i < ROOT_ARRAY_SIZE; i++) {
