@@ -11,9 +11,9 @@
 #undef DEBUG
 
 // TODO: Comment this to reduce debug messages
-#define DEBUG
-#define DEBUG_METHODS
-#define DEBUG_RETURN_VALUES
+//#define DEBUG
+//#define DEBUG_METHODS
+//#define DEBUG_RETURN_VALUES
 
 #include <errno.h>
 #include <string>
@@ -322,22 +322,25 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
 int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
 
-    if ((fileInfo->fh < 0) || (fileInfo->fh >= NUM_DIR_ENTRIES)) {
-        LOGF("fileInfo.fh invalid: %d", fileInfo->fh);
+    int fd = fileInfo->fh;
+    if ((fd < 0) || (fd >= NUM_DIR_ENTRIES)) {
+        LOGF("fileInfo.fh invalid: %d", fd);
+        LOGF("Size: %d", (int)size);
     } else {
-        LOGF("fileInfo.fh valid: %d", fileInfo->fh);
+        LOGF("fileInfo.fh valid: %d", fd);
+        LOGF("Size: %d", (int)size);
     }
 
-    if ((fileInfo->fh < 0) || (fileInfo->fh >= NUM_DIR_ENTRIES)) {
+    if ((fd < 0) || (fd >= NUM_DIR_ENTRIES)) {
         errno = EBADF;
         RETURN(-errno);
     }
-    if (openFiles[fileInfo->fh].rootIndex < 0 || !(openFiles[fileInfo->fh].read)) {
+    if (openFiles[fd].rootIndex < 0 || !(openFiles[fd].read)) {
         errno = EBADF;
         RETURN(-errno);
     }
 
-    int rootIndex = openFiles[fileInfo->fh].rootIndex;
+    int rootIndex = openFiles[fd].rootIndex;
     fileStats file;
     if (root.get(rootIndex, &file) == -1){
         RETURN(-errno);
@@ -348,6 +351,7 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
     if ((uint64_t)file.size < offset + size) {
         size = file.size - offset;
     }
+    LOGF("Size: %d", (int)size);
 
     file.last_time = time(NULL);    //set the access time to current time
     root.update(file);
@@ -371,14 +375,16 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
 
     uint16_t bufferBlockNumber = FAT_TERMINATOR;
     char buffer[BLOCK_SIZE];
-    if (openFiles[fileInfo->fh].bufferBlockNumber == blocks[0]) {
-        memcpy(buf, openFiles[fileInfo->fh].buffer + blockOffset, BLOCK_SIZE - (size_t)blockOffset);
+    if (openFiles[fd].bufferBlockNumber == blocks[0]) {
+        memcpy(buf, openFiles[fd].buffer + blockOffset, BLOCK_SIZE - (size_t)blockOffset);
         bufferBlockNumber = blocks[0];
     } else {
         blockDevice->read(DATA_START + blocks[0], buffer);
-        LOGF("fh: %d", fileInfo->fh);
+        LOGF("fh: %d", fd);
+        LOGF("Size: %d", (int)size);
         memcpy(buf, buffer + blockOffset, BLOCK_SIZE - (size_t)blockOffset);
-        LOGF("fh: %d", fileInfo->fh);
+        LOGF("fh: %d", fd);
+        LOGF("Size: %d", (int)size);
     }
 
     for (int j = 1; j < howManyBlocks - 1; j++) {
@@ -390,13 +396,15 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
         bufferBlockNumber = blocks[howManyBlocks - 1];
     }
 
-    if ((fileInfo->fh < 0) || (fileInfo->fh >= NUM_DIR_ENTRIES)) {
-        LOGF("fileInfo.fh invalid: %d", fileInfo->fh);
+    if ((fd < 0) || (fd >= NUM_DIR_ENTRIES)) {
+        LOGF("fileInfo.fh invalid: %d", fd);
+        LOGF("Size: %d", (int)size);
     } else {
-        LOGF("fileInfo.fh valid: %d", fileInfo->fh);
+        LOGF("fileInfo.fh valid: %d", fd);
+        LOGF("Size: %d", (int)size);
     }
-    memcpy(openFiles[fileInfo->fh].buffer, buffer, BLOCK_SIZE);
-    openFiles[fileInfo->fh].bufferBlockNumber = bufferBlockNumber;
+    memcpy(openFiles[fd].buffer, buffer, BLOCK_SIZE);
+    openFiles[fd].bufferBlockNumber = bufferBlockNumber;
 
     RETURN((int)size);
 }
@@ -404,15 +412,16 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
 int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
 
-    if (fileInfo->fh < 0 || fileInfo->fh >= NUM_DIR_ENTRIES) {
+    int fd = fileInfo->fh;
+    if (fd < 0 || fd >= NUM_DIR_ENTRIES) {
         errno = EBADF;
         RETURN(-errno);
     }
-    if (openFiles[fileInfo->fh].rootIndex < 0 || !(openFiles[fileInfo->fh].write)) { // is file open in write mode?
+    if (openFiles[fd].rootIndex < 0 || !(openFiles[fd].write)) { // is file open in write mode?
         errno = EBADF;
         RETURN(-errno);
     }
-    int rootIndex = openFiles[fileInfo->fh].rootIndex;
+    int rootIndex = openFiles[fd].rootIndex;
     fileStats file;
     if (root.get(rootIndex, &file) == -1){ // get file stats
         RETURN(-errno);
@@ -463,9 +472,9 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
     }
 
     char buffer[BLOCK_SIZE];
-    if (openFiles[fileInfo->fh].bufferBlockNumber == blocks[0]) {
-        memcpy(openFiles[fileInfo->fh].buffer + blockOffset, buf, BLOCK_SIZE - blockOffset);
-        blockDevice->write(DATA_START + blocks[0], openFiles[fileInfo->fh].buffer);
+    if (openFiles[fd].bufferBlockNumber == blocks[0]) {
+        memcpy(openFiles[fd].buffer + blockOffset, buf, BLOCK_SIZE - blockOffset);
+        blockDevice->write(DATA_START + blocks[0], openFiles[fd].buffer);
     } else {
         blockDevice->read(DATA_START + blocks[0], buffer);
         memcpy(buffer + blockOffset, buf, BLOCK_SIZE - blockOffset);
