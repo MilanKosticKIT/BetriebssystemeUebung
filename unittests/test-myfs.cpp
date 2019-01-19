@@ -166,7 +166,7 @@ TEST_CASE("MyFS.write", "[MyFS]") {
 }
 
 
-TEST_CASE("MyFS.open, MyFS.close", "[MyFS]") {
+TEST_CASE("MyFS.open / MyFS.close", "[MyFS]") {
     MyFS *myfs = new MyFS();
     system("./mkfs.myfs " TEST_FILESYSTEM " " TEST_FILE);
     myfs->initializeFilesystem((char*) TEST_FILESYSTEM);
@@ -359,6 +359,43 @@ TEST_CASE("MyFS.read", "[MyFS]") {
         myfs->fuseRelease((char*)TEST_FILE, &fileInfo);
 
         REQUIRE(sameValue);
+    }
+
+    delete myfs;
+    remove((char*) TEST_FILESYSTEM);
+}
+
+TEST_CASE("MyFS.getAttr, Existing File", "[MyFS]"){
+    system("touch Test_File_2.txt");
+    system("chmod 0444 Test_File_2.txt");
+    MyFS* myfs = new MyFS();
+    system("./mkfs.myfs " TEST_FILESYSTEM " Test_File_2.txt");
+    myfs->initializeFilesystem((char*) TEST_FILESYSTEM);
+
+    SECTION("File has All Read Permission") {
+        struct stat *buf = new struct stat();
+        REQUIRE(buf->st_mode == (0444 | S_IFREG));
+        delete(buf);
+    }
+
+
+    system("rm Test_File_2.txt");
+}
+
+TEST_CASE("MyFS.getAttr, Error codes", "[MyFS]") {
+    MyFS* myfs = new MyFS();
+    system("./mkfs.myfs " TEST_FILESYSTEM " " TEST_FILE);
+    myfs->initializeFilesystem((char*) TEST_FILESYSTEM);
+
+    fuse_file_info fileInfo = {};
+    struct stat stats;
+
+    SECTION("Existing File") {
+        REQUIRE(myfs->fuseGetattr(TEST_FILE, &stats) == 0);
+    }
+
+    SECTION("Nonexistent File") {
+        REQUIRE(myfs->fuseGetattr(NONEXISTENT_FILE, &stats) == -ENOENT);
     }
 
     delete myfs;

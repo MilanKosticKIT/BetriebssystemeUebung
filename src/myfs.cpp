@@ -11,7 +11,7 @@
 #undef DEBUG
 
 // TODO: Comment this to reduce debug messages
-#define DEBUG
+//#define DEBUG
 //#define DEBUG_METHODS
 //#define DEBUG_RETURN_VALUES
 
@@ -181,27 +181,27 @@ int MyFS::fuseRename(const char *path, const char *newpath) {
 
 int MyFS::fuseLink(const char *path, const char *newpath) {
     LOGM();
-    return 0;
+    return -ENOSYS;
 }
 
 int MyFS::fuseChmod(const char *path, mode_t mode) {
     LOGM();
-    return 0;
+    return -ENOSYS;
 }
 
 int MyFS::fuseChown(const char *path, uid_t uid, gid_t gid) {
     LOGM();
-    return 0;
+    return -ENOSYS;
 }
 
 int MyFS::fuseTruncate(const char *path, off_t newSize) {
     LOGM();
-    return 0;
+    return -ENOSYS;
 }
 
 int MyFS::fuseUtime(const char *path, struct utimbuf *ubuf) {
     LOGM();
-    return 0;
+    return -ENOSYS;
 }
 
 int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
@@ -215,6 +215,7 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
             name++;
         }
     }
+    LOGF("File Name: %s", name);
 
     fileStats file;
     int rootIndex = root.get(name, &file);
@@ -222,8 +223,6 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
         RETURN(-errno);
     }
 
-    LOG("mode");
-    LOGI(file.mode);
     bool success = false;
     bool read = false;
     bool write = false;
@@ -292,15 +291,6 @@ int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
         }
     }
 
-    LOG("fileInfo flags:");
-    LOGI(fileInfo->flags);
-    LOG("Read-only");
-    LOGI(O_RDONLY);
-    LOG("Write-only");
-    LOGI(O_WRONLY);
-    LOG("Read-Write");
-    LOGI(O_RDWR);
-
     if (success) {
         for (int i = 0; i < NUM_OPEN_FILES; i++) {
             if (openFiles[i].rootIndex < 0) {
@@ -347,7 +337,6 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
     if ((uint64_t)file.size < offset + size) {
         size = file.size - offset;
     }
-    LOGF("Size: %d", (int)size);
 
     file.last_time = time(NULL);    //set the access time to current time
     root.update(file);
@@ -511,12 +500,12 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
 
 int MyFS::fuseStatfs(const char *path, struct statvfs *statInfo) {
     LOGM();
-    return 0;
+    return -ENOSYS;
 }
 
 int MyFS::fuseFlush(const char *path, struct fuse_file_info *fileInfo) {
     LOGM();
-    return 0;
+    return -ENOSYS;
 }
 
 int MyFS::fuseRelease(const char *path, struct fuse_file_info *fileInfo) {
@@ -540,26 +529,23 @@ int MyFS::fuseRelease(const char *path, struct fuse_file_info *fileInfo) {
 
 int MyFS::fuseFsync(const char *path, int datasync, struct fuse_file_info *fi) {
     LOGM();
-    return 0;
+    return -ENOSYS;
 }
 
 int MyFS::fuseListxattr(const char *path, char *list, size_t size) {
     LOGM();
-    RETURN(0);
+    return -ENOSYS;
 }
 
 int MyFS::fuseRemovexattr(const char *path, const char *name) {
     LOGM();
-    RETURN(0);
+    return -ENOSYS;
 }
 
 int MyFS::fuseOpendir(const char *path, struct fuse_file_info *fileInfo) {
   LOGM();
 
-  RETURN(0); // todo always grants access
-
-  errno = EACCES;
-  RETURN(-errno);
+  RETURN(0); // always grants access
 }
 
 int MyFS::fuseReaddir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fileInfo) {
@@ -589,27 +575,24 @@ int MyFS::fuseReaddir(const char *path, void *buf, fuse_fill_dir_t filler, off_t
 int MyFS::fuseReleasedir(const char *path, struct fuse_file_info *fileInfo) {
     LOGM();
 
-    // TODO: Implement this!
-
     RETURN(0);
 }
 
 int MyFS::fuseFsyncdir(const char *path, int datasync, struct fuse_file_info *fileInfo) {
     LOGM();
-    RETURN(0);
+    return -ENOSYS;
 }
 
 int MyFS::fuseTruncate(const char *path, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
-    RETURN(0);
+    return -ENOSYS;
 }
 
 int MyFS::fuseCreate(const char *path, mode_t mode, struct fuse_file_info *fileInfo) {
     LOGM();
-
-    // TODO: Implement this!
-
-    //const char* name = path + 1;
+    dev_t dev = 0;
+    fuseMknod(path, mode, dev);
+    fuseOpen(path, fileInfo);
 
     RETURN(0);
 }
@@ -651,7 +634,7 @@ int MyFS::fuseSetxattr(const char *path, const char *name, const char *value, si
 int MyFS::fuseSetxattr(const char *path, const char *name, const char *value, size_t size, int flags) {
 #endif
     LOGM();
-    RETURN(0);
+    return -ENOSYS;
 }
 
 #ifdef __APPLE__
@@ -660,7 +643,7 @@ int MyFS::fuseGetxattr(const char *path, const char *name, char *value, size_t s
 int MyFS::fuseGetxattr(const char *path, const char *name, char *value, size_t size) {
 #endif
     LOGM();
-    RETURN(0);
+    return -ENOSYS;
 }
 
 // TODO: Add your own additional methods here!

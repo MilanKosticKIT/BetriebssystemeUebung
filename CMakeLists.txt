@@ -45,7 +45,8 @@ set(UNITTEST
 
 include_directories(includes)
 
-set(COMPILE_FLAGS "-Wall -DFUSE_USE_VERSION=26")
+set(COMPILE_FLAGS "-Wall -DFUSE_USE_VERSION=26"
+		"-D_FILE_OFFSET_BITS=64")
 
 add_definitions(${COMPILE_FLAGS})
 
