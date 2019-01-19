@@ -393,6 +393,12 @@ TEST_CASE("MyFS.getAttr, Existing File", "[MyFS]"){
         REQUIRE(buf.st_mode == (0777 | S_IFREG));
     }
 
+    SECTION("Dir Permissions") {
+        buf = {};
+        REQUIRE(myfs->fuseGetattr("/",&buf) == 0);
+        REQUIRE(buf.st_mode == (0775 | S_IFDIR));
+    }
+
     remove("Test_File_1.txt");
     remove("Test_File_2.txt");
     remove("Test_File_3.txt");
