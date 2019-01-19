@@ -324,14 +324,6 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
 
     int fd = fileInfo->fh;
     if ((fd < 0) || (fd >= NUM_DIR_ENTRIES)) {
-        LOGF("fileInfo.fh invalid: %d", fd);
-        LOGF("Size: %d", (int)size);
-    } else {
-        LOGF("fileInfo.fh valid: %d", fd);
-        LOGF("Size: %d", (int)size);
-    }
-
-    if ((fd < 0) || (fd >= NUM_DIR_ENTRIES)) {
         errno = EBADF;
         RETURN(-errno);
     }
@@ -373,7 +365,6 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
         fat.getNext(currentBlock, &currentBlock);
     }
 
-    uint16_t bufferBlockNumber = FAT_TERMINATOR;
     char buffer[BLOCK_SIZE];
     size_t readSize;
     if (blockOffset + size < BLOCK_SIZE) {
@@ -383,31 +374,24 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
     }
     if (openFiles[fd].bufferBlockNumber == blocks[0]) {
         memcpy(buf, openFiles[fd].buffer + blockOffset, readSize);
-        bufferBlockNumber = blocks[0];
     } else {
         blockDevice->read(DATA_START + blocks[0], buffer);
         memcpy(buf, buffer + blockOffset, readSize);
-        bufferBlockNumber = blocks[0];
+        if (howManyBlocks == 1) {
+            memcpy(openFiles[fd].buffer, buffer, BLOCK_SIZE);
+            openFiles[fd].bufferBlockNumber = blocks[howManyBlocks - 1];
+        }
     }
-
     for (int j = 1; j < howManyBlocks - 1; j++) {
         blockDevice->read(DATA_START + blocks[j], buf - blockOffset + BLOCK_SIZE * j);
     }
     if (howManyBlocks > 1) {
         blockDevice->read(DATA_START + blocks[howManyBlocks - 1], buffer);
         memcpy(buf - blockOffset + (howManyBlocks - 1) * BLOCK_SIZE, buffer, (size + blockOffset) % BLOCK_SIZE);
-        bufferBlockNumber = blocks[howManyBlocks - 1];
-    }
 
-    if ((fd < 0) || (fd >= NUM_DIR_ENTRIES)) {
-        LOGF("fileInfo.fh invalid: %d", fd);
-        LOGF("Size: %d", (int)size);
-    } else {
-        LOGF("fileInfo.fh valid: %d", fd);
-        LOGF("Size: %d", (int)size);
+        memcpy(openFiles[fd].buffer, buffer, BLOCK_SIZE);
+        openFiles[fd].bufferBlockNumber = blocks[howManyBlocks - 1];
     }
-    memcpy(openFiles[fd].buffer, buffer, BLOCK_SIZE);
-    openFiles[fd].bufferBlockNumber = bufferBlockNumber;
 
     RETURN((int)size);
 }

@@ -60,19 +60,19 @@ int main(int argc, char *argv[]) {
 
         ret = fsIO.writeDevice(SUPERBLOCK_START, &superblock, sizeof(superblock));
         if (ret < 0) {
-            if (debug) std::cout << "Error at blockdevice.write() (writing superblock):" << ret << " (description: " << errno << ")" << std::endl;
+            std::cout << "Error at blockdevice.write() (writing superblock):" << ret << " (description: " << errno << ")" << std::endl;
         }
         ret = fsIO.writeDevice(DMAP_START, dMapArray, sizeof(*dMapArray) * (DATA_BLOCKS + 1) / 8);
         if (ret < 0) {
-            if (debug) std::cout << "Error at blockdevice.write() (writing dmap):" << ret << " (description: " << errno << ")" << std::endl;
+            std::cout << "Error at blockdevice.write() (writing dmap):" << ret << " (description: " << errno << ")" << std::endl;
         }
         ret = fsIO.writeDevice(FAT_START, fatArray, sizeof(*fatArray) * DATA_BLOCKS);
         if (ret < 0) {
-            if (debug) std::cout << "Error at blockdevice.write() (writing fat):" << ret << " (description: " << errno << ")" << std::endl;
+            std::cout << "Error at blockdevice.write() (writing fat):" << ret << " (description: " << errno << ")" << std::endl;
         }
         ret = fsIO.writeDevice(ROOT_START, rootArray, sizeof(*rootArray) * ROOT_ARRAY_SIZE);
         if (ret < 0) {
-            if (debug) std::cout << "Error at blockdevice.write() (writing root):" << ret << " (description: " << errno << ")" << std::endl;
+            std::cout << "Error at blockdevice.write() (writing root):" << ret << " (description: " << errno << ")" << std::endl;
         }
 
         if (argc > 2) {
@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
                         stat(argv[i], &bufferTime);
                         ret = root.createEntry(filename, bufferTime.st_mode); // "create file"
                         if (ret < 0) {
-                            if (debug) std::cout << "Root.createEntry errno: " << errno << std::endl;
+                            std::cout << "Root.createEntry errno: " << errno << std::endl;
                             return errno;
                         }
                         fileStats stats;
@@ -113,14 +113,14 @@ int main(int argc, char *argv[]) {
                         stats.change_time = bufferTime.st_ctime;
                         root.update(stats);
                         if (ret < 0) {
-                            if (debug) std::cout << "Root.get errno: " << errno << std::endl;
+                            std::cout << "Root.get errno: " << errno << std::endl;
                             return errno;
                         }
                         uint16_t currentBlock;
                         uint16_t lastBlock;
                         ret = dmap.getFreeBlock(&currentBlock);
                         if (ret < 0) {
-                            if (debug) std::cout << "DMap.getFreeBlock errno: " << errno << std::endl;
+                            std::cout << "DMap.getFreeBlock errno: " << errno << std::endl;
                             return errno;
                         }
                         stats.first_block = currentBlock;
@@ -132,14 +132,14 @@ int main(int argc, char *argv[]) {
                             lastBlock = currentBlock;
                             ret = dmap.getFreeBlock(&currentBlock);
                             if (ret < 0) {
-                                if (debug) std::cout << "\nDMap.getFreeBlock errno: " << errno << std::endl;
+                                std::cout << "\nDMap.getFreeBlock errno: " << errno << std::endl;
                                 return errno;
                             }
                             if (debug) std::cout << currentBlock << ",";
 
                             ret = blockDevice->write(DATA_START + currentBlock, buffer);
                             if (ret < 0) {
-                                if (debug) std::cout << "\nBlockDevice.write errno: " << errno << std::endl;
+                                std::cout << "\nBlockDevice.write errno: " << errno << std::endl;
                                 return errno;
                             }
                             dmap.set(currentBlock);
@@ -147,7 +147,7 @@ int main(int argc, char *argv[]) {
 
                             ret = fat.addNextToFAT(lastBlock, currentBlock);
                             if (ret < 0) {
-                                if (debug) std::cout << "\nFAT.addToFAT errno: " << errno << std::endl;
+                                std::cout << "\nFAT.addToFAT errno: " << errno << std::endl;
                                 return errno;
                             }
 
@@ -157,7 +157,7 @@ int main(int argc, char *argv[]) {
                         fat.addLastToFAT(currentBlock);
                         ret = root.update(stats);
                         if (ret < 0) {
-                            if (debug) std::cout << "Root.update errno: " << errno << std::endl;
+                            std::cout << "Root.update errno: " << errno << std::endl;
                             return errno;
                         }
                         superblock.emptySpaceSize -= stats.size;
@@ -174,7 +174,7 @@ int main(int argc, char *argv[]) {
                 ret = blockDevice->close();
                 if (ret < 0) {
                     if (debug) std::cout << "failed" << std::endl;
-                    if (debug) std::cout << "Error at blockdevice.close():" << ret << " (description: " << errno << ")" << std::endl;
+                    std::cout << "Error at blockdevice.close():" << ret << " (description: " << errno << ")" << std::endl;
                 } else {
                     if (debug) std::cout << "successful!" << std::endl;
                 }
@@ -183,7 +183,7 @@ int main(int argc, char *argv[]) {
                 ret = blockDevice->open(argv[1]);
                 if (ret < 0) {
                     if (debug) std::cout << "failed" << std::endl;
-                    if (debug) std::cout << "Error at blockdevice.open(" << argv[1] << "):" << ret << " (description: " << errno << ")" << std::endl;
+                    std::cout << "Error at blockdevice.open(" << argv[1] << "):" << ret << " (description: " << errno << ")" << std::endl;
                 } else {
                     if (debug) std::cout << "successful!" << std::endl;
                 }
@@ -279,14 +279,14 @@ int main(int argc, char *argv[]) {
                 delete[] rootArray;
 
             } else {
-                if (debug) std::cout << "The files to copy are to big for the filesystem. Aborting" << std::endl;
+                std::cout << "The files to copy are to big for the filesystem. Aborting" << std::endl;
                 return errno;
             }
         }
 
         blockDevice->close();
     } else {
-        if (debug) std::cout << "Invalid Arguments: Name of Containerfile missing!" << std::endl;
+        std::cout << "Invalid Arguments: Name of Containerfile missing!" << std::endl;
         return errno = 666;
     }
     return 0;
