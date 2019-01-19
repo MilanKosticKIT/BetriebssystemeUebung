@@ -423,18 +423,17 @@ TEST_CASE("MyFS.getAttr, Error codes", "[MyFS]") {
     remove((char*) TEST_FILESYSTEM);
 }
 
-TEST_CASE("MyFS.Mknod", "[MyFS]") {
+TEST_CASE("MyFS.Mknod, MyFS.Unlink", "[MyFS]") {
     MyFS* myfs = new MyFS();
     system("./mkfs.myfs " TEST_FILESYSTEM " " TEST_FILE);
     myfs->initializeFilesystem((char*) TEST_FILESYSTEM);
 
     fuse_file_info fileInfo = {};
+    struct stat stats;
 
     SECTION("Create file") {
         myfs->fuseMknod((char*) "NeueDatei", 0777, 0);
-        Root* root = myfs->getRoot();
-        fileStats stats;
-        REQUIRE(root->get("NeueDatei", &stats) >= 0);
+        REQUIRE(myfs->fuseGetattr("NeueDatei", &stats) == 0);
     }
 
     SECTION("Create already existing file") {
@@ -444,12 +443,28 @@ TEST_CASE("MyFS.Mknod", "[MyFS]") {
 
     SECTION("Create same file twice") {
         REQUIRE(myfs->fuseMknod((char*) "NeueDatei", 0777, 0) == 0);
-        Root* root = myfs->getRoot();
-        fileStats stats;
-        REQUIRE(root->get("NeueDatei", &stats) >= 0);
+        REQUIRE(myfs->fuseGetattr("NeueDatei", &stats) == 0);
         int ret = myfs->fuseMknod((char*) "NeueDatei", 0777, 0);
         REQUIRE(ret == -EEXIST);
     }
+
+    SECTION("Delete existing file") {
+        REQUIRE(myfs->fuseUnlink((char*) TEST_FILE) == 0);
+        REQUIRE(myfs->fuseGetattr(TEST_FILE, &stats) == -ENOENT);
+    }
+
+    SECTION("Delete nonexistent file") {
+        REQUIRE(myfs->fuseUnlink((char*) NONEXISTENT_FILE) == -ENOENT);
+    }
+
+    SECTION("Create and delete file") {
+        REQUIRE(myfs->fuseGetattr("NeueDatei", &stats) == -ENOENT);
+        REQUIRE(myfs->fuseMknod((char*) "NeueDatei", 0777, 0) == 0);
+        REQUIRE(myfs->fuseGetattr("NeueDatei", &stats) == 0);
+        REQUIRE(myfs->fuseUnlink((char*)"NeueDatei") == 0);
+        REQUIRE(myfs->fuseGetattr("NeueDatei", &stats) == -ENOENT);
+    }
+
 
     delete myfs;
     remove((char*) TEST_FILESYSTEM);
