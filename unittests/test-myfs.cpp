@@ -13,6 +13,7 @@
 #include "myfs.h"
 
 #define TEST_FILESYSTEM "Test-Filesystem"
+#define TEST_FILE "Testfile"
 
 // TODO: Write tests
 
@@ -29,28 +30,37 @@ TEST_CASE("MyFS.Methode", "[MyFS]") {
     // TODO: Implement test. This is a template for tests.
 }
 
-TEST_CASE("MyFS.open", "[MyFS]") {
-    MyFS *myfs = new MyFS();
-    system("./mkfs.myfs " TEST_FILESYSTEM " " TEST_FILE);
+TEST_CASE("MyFS.write", "[MyFS]") {
 
-    SECTION("Open one file") {
-#define TEST_FILE "Makefile"
-        myfs->initializeFilesystem(TEST_FILESYSTEM);
+    MyFS* myfs = new MyFS();
+    system("./mkfs.myfs " TEST_FILESYSTEM TEST_FILE);
+    myfs->initializeFilesystem(TEST_FILESYSTEM);
+    fuse_file_info fileInfo = {};
 
-        Root root = myfs->getRoot();
-        for (int i = 0; i < 5; i++) {
-            if (root.exists(i)) {
-                char* name;
-                root.getName(i, &name);
-                std::cout << "Eintrag " << i << " Name: " << name << std::endl;
-            } else {
-                std::cout << "Eintrag " << i << " leer" << std::endl;
-            }
-        }
+    SECTION("Anfang der Datei schreiben"){
+        const char* writebuffer= {"Test test test"};
+        size_t size = 14;
+        char* readbuffer = (char*) malloc(14);
+        off_t offset = 0;
+        fileInfo.flags = O_RDWR;
 
-        fuse_file_info fileInfo = {};
-        fileInfo.flags = O_RDONLY;
-        int ret = myfs->fuseOpen(TEST_FILE, &fileInfo);
-        REQUIRE(ret == 0);
+        myfs->fuseOpen(TEST_FILE, &fileInfo);
+        myfs->fuseWrite(TEST_FILE, writebuffer, size, offset, &fileInfo);
+
+        myfs->fuseRead(TEST_FILE, readbuffer, size, offset, &fileInfo);
+
+        std::cout << readbuffer << std::endl;
+        std::cout << writebuffer << std::endl;
+        REQUIRE(memcmp(readbuffer, writebuffer, size) == 0);
+
+
     }
+
+
 }
+
+
+
+
+
+
