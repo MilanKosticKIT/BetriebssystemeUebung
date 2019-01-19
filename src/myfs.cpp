@@ -11,7 +11,7 @@
 #undef DEBUG
 
 // TODO: Comment this to reduce debug messages
-//#define DEBUG
+#define DEBUG
 //#define DEBUG_METHODS
 //#define DEBUG_RETURN_VALUES
 
@@ -375,16 +375,19 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
 
     uint16_t bufferBlockNumber = FAT_TERMINATOR;
     char buffer[BLOCK_SIZE];
+    size_t readSize;
+    if (blockOffset + size < BLOCK_SIZE) {
+        readSize = size;
+    } else {
+        readSize = BLOCK_SIZE - (size_t)blockOffset;
+    }
     if (openFiles[fd].bufferBlockNumber == blocks[0]) {
-        memcpy(buf, openFiles[fd].buffer + blockOffset, BLOCK_SIZE - (size_t)blockOffset);
+        memcpy(buf, openFiles[fd].buffer + blockOffset, readSize);
         bufferBlockNumber = blocks[0];
     } else {
         blockDevice->read(DATA_START + blocks[0], buffer);
-        LOGF("fh: %d", fd);
-        LOGF("Size: %d", (int)size);
-        memcpy(buf, buffer + blockOffset, BLOCK_SIZE - (size_t)blockOffset);
-        LOGF("fh: %d", fd);
-        LOGF("Size: %d", (int)size);
+        memcpy(buf, buffer + blockOffset, readSize);
+        bufferBlockNumber = blocks[0];
     }
 
     for (int j = 1; j < howManyBlocks - 1; j++) {
@@ -472,12 +475,18 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
     }
 
     char buffer[BLOCK_SIZE];
+    size_t writeSize;
+    if (blockOffset + size < BLOCK_SIZE) {
+        writeSize = size;
+    } else {
+        writeSize = BLOCK_SIZE - (size_t)blockOffset;
+    }
     if (openFiles[fd].bufferBlockNumber == blocks[0]) {
-        memcpy(openFiles[fd].buffer + blockOffset, buf, BLOCK_SIZE - blockOffset);
+        memcpy(openFiles[fd].buffer + blockOffset, buf, writeSize);
         blockDevice->write(DATA_START + blocks[0], openFiles[fd].buffer);
     } else {
         blockDevice->read(DATA_START + blocks[0], buffer);
-        memcpy(buffer + blockOffset, buf, BLOCK_SIZE - blockOffset);
+        memcpy(buffer + blockOffset, buf, writeSize);
         blockDevice->write(DATA_START + blocks[0], buffer);
     }
     for (int j = 1; j < howManyBlocks - 1; j++) {
