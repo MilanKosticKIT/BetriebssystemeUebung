@@ -102,14 +102,14 @@ int main(int argc, char *argv[]) {
                         if (debug) std::cout << "errno: " << errno << std::endl;
                         return errno;
                     } else {
-                        ret = root.createEntry(filename, 0644); // "create file"
+                        stat(argv[i], &bufferTime);
+                        ret = root.createEntry(filename, bufferTime.st_mode); // "create file"
                         if (ret < 0) {
                             if (debug) std::cout << "Root.createEntry errno: " << errno << std::endl;
                             return errno;
                         }
                         fileStats stats;
                         ret = root.get(filename, &stats); // get file stats
-                        stat(argv[i], &bufferTime);
                         stats.change_time = bufferTime.st_ctime;
                         root.update(stats);
                         if (ret < 0) {
