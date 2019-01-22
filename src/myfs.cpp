@@ -430,7 +430,7 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
     if (file.size < offset){
        size_t sizeZero = offset - file.size;
        char bufferZero[sizeZero];
-       for (int i = 0; i < sizeof(bufferZero); i++) {
+       for (int i = 0; i < (int)sizeZero; i++) {
            bufferZero[i] = 0;
        }
 
