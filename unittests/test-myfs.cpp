@@ -366,6 +366,51 @@ TEST_CASE("MyFS.read", "[MyFS]") {
     remove((char*) TEST_FILESYSTEM);
 }
 
+TEST_CASE("MyFS, various tests with large files", "[MyFS]") {
+    std::cout << "Tests with large files. Please be patient." << std::endl;
+    MyFS* myfs = new MyFS();
+
+    system("./mkfs.myfs " TEST_FILESYSTEM " " "numbers.txt");
+    myfs->initializeFilesystem((char*) TEST_FILESYSTEM);
+
+    fuse_file_info fileInfo = {};
+
+    SECTION("Compare with large test file outside of filesystem") {
+        int fd = open((char*)"numbers.txt", O_RDONLY);
+        REQUIRE(fd >= 0);
+        fileInfo.flags = O_RDONLY;
+        REQUIRE(myfs->fuseOpen((char*)"numbers.txt", &fileInfo) == 0);
+
+        size_t size = 100;
+        off_t offset = 0;
+        char buffer[size];
+        char otherBuffer[size];
+
+        ssize_t readBytes = 0;
+        int ret = 0;
+        bool sameValue = true;
+        do {
+            readBytes = read(fd, buffer, size);
+            ret = myfs->fuseRead((char*)"numbers.txt", otherBuffer, size, offset, &fileInfo);
+            offset += size;
+            if(readBytes != ret || memcmp(buffer, otherBuffer, (size_t)readBytes) != 0) {
+                sameValue = false;
+                break;
+            }
+        } while(readBytes != 0);
+
+        close(fd);
+        myfs->fuseRelease((char*)"numbers.txt", &fileInfo);
+
+        REQUIRE(sameValue);
+    }
+
+    std::cout << "Tests with large files completed!" << std::endl;
+
+    delete myfs;
+    remove((char*) TEST_FILESYSTEM);
+}
+
 TEST_CASE("MyFS.getAttr, Existing File", "[MyFS]"){
     system("touch Test_File_1.txt");
     system("chmod 0444 Test_File_1.txt");
