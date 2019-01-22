@@ -370,6 +370,7 @@ TEST_CASE("MyFS, various tests with large files", "[MyFS]") {
     myfs->initializeFilesystem((char*) TEST_FILESYSTEM);
 
     fuse_file_info fileInfo = {};
+    struct stat stats;
 
     SECTION("Compare with large test file outside of filesystem") {
         int fd = open((char*)"numbers.txt", O_RDONLY);
@@ -399,6 +400,16 @@ TEST_CASE("MyFS, various tests with large files", "[MyFS]") {
         myfs->fuseRelease((char*)"numbers.txt", &fileInfo);
 
         REQUIRE(sameValue);
+    }
+
+    SECTION("Create file with full filesystem") {
+        REQUIRE(myfs->fuseCreate((char*)NONEXISTENT_FILE, 0777, &fileInfo) == -ENOSPC);
+    }
+
+    SECTION("Delete file with full filesystem and then create new file") {
+        REQUIRE(myfs->fuseUnlink("numbers.txt") == 0);
+        REQUIRE(myfs->fuseGetattr("numbers.txt", &stats) == -ENOENT);
+        REQUIRE(myfs->fuseCreate((char*)NONEXISTENT_FILE, 0777, &fileInfo) == 0);
     }
 
     std::cout << "Tests with large files completed!" << std::endl;

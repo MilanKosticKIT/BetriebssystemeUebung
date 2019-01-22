@@ -609,9 +609,15 @@ int MyFS::fuseTruncate(const char *path, off_t offset, struct fuse_file_info *fi
 int MyFS::fuseCreate(const char *path, mode_t mode, struct fuse_file_info *fileInfo) {
     LOGM();
     dev_t dev = 0;
-    fuseMknod(path, mode, dev);
-    fuseOpen(path, fileInfo);
-
+    int ret = fuseMknod(path, mode, dev);
+    if (ret < 0) {
+        RETURN(ret);
+    }
+    ret = fuseOpen(path, fileInfo);
+    if (ret < 0) {
+        RETURN(ret);
+    }
+    
     RETURN(0);
 }
 
