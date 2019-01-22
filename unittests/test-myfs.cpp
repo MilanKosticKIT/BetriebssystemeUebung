@@ -74,8 +74,6 @@ TEST_CASE("MyFS.write", "[MyFS]") {
         size_t size = sizeof(writebuffer);
         char readbuffer[size];
         off_t offset = TESTFILE_SIZE;
-        std::cout << "Size offset: " << offset << std::endl;
-        std::cout << "sizeof(Test_FILE): " << sizeof(TEST_FILE) << std::endl;
         fileInfo.flags = O_RDWR;
 
         int ret = myfs->fuseOpen(TEST_FILE, &fileInfo);
@@ -93,7 +91,6 @@ TEST_CASE("MyFS.write", "[MyFS]") {
         size_t size = sizeof(writebuffer);
         char readbuffer[size];
         off_t offset = TESTFILE_SIZE/2;
-        std::cout << "Size offset: " << offset << std::endl;
         fileInfo.flags = O_RDWR;
 
         int ret = myfs->fuseOpen(TEST_FILE, &fileInfo);
@@ -332,7 +329,6 @@ TEST_CASE("MyFS.read", "[MyFS]") {
         char buffer[size];
         char otherBuffer[size];
 
-        ssize_t readBytes = 0;
         int ret = 0;
         int otherRet = 0;
         bool sameValue = true;
