@@ -74,8 +74,6 @@ TEST_CASE("MyFS.write", "[MyFS]") {
         size_t size = sizeof(writebuffer);
         char readbuffer[size];
         off_t offset = TESTFILE_SIZE;
-        std::cout << "Size offset: " << offset << std::endl;
-        std::cout << "sizeof(Test_FILE): " << sizeof(TEST_FILE) << std::endl;
         fileInfo.flags = O_RDWR;
 
         int ret = myfs->fuseOpen(TEST_FILE, &fileInfo);
@@ -93,7 +91,6 @@ TEST_CASE("MyFS.write", "[MyFS]") {
         size_t size = sizeof(writebuffer);
         char readbuffer[size];
         off_t offset = TESTFILE_SIZE/2;
-        std::cout << "Size offset: " << offset << std::endl;
         fileInfo.flags = O_RDWR;
 
         int ret = myfs->fuseOpen(TEST_FILE, &fileInfo);
@@ -332,7 +329,6 @@ TEST_CASE("MyFS.read", "[MyFS]") {
         char buffer[size];
         char otherBuffer[size];
 
-        ssize_t readBytes = 0;
         int ret = 0;
         int otherRet = 0;
         bool sameValue = true;
@@ -361,6 +357,62 @@ TEST_CASE("MyFS.read", "[MyFS]") {
 
         REQUIRE(sameValue);
     }
+
+    delete myfs;
+    remove((char*) TEST_FILESYSTEM);
+}
+
+TEST_CASE("MyFS, various tests with large files", "[MyFS]") {
+    std::cout << "Tests with large files. Please be patient." << std::endl;
+    MyFS* myfs = new MyFS();
+
+    system("./mkfs.myfs " TEST_FILESYSTEM " " "numbers.txt");
+    myfs->initializeFilesystem((char*) TEST_FILESYSTEM);
+
+    fuse_file_info fileInfo = {};
+    struct stat stats;
+
+    SECTION("Compare with large test file outside of filesystem") {
+        int fd = open((char*)"numbers.txt", O_RDONLY);
+        REQUIRE(fd >= 0);
+        fileInfo.flags = O_RDONLY;
+        REQUIRE(myfs->fuseOpen((char*)"numbers.txt", &fileInfo) == 0);
+
+        size_t size = 100;
+        off_t offset = 0;
+        char buffer[size];
+        char otherBuffer[size];
+
+        ssize_t readBytes = 0;
+        int ret = 0;
+        bool sameValue = true;
+        do {
+            readBytes = read(fd, buffer, size);
+            ret = myfs->fuseRead((char*)"numbers.txt", otherBuffer, size, offset, &fileInfo);
+            offset += size;
+            if(readBytes != ret || memcmp(buffer, otherBuffer, (size_t)readBytes) != 0) {
+                sameValue = false;
+                break;
+            }
+        } while(readBytes != 0);
+
+        close(fd);
+        myfs->fuseRelease((char*)"numbers.txt", &fileInfo);
+
+        REQUIRE(sameValue);
+    }
+
+    SECTION("Create file with full filesystem") {
+        REQUIRE(myfs->fuseCreate((char*)NONEXISTENT_FILE, 0777, &fileInfo) == -ENOSPC);
+    }
+
+    SECTION("Delete file with full filesystem and then create new file") {
+        REQUIRE(myfs->fuseUnlink("numbers.txt") == 0);
+        REQUIRE(myfs->fuseGetattr("numbers.txt", &stats) == -ENOENT);
+        REQUIRE(myfs->fuseCreate((char*)NONEXISTENT_FILE, 0777, &fileInfo) == 0);
+    }
+
+    std::cout << "Tests with large files completed!" << std::endl;
 
     delete myfs;
     remove((char*) TEST_FILESYSTEM);

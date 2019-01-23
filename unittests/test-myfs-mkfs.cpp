@@ -33,9 +33,11 @@ TEST_CASE("Creating simple Filsystem","[mkfs.myfs]"){
         system("mkdir folder");
         system("cp Makefile ./folder/Makefile");
         int status = system("./mkfs.myfs Binary.bin Makefile ./file/Makefile");
-        system("rmdir folder -rf");
+        system("rm folder -rf");
         REQUIRE(status != 0);
     }
+
+    remove("Binary.bin");
 }
 TEST_CASE("Creating Filesystem with a lot files", "[mkfs.myfs]") {
     //Create files
@@ -183,6 +185,8 @@ TEST_CASE("Creating Filesystem with a lot files", "[mkfs.myfs]") {
     system("rm 63.txt");
     system("rm 64.txt");
     system("rm 65.txt");
+
+    remove("Binary.bin");
 }
 
 

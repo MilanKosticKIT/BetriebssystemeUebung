@@ -11,9 +11,9 @@
 #undef DEBUG
 
 // TODO: Comment this to reduce debug messages
-#define DEBUG
-#define DEBUG_METHODS
-#define DEBUG_RETURN_VALUES
+//#define DEBUG
+//#define DEBUG_METHODS
+//#define DEBUG_RETURN_VALUES
 
 #include <errno.h>
 #include <string>
@@ -429,12 +429,10 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
         RETURN(-errno);
     }
     if (file.size < offset){
-
-        size_t sizeZero = offset - file.size;
+       size_t sizeZero = offset - file.size;
        char bufferZero[sizeZero];
-       for (int i = 0; i < sizeof(bufferZero); i++) {
+       for (int i = 0; i < (int)sizeZero; i++) {
            bufferZero[i] = 0;
-
        }
 
        int ret = fuseWrite(path, bufferZero, sizeZero, file.size, fileInfo);
@@ -612,9 +610,15 @@ int MyFS::fuseTruncate(const char *path, off_t offset, struct fuse_file_info *fi
 int MyFS::fuseCreate(const char *path, mode_t mode, struct fuse_file_info *fileInfo) {
     LOGM();
     dev_t dev = 0;
-    fuseMknod(path, mode, dev);
-    fuseOpen(path, fileInfo);
-
+    int ret = fuseMknod(path, mode, dev);
+    if (ret < 0) {
+        RETURN(ret);
+    }
+    ret = fuseOpen(path, fileInfo);
+    if (ret < 0) {
+        RETURN(ret);
+    }
+    
     RETURN(0);
 }
 
