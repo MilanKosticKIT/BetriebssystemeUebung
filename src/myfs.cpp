@@ -352,8 +352,8 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
     if (file.size <= offset){
         RETURN(0); //EOF
     }
-    if ((uint64_t)file.size < offset + size) {
-        size = file.size - offset;
+    if ((uint64_t)file.size < offset + size) {//TODO uint32_t
+        size = file.size - offset;//TODO WHY?
     }
 
     file.last_time = time(NULL);    //set the access time to current time
@@ -394,11 +394,12 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
         }
     }
     for (int j = 1; j < howManyBlocks - 1; j++) {
-        blockDevice->read(DATA_START + blocks[j], buf - blockOffset + BLOCK_SIZE * j);
+        blockDevice->read(DATA_START + blocks[j], buf - blockOffset + BLOCK_SIZE * j); //Why (-blockOffset)?
+	LOGF("Block %d wird gelesen",blocks[j]);//new testing TODO delete
     }
     if (howManyBlocks > 1) {
         blockDevice->read(DATA_START + blocks[howManyBlocks - 1], buffer);
-        memcpy(buf - blockOffset + (howManyBlocks - 1) * BLOCK_SIZE, buffer, (size + blockOffset) % BLOCK_SIZE);
+        memcpy(buf - blockOffset + (howManyBlocks - 1) * BLOCK_SIZE, buffer, (size + blockOffset) % BLOCK_SIZE); //TODO check whether it shloud be memcpy(openfiles[fd].buffer, ...
 
         memcpy(openFiles[fd].buffer, buffer, BLOCK_SIZE);
         openFiles[fd].bufferBlockNumber = blocks[howManyBlocks - 1];
