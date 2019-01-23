@@ -47,6 +47,7 @@ int createFile(char* name, off_t fileSize) {
             }
         }
     }
+    write(fd, buffer, (fileSize % size));
 
     close(fd);
     return 0;

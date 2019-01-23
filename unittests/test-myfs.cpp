@@ -20,7 +20,7 @@
 // TODO: Write tests
 
 TEST_CASE("MyFS.Methode", "[MyFS]") {
-    createFile("TestDatei.test", DATA_BYTES);
+    createFile((char*)"TestDatei.test", DATA_BYTES);
 
     MyFS* myfs = new MyFS();
     system("./mkfs.myfs " TEST_FILESYSTEM " " TEST_FILE);

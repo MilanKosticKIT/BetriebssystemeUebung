@@ -12,8 +12,8 @@
 
 // TODO: Comment this to reduce debug messages
 #define DEBUG
-#define DEBUG_METHODS
-#define DEBUG_RETURN_VALUES
+//#define DEBUG_METHODS
+//#define DEBUG_RETURN_VALUES
 
 #include <errno.h>
 #include <string>
@@ -57,7 +57,6 @@ int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
     int res = root.get(name, &fileStats1);
     if (res == -1){
         LOG(path);
-        LOG(name);
         RETURN(-errno);
     }
 
@@ -73,8 +72,6 @@ int MyFS::fuseGetattr(const char *path, struct stat *statbuf) {
 
     *statbuf = stats;
 
-    LOG(path);
-    LOG(name);
     RETURN(0);
 }
 
