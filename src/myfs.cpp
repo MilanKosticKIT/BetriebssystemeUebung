@@ -393,7 +393,7 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
     }
     for (int j = 1; j < howManyBlocks - 1; j++) {
         blockDevice->read(DATA_START + blocks[j], buf - blockOffset + BLOCK_SIZE * j); //Why (-blockOffset)?
-	LOGF("Block %d wird gelesen",blocks[j]);//new testing TODO delete
+	       LOGF("Block %d wird gelesen",blocks[j]);//new testing TODO delete
     }
     if (howManyBlocks > 1) {
         blockDevice->read(DATA_START + blocks[howManyBlocks - 1], buffer);
@@ -449,18 +449,25 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
     if ((size + blockOffset) % BLOCK_SIZE != 0) howManyBlocks++;
 
     uint16_t currentBlock = file.first_block;
+    uint16_t previousBlock = currentBlock;
     for (int t = 0; t < blockNo ; t++){ // skip blockNo blocks
+        if (currentBlock != FAT_TERMINATOR) {
+            previousBlock = currentBlock;
+        }
         fat.getNext(currentBlock, &currentBlock);
     }
 
     uint16_t blocks[howManyBlocks]; //saves all block locations needed for this operation
-    uint16_t previousBlock = currentBlock;
     int existingBlockCount = 0;
     while (currentBlock != FAT_TERMINATOR && existingBlockCount < howManyBlocks) {
         blocks[existingBlockCount] = currentBlock;
         existingBlockCount++;
         previousBlock = currentBlock;
         fat.getNext(currentBlock, &currentBlock);
+    }
+    LOGF("existingBlockCount: %d", existingBlockCount);
+    for(int i = 0; i < existingBlockCount; i++) {
+        LOGF("blocks[%d] = %d", i, blocks[i]);
     }
     int missingBlockCount = howManyBlocks - existingBlockCount;
     uint16_t nextBlock = currentBlock;
@@ -476,6 +483,11 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
             missingBlockCount--;
         }
         fat.addLastToFAT(nextBlock);
+    }
+
+    LOGF("Block to read: %d", howManyBlocks);
+    for(int i = 0; i < howManyBlocks; i++) {
+        LOGF("blocks[%d] = %d", i, blocks[i]);
     }
 
     char buffer[BLOCK_SIZE];
@@ -494,11 +506,13 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
         blockDevice->write(DATA_START + blocks[0], buffer);
     }
     for (int j = 1; j < howManyBlocks - 1; j++) {
-        blockDevice->write(DATA_START + blocks[j], buf - blockOffset + BLOCK_SIZE * j);
+        blockDevice->write(DATA_START + blocks[j], buf + (BLOCK_SIZE * j) - blockOffset);
     }
     if (howManyBlocks > 1) {
+    	  writeSize = (size + blockOffset) % BLOCK_SIZE;
+    	  if (writeSize == 0) writeSize = BLOCK_SIZE;
         blockDevice->read(DATA_START + blocks[howManyBlocks - 1], buffer);
-        memcpy(buffer, buf - blockOffset + (howManyBlocks - 1) * BLOCK_SIZE, (size + blockOffset) % BLOCK_SIZE);
+        memcpy(buffer, buf + ((howManyBlocks - 1) * BLOCK_SIZE) - blockOffset, writeSize);
         blockDevice->write(DATA_START + blocks[howManyBlocks - 1], buffer);
     }
 
