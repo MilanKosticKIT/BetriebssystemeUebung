@@ -477,3 +477,39 @@ TEST_CASE("MyFS.Mknod, MyFS.Unlink", "[MyFS]") {
     remove((char*) TEST_FILESYSTEM);
 }
 
+TEST_CASE("Lots of files" , "[MyFS]") {	
+    MyFS* myfs = new MyFS();
+    system("./mkfs.myfs " TEST_FILESYSTEM " " TEST_FILE);
+    myfs->initializeFilesystem((char*) TEST_FILESYSTEM);
+
+    fuse_file_info fileInfo = {};
+
+    SECTION("Creating 64 files") {
+        // TODO: Implement test. This is a template for tests.
+        REQUIRE(0 == 0); // TODO: add assertions
+    }
+
+    SECTION("Creating 65 files") {
+        // TODO: Implement test. This is a template for tests.
+        REQUIRE(0 == 0); // TODO: add assertions
+    }
+
+    SECTION("Creating 63 files") {
+        // TODO: Implement test. This is a template for tests.
+        REQUIRE(0 == 0); // TODO: add assertions
+    }
+
+    SECTION("Creating 12 files in addition, to big") {
+        // TODO: Implement test. This is a template for tests.
+        REQUIRE(0 == 0); // TODO: add assertions
+    }
+
+    SECTION("Switching files, all ones would be too big") {
+        // TODO: Implement test. This is a template for tests.
+        REQUIRE(0 == 0); // TODO: add assertions
+    }
+
+    delete myfs;
+    remove((char*) TEST_FILESYSTEM);
+
+}
