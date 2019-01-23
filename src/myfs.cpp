@@ -11,9 +11,9 @@
 #undef DEBUG
 
 // TODO: Comment this to reduce debug messages
-//#define DEBUG
-//#define DEBUG_METHODS
-//#define DEBUG_RETURN_VALUES
+#define DEBUG
+#define DEBUG_METHODS
+#define DEBUG_RETURN_VALUES
 
 #include <errno.h>
 #include <string>
@@ -148,10 +148,11 @@ int MyFS::fuseUnlink(const char *path) {
     fat.iterateFAT(file.first_block, &list);
     for (iterator = list.begin(); iterator != list.end(); ++iterator){
         dmap.clear(*iterator);
+        LOGF("Cleared Block: %d", *iterator);
     }
     fat.deleteFromFAT(file.first_block);
 
-    superblock.emptySpaceSize += file.size;
+    //superblock.emptySpaceSize += file.size;
     ret = root.deleteEntry(name);
     if (ret < 0) {
         RETURN(-errno);
@@ -618,7 +619,7 @@ int MyFS::fuseCreate(const char *path, mode_t mode, struct fuse_file_info *fileI
     if (ret < 0) {
         RETURN(ret);
     }
-    
+
     RETURN(0);
 }
 

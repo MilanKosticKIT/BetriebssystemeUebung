@@ -11,4 +11,6 @@
 
 void gen_random(char *s, const int len);
 
+int createFile(char* name, off_t fileSize);
+
 #endif /* helper_hpp */

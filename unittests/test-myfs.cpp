@@ -20,6 +20,8 @@
 // TODO: Write tests
 
 TEST_CASE("MyFS.Methode", "[MyFS]") {
+    createFile("TestDatei.test", DATA_BYTES);
+
     MyFS* myfs = new MyFS();
     system("./mkfs.myfs " TEST_FILESYSTEM " " TEST_FILE);
     myfs->initializeFilesystem((char*) TEST_FILESYSTEM);
@@ -529,7 +531,7 @@ TEST_CASE("MyFS.Mknod, MyFS.Unlink", "[MyFS]") {
     remove((char*) TEST_FILESYSTEM);
 }
 
-TEST_CASE("Lots of files" , "[MyFS]") {	
+TEST_CASE("Lots of files" , "[MyFS]") {
     MyFS* myfs = new MyFS();
     system("./mkfs.myfs " TEST_FILESYSTEM " " TEST_FILE);
     myfs->initializeFilesystem((char*) TEST_FILESYSTEM);
