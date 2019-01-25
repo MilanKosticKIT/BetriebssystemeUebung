@@ -630,11 +630,7 @@ int MyFS::fuseCreate(const char *path, mode_t mode, struct fuse_file_info *fileI
         RETURN(ret);
     }
     ret = fuseOpen(path, fileInfo);
-    if (ret < 0) {
-        RETURN(ret);
-    }
-
-    RETURN(0);
+    RETURN(ret);
 }
 
 void MyFS::fuseDestroy() {
