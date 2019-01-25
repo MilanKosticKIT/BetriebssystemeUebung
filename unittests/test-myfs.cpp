@@ -27,6 +27,7 @@ TEST_CASE("MyFS.Methode", "[MyFS]") {
     fuse_file_info fileInfo = {};
 
     SECTION("Beschreibung") {
+        //createFile((char*)"Test.max", DATA_BYTES);
         // TODO: Implement test. This is a template for tests.
         REQUIRE(0 == 0); // TODO: add assertions
     }
@@ -290,7 +291,7 @@ TEST_CASE("MyFS.read", "[MyFS]") {
         REQUIRE(ret == -EBADF);
     }
 
-    SECTION("Compare with test file outside of filesystem (small pieces") {
+    SECTION("Compare with test file outside of filesystem (small pieces)") {
         int fd = open((char*)TEST_FILE, O_RDONLY);
         REQUIRE(fd >= 0);
         fileInfo.flags = O_RDONLY;
@@ -492,7 +493,11 @@ TEST_CASE("MyFS, various tests with large files", "[MyFS]") {
         bool success = true;
         do {
             readBytes = read(fd, buffer, size);
-            ret = myfs->fuseWrite((char*)"TestDatei", buffer, readBytes, offset, &fileInfo);
+            if (readBytes < 0) {
+                success = false;
+                break;
+            }
+            ret = myfs->fuseWrite((char*)"TestDatei", buffer, (size_t)readBytes, offset, &fileInfo);
             offset += size;
             if (ret < 0) {
                 success = false;
@@ -501,13 +506,14 @@ TEST_CASE("MyFS, various tests with large files", "[MyFS]") {
         } while(readBytes != 0);
         REQUIRE(success);
 
+        offset = 0;
         char otherBuffer[size];
         bool sameValue = true;
         do {
             readBytes = read(fd, buffer, size);
             ret = myfs->fuseRead((char*)"TestDatei", otherBuffer, size, offset, &fileInfo);
             offset += size;
-            if (ret != 0 || readBytes != ret) {
+            if(readBytes != ret || memcmp(buffer, otherBuffer, (size_t)readBytes) != 0) {
                 sameValue = false;
                 break;
             }
@@ -537,7 +543,11 @@ TEST_CASE("MyFS, various tests with large files", "[MyFS]") {
         bool success = true;
         do {
             readBytes = read(fd, buffer, size);
-            ret = myfs->fuseWrite((char*)"TestDatei", buffer, readBytes, offset, &fileInfo);
+            if (readBytes < 0) {
+                success = false;
+                break;
+            }
+            ret = myfs->fuseWrite((char*)"TestDatei", buffer, (size_t)readBytes, offset, &fileInfo);
             offset += size;
             if (ret < 0) {
                 success = false;
@@ -546,13 +556,14 @@ TEST_CASE("MyFS, various tests with large files", "[MyFS]") {
         } while(readBytes != 0);
         REQUIRE(success);
 
+        offset = 0;
         char otherBuffer[size];
         bool sameValue = true;
         do {
             readBytes = read(fd, buffer, size);
             ret = myfs->fuseRead((char*)"TestDatei", otherBuffer, size, offset, &fileInfo);
             offset += size;
-            if (ret != 0 || readBytes != ret) {
+            if(readBytes != ret || memcmp(buffer, otherBuffer, (size_t)readBytes) != 0) {
                 sameValue = false;
                 break;
             }
@@ -582,7 +593,11 @@ TEST_CASE("MyFS, various tests with large files", "[MyFS]") {
         bool success = true;
         do {
             readBytes = read(fd, buffer, size);
-            ret = myfs->fuseWrite((char*)"TestDatei", buffer, readBytes, offset, &fileInfo);
+            if (readBytes < 0) {
+                success = false;
+                break;
+            }
+            ret = myfs->fuseWrite((char*)"TestDatei", buffer, (size_t)readBytes, offset, &fileInfo);
             offset += size;
             if (ret < 0) {
                 success = false;
@@ -591,13 +606,14 @@ TEST_CASE("MyFS, various tests with large files", "[MyFS]") {
         } while(readBytes != 0);
         REQUIRE(success);
 
+        offset = 0;
         char otherBuffer[size];
         bool sameValue = true;
         do {
             readBytes = read(fd, buffer, size);
             ret = myfs->fuseRead((char*)"TestDatei", otherBuffer, size, offset, &fileInfo);
             offset += size;
-            if (ret != 0 || readBytes != ret) {
+            if(readBytes != ret || memcmp(buffer, otherBuffer, (size_t)readBytes) != 0) {
                 sameValue = false;
                 break;
             }
