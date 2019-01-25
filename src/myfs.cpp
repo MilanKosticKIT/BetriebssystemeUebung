@@ -392,12 +392,15 @@ int MyFS::fuseRead(const char *path, char *buf, size_t size, off_t offset, struc
         }
     }
     for (int j = 1; j < howManyBlocks - 1; j++) {
-        blockDevice->read(DATA_START + blocks[j], buf - blockOffset + BLOCK_SIZE * j); //Why (-blockOffset)?
-	       LOGF("Block %d wird gelesen",blocks[j]);//new testing TODO delete
+        //First read block size was BLOCK_SIZE - blockOffset. This value has to be added to the next read operations.
+        blockDevice->read(DATA_START + blocks[j], buf - blockOffset + BLOCK_SIZE * j);
+	    LOGF("Block %d wird gelesen",blocks[j]);//new testing TODO delete
     }
     if (howManyBlocks > 1) {
+        readSize = (size + blockOffset) % BLOCK_SIZE;
+        if (readSize == 0) readSize = BLOCK_SIZE;
         blockDevice->read(DATA_START + blocks[howManyBlocks - 1], buffer);
-        memcpy(buf - blockOffset + (howManyBlocks - 1) * BLOCK_SIZE, buffer, (size + blockOffset) % BLOCK_SIZE); //TODO check whether it shloud be memcpy(openfiles[fd].buffer, ...
+        memcpy(buf - blockOffset + (howManyBlocks - 1) * BLOCK_SIZE, buffer, readSize);
 
         memcpy(openFiles[fd].buffer, buffer, BLOCK_SIZE);
         openFiles[fd].bufferBlockNumber = blocks[howManyBlocks - 1];
@@ -509,8 +512,8 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
         blockDevice->write(DATA_START + blocks[j], buf + (BLOCK_SIZE * j) - blockOffset);
     }
     if (howManyBlocks > 1) {
-    	  writeSize = (size + blockOffset) % BLOCK_SIZE;
-    	  if (writeSize == 0) writeSize = BLOCK_SIZE;
+        writeSize = (size + blockOffset) % BLOCK_SIZE;
+    	if (writeSize == 0) writeSize = BLOCK_SIZE;
         blockDevice->read(DATA_START + blocks[howManyBlocks - 1], buffer);
         memcpy(buffer, buf + ((howManyBlocks - 1) * BLOCK_SIZE) - blockOffset, writeSize);
         blockDevice->write(DATA_START + blocks[howManyBlocks - 1], buffer);
