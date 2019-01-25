@@ -195,29 +195,28 @@ int MyFS::fuseRename(const char *path, const char *newpath) {
 
 int MyFS::fuseLink(const char *path, const char *newpath) {
     LOGM();
-    return -ENOSYS;
+    return 0;
 }
 
 int MyFS::fuseChmod(const char *path, mode_t mode) {
     LOGM();
-    return -ENOSYS;
+    return 0;
 }
 
 int MyFS::fuseChown(const char *path, uid_t uid, gid_t gid) {
     LOGM();
-    return -ENOSYS;
+    return 0;
 }
 
 int MyFS::fuseTruncate(const char *path, off_t newSize) {
     LOGM();
 
-    RETURN(0); // TODO: don't lie
-    RETURN(-ENOSYS);
+    RETURN(0);
 }
 
 int MyFS::fuseUtime(const char *path, struct utimbuf *ubuf) {
     LOGM();
-    return -ENOSYS;
+    return 0;
 }
 
 int MyFS::fuseOpen(const char *path, struct fuse_file_info *fileInfo) {
@@ -534,12 +533,12 @@ int MyFS::fuseWrite(const char *path, const char *buf, size_t size, off_t offset
 
 int MyFS::fuseStatfs(const char *path, struct statvfs *statInfo) {
     LOGM();
-    return -ENOSYS;
+    return 0;
 }
 
 int MyFS::fuseFlush(const char *path, struct fuse_file_info *fileInfo) {
     LOGM();
-    return -ENOSYS;
+    return 0;
 }
 
 int MyFS::fuseRelease(const char *path, struct fuse_file_info *fileInfo) {
@@ -563,17 +562,17 @@ int MyFS::fuseRelease(const char *path, struct fuse_file_info *fileInfo) {
 
 int MyFS::fuseFsync(const char *path, int datasync, struct fuse_file_info *fi) {
     LOGM();
-    return -ENOSYS;
+    return 0;
 }
 
 int MyFS::fuseListxattr(const char *path, char *list, size_t size) {
     LOGM();
-    return -ENOSYS;
+    return 0;
 }
 
 int MyFS::fuseRemovexattr(const char *path, const char *name) {
     LOGM();
-    return -ENOSYS;
+    return 0;
 }
 
 int MyFS::fuseOpendir(const char *path, struct fuse_file_info *fileInfo) {
@@ -612,14 +611,13 @@ int MyFS::fuseReleasedir(const char *path, struct fuse_file_info *fileInfo) {
 
 int MyFS::fuseFsyncdir(const char *path, int datasync, struct fuse_file_info *fileInfo) {
     LOGM();
-    return -ENOSYS;
+    return 0;
 }
 
 int MyFS::fuseTruncate(const char *path, off_t offset, struct fuse_file_info *fileInfo) {
     LOGM();
 
-    RETURN(0); // TODO: don't lie
-    RETURN(-ENOSYS);
+    RETURN(0);
 }
 
 int MyFS::fuseCreate(const char *path, mode_t mode, struct fuse_file_info *fileInfo) {
@@ -669,7 +667,7 @@ int MyFS::fuseSetxattr(const char *path, const char *name, const char *value, si
 int MyFS::fuseSetxattr(const char *path, const char *name, const char *value, size_t size, int flags) {
 #endif
     LOGM();
-    return -ENOSYS;
+    return 0;
 }
 
 #ifdef __APPLE__
@@ -678,7 +676,7 @@ int MyFS::fuseGetxattr(const char *path, const char *name, char *value, size_t s
 int MyFS::fuseGetxattr(const char *path, const char *name, char *value, size_t size) {
 #endif
     LOGM();
-    return -ENOSYS;
+    return 0;
 }
 
 // TODO: Add your own additional methods here!
