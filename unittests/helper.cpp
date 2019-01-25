@@ -28,7 +28,8 @@ void gen_random(char *s, const int len) {
 
 int createFile(char* name, off_t fileSize) {
     std::cout << "Creating file " << name << " (size : " << fileSize << ")" << std::endl;
-    int fd = open(name, O_CREAT | 0666);
+
+    int fd = creat(name, 0644);
     if (fd < 0) return -1;
     size_t size = 10;
     char buffer[size];
@@ -50,6 +51,7 @@ int createFile(char* name, off_t fileSize) {
     write(fd, buffer, (fileSize % size));
 
     close(fd);
+    chmod(name, 0644);
     return 0;
 }
 

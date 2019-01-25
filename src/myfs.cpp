@@ -11,7 +11,7 @@
 #undef DEBUG
 
 // TODO: Comment this to reduce debug messages
-#define DEBUG
+//#define DEBUG
 //#define DEBUG_METHODS
 //#define DEBUG_RETURN_VALUES
 

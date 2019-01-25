@@ -20,8 +20,6 @@
 // TODO: Write tests
 
 TEST_CASE("MyFS.Methode", "[MyFS]") {
-    createFile((char*)"TestDatei.test", DATA_BYTES);
-
     MyFS* myfs = new MyFS();
     system("./mkfs.myfs " TEST_FILESYSTEM " " TEST_FILE);
     myfs->initializeFilesystem((char*) TEST_FILESYSTEM);
@@ -368,17 +366,18 @@ TEST_CASE("MyFS, various tests with large files", "[MyFS]") {
     std::cout << "Tests with large files. Please be patient." << std::endl;
     MyFS* myfs = new MyFS();
 
-    system("./mkfs.myfs " TEST_FILESYSTEM " " "numbers.txt");
+    createFile((char*)"TestDatei", DATA_BYTES);
+    system("./mkfs.myfs " TEST_FILESYSTEM " " "TestDatei");
     myfs->initializeFilesystem((char*) TEST_FILESYSTEM);
 
     fuse_file_info fileInfo = {};
     struct stat stats;
 
-    SECTION("Compare with large test file outside of filesystem") {
-        int fd = open((char*)"numbers.txt", O_RDONLY);
+    SECTION("Compare with large test file outside of filesystem, chunks of 100 byte") {
+        int fd = open((char*)"TestDatei", O_RDONLY);
         REQUIRE(fd >= 0);
         fileInfo.flags = O_RDONLY;
-        REQUIRE(myfs->fuseOpen((char*)"numbers.txt", &fileInfo) == 0);
+        REQUIRE(myfs->fuseOpen((char*)"TestDatei", &fileInfo) == 0);
 
         size_t size = 100;
         off_t offset = 0;
@@ -390,7 +389,7 @@ TEST_CASE("MyFS, various tests with large files", "[MyFS]") {
         bool sameValue = true;
         do {
             readBytes = read(fd, buffer, size);
-            ret = myfs->fuseRead((char*)"numbers.txt", otherBuffer, size, offset, &fileInfo);
+            ret = myfs->fuseRead((char*)"TestDatei", otherBuffer, size, offset, &fileInfo);
             offset += size;
             if(readBytes != ret || memcmp(buffer, otherBuffer, (size_t)readBytes) != 0) {
                 sameValue = false;
@@ -399,7 +398,67 @@ TEST_CASE("MyFS, various tests with large files", "[MyFS]") {
         } while(readBytes != 0);
 
         close(fd);
-        myfs->fuseRelease((char*)"numbers.txt", &fileInfo);
+        myfs->fuseRelease((char*)"TestDatei", &fileInfo);
+
+        REQUIRE(sameValue);
+    }
+
+    SECTION("Compare with large test file outside of filesystem, chunks of 8192 byte") {
+        int fd = open((char*)"TestDatei", O_RDONLY);
+        REQUIRE(fd >= 0);
+        fileInfo.flags = O_RDONLY;
+        REQUIRE(myfs->fuseOpen((char*)"TestDatei", &fileInfo) == 0);
+
+        size_t size = 8192;
+        off_t offset = 0;
+        char buffer[size];
+        char otherBuffer[size];
+
+        ssize_t readBytes = 0;
+        int ret = 0;
+        bool sameValue = true;
+        do {
+            readBytes = read(fd, buffer, size);
+            ret = myfs->fuseRead((char*)"TestDatei", otherBuffer, size, offset, &fileInfo);
+            offset += size;
+            if(readBytes != ret || memcmp(buffer, otherBuffer, (size_t)readBytes) != 0) {
+                sameValue = false;
+                break;
+            }
+        } while(readBytes != 0);
+
+        close(fd);
+        myfs->fuseRelease((char*)"TestDatei", &fileInfo);
+
+        REQUIRE(sameValue);
+    }
+
+    SECTION("Compare with large test file outside of filesystem, chunks of 512 byte") {
+        int fd = open((char*)"TestDatei", O_RDONLY);
+        REQUIRE(fd >= 0);
+        fileInfo.flags = O_RDONLY;
+        REQUIRE(myfs->fuseOpen((char*)"TestDatei", &fileInfo) == 0);
+
+        size_t size = 512;
+        off_t offset = 0;
+        char buffer[size];
+        char otherBuffer[size];
+
+        ssize_t readBytes = 0;
+        int ret = 0;
+        bool sameValue = true;
+        do {
+            readBytes = read(fd, buffer, size);
+            ret = myfs->fuseRead((char*)"TestDatei", otherBuffer, size, offset, &fileInfo);
+            offset += size;
+            if(readBytes != ret || memcmp(buffer, otherBuffer, (size_t)readBytes) != 0) {
+                sameValue = false;
+                break;
+            }
+        } while(readBytes != 0);
+
+        close(fd);
+        myfs->fuseRelease((char*)"TestDatei", &fileInfo);
 
         REQUIRE(sameValue);
     }
@@ -409,14 +468,151 @@ TEST_CASE("MyFS, various tests with large files", "[MyFS]") {
     }
 
     SECTION("Delete file with full filesystem and then create new file") {
-        REQUIRE(myfs->fuseUnlink("numbers.txt") == 0);
-        REQUIRE(myfs->fuseGetattr("numbers.txt", &stats) == -ENOENT);
-        REQUIRE(myfs->fuseCreate((char*)NONEXISTENT_FILE, 0777, &fileInfo) == 0);
+        REQUIRE(myfs->fuseUnlink("TestDatei") == 0);
+        REQUIRE(myfs->fuseGetattr("TestDatei", &stats) == -ENOENT);
+        REQUIRE(myfs->fuseCreate((char*)NONEXISTENT_FILE, 0777, &fileInfo) >= 0);
+        REQUIRE(myfs->fuseUnlink((char*)NONEXISTENT_FILE) == 0);
+    }
+
+    SECTION("Write file and compare files, chunks of 100 byte") {
+        REQUIRE(myfs->fuseUnlink("TestDatei") == 0);
+        REQUIRE(myfs->fuseMknod("TestDatei", 0666, 0) == 0);
+
+        int fd = open((char*)"TestDatei", O_RDWR);
+        REQUIRE(fd >= 0);
+        fileInfo.flags = O_RDWR;
+        REQUIRE(myfs->fuseOpen((char*)"TestDatei", &fileInfo) == 0);
+
+        size_t size = 100;
+        off_t offset = 0;
+        char buffer[size];
+
+        ssize_t readBytes = 0;
+        int ret = 0;
+        bool success = true;
+        do {
+            readBytes = read(fd, buffer, size);
+            ret = myfs->fuseWrite((char*)"TestDatei", buffer, readBytes, offset, &fileInfo);
+            offset += size;
+            if (ret < 0) {
+                success = false;
+                break;
+            }
+        } while(readBytes != 0);
+        REQUIRE(success);
+
+        char otherBuffer[size];
+        bool sameValue = true;
+        do {
+            readBytes = read(fd, buffer, size);
+            ret = myfs->fuseRead((char*)"TestDatei", otherBuffer, size, offset, &fileInfo);
+            offset += size;
+            if (ret != 0 || readBytes != ret) {
+                sameValue = false;
+                break;
+            }
+        } while(readBytes != 0);
+
+        close(fd);
+        myfs->fuseRelease((char*)"TestDatei", &fileInfo);
+
+        REQUIRE(sameValue);
+    }
+
+    SECTION("Write file and compare files, chunks of 512 byte") {
+        REQUIRE(myfs->fuseUnlink("TestDatei") == 0);
+        REQUIRE(myfs->fuseMknod("TestDatei", 0666, 0) == 0);
+
+        int fd = open((char*)"TestDatei", O_RDWR);
+        REQUIRE(fd >= 0);
+        fileInfo.flags = O_RDWR;
+        REQUIRE(myfs->fuseOpen((char*)"TestDatei", &fileInfo) == 0);
+
+        size_t size = 512;
+        off_t offset = 0;
+        char buffer[size];
+
+        ssize_t readBytes = 0;
+        int ret = 0;
+        bool success = true;
+        do {
+            readBytes = read(fd, buffer, size);
+            ret = myfs->fuseWrite((char*)"TestDatei", buffer, readBytes, offset, &fileInfo);
+            offset += size;
+            if (ret < 0) {
+                success = false;
+                break;
+            }
+        } while(readBytes != 0);
+        REQUIRE(success);
+
+        char otherBuffer[size];
+        bool sameValue = true;
+        do {
+            readBytes = read(fd, buffer, size);
+            ret = myfs->fuseRead((char*)"TestDatei", otherBuffer, size, offset, &fileInfo);
+            offset += size;
+            if (ret != 0 || readBytes != ret) {
+                sameValue = false;
+                break;
+            }
+        } while(readBytes != 0);
+
+        close(fd);
+        myfs->fuseRelease((char*)"TestDatei", &fileInfo);
+
+        REQUIRE(sameValue);
+    }
+
+    SECTION("Write file and compare files, chunks of 8192 byte") {
+        REQUIRE(myfs->fuseUnlink("TestDatei") == 0);
+        REQUIRE(myfs->fuseMknod("TestDatei", 0666, 0) == 0);
+
+        int fd = open((char*)"TestDatei", O_RDWR);
+        REQUIRE(fd >= 0);
+        fileInfo.flags = O_RDWR;
+        REQUIRE(myfs->fuseOpen((char*)"TestDatei", &fileInfo) == 0);
+
+        size_t size = 8192;
+        off_t offset = 0;
+        char buffer[size];
+
+        ssize_t readBytes = 0;
+        int ret = 0;
+        bool success = true;
+        do {
+            readBytes = read(fd, buffer, size);
+            ret = myfs->fuseWrite((char*)"TestDatei", buffer, readBytes, offset, &fileInfo);
+            offset += size;
+            if (ret < 0) {
+                success = false;
+                break;
+            }
+        } while(readBytes != 0);
+        REQUIRE(success);
+
+        char otherBuffer[size];
+        bool sameValue = true;
+        do {
+            readBytes = read(fd, buffer, size);
+            ret = myfs->fuseRead((char*)"TestDatei", otherBuffer, size, offset, &fileInfo);
+            offset += size;
+            if (ret != 0 || readBytes != ret) {
+                sameValue = false;
+                break;
+            }
+        } while(readBytes != 0);
+
+        close(fd);
+        myfs->fuseRelease((char*)"TestDatei", &fileInfo);
+
+        REQUIRE(sameValue);
     }
 
     std::cout << "Tests with large files completed!" << std::endl;
 
     delete myfs;
+    remove((char*)"TestDatei");
     remove((char*) TEST_FILESYSTEM);
 }
 
