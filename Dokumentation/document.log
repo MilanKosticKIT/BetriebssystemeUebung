@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6500 64-bit) (preloaded format=pdflatex 2018.11.12)  22 JAN 2019 15:17
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (MiKTeX 2.9.6500 64-bit) (preloaded format=pdflatex 2018.11.12)  30 JAN 2019 12:13
 entering extended mode
 **./document.tex
 (document.tex
@@ -248,70 +248,71 @@ G,.JBIG2,.JB2,.eps]
 (grfext)             \AppendGraphicsExtensions on input line 456.
 )
 \c@lstlisting=\count113
- (document.toc
-LaTeX Font Info:    Try loading font information for U+msa on input line 2.
+LaTeX Font Info:    Try loading font information for U+msa on input line 18.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsa.fd"
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 2.
+LaTeX Font Info:    Try loading font information for U+msb on input line 18.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsb.fd"
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-))
+) [1
+
+{C:/Users/test/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}] (document.to
+c)
 \tf@toc=\write4
 \openout4 = `document.toc'.
 
- [1
-
-{C:/Users/test/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}]
-Underfull \hbox (badness 10000) in paragraph at lines 24--26
+ [1]
+Underfull \hbox (badness 10000) in paragraph at lines 33--35
 
  []
 
-[2] [3] [4]
-Overfull \hbox (6.54126pt too wide) in paragraph at lines 76--78
+[1] [2] [3]
+Overfull \hbox (6.54126pt too wide) in paragraph at lines 85--87
 \OT1/cmr/m/n/12 wird die Daten-struk-tur zuallererst in einen char pointer geca
 stet. An-schlieend
  []
 
-[5]
-Overfull \hbox (0.73624pt too wide) in paragraph at lines 81--84
+[4]
+Overfull \hbox (0.73624pt too wide) in paragraph at lines 90--93
 \OT1/cmr/m/n/12 Abstanden das Kom-plette Dateisys-tem auf der Fest-platte gesi
 chert, fur diesen
  []
 
-[6]
-Overfull \hbox (4.9822pt too wide) in paragraph at lines 99--103
+[5]
+Overfull \hbox (4.9822pt too wide) in paragraph at lines 108--112
 \OT1/cmr/m/n/12 Ursprunglich war es gedacht den kom-plet-ten $\OML/cmm/m/it/12
  uint\OT1/cmr/m/n/12 16[]$ Adress-raum auszunutzen.
  []
 
 
-Overfull \hbox (11.53783pt too wide) in paragraph at lines 99--103
+Overfull \hbox (11.53783pt too wide) in paragraph at lines 108--112
 \OT1/cmr/m/n/12 Sprich dass die FAT / DMAP $2[]6$ Adressen zur mogliche Eintr
 age zur Verfugung
  []
 
-Excluding 'comment' comment. [7] (document.aux) ) 
+[6] Excluding 'comment' comment. [7] (document.aux) ) 
 Here is how much of TeX's memory you used:
- 4226 strings out of 493308
- 56135 string characters out of 3138770
+ 4237 strings out of 493308
+ 56291 string characters out of 3138770
  122670 words of memory out of 3000000
- 7722 multiletter control sequences out of 15000+200000
- 10150 words of font info for 38 fonts, out of 3000000 for 9000
+ 7733 multiletter control sequences out of 15000+200000
+ 12750 words of font info for 49 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 41i,5n,35p,1385b,219s stack positions out of 5000i,500n,10000p,200000b,50000s
-<C:/Program Files/MiKTeX 2.9/f
-onts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program Files/MiKTeX 2.9/fonts/typ
-e1/public/amsfonts/cm/cmmi12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/publi
-c/amsfonts/cm/cmmi8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfont
-s/cm/cmr12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8
-.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:
-/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on document.pdf (7 pages, 100443 bytes).
+ 41i,7n,35p,1385b,219s stack positions out of 5000i,500n,10000p,200000b,50000s
+<C:/Program Files/MiKTeX 2
+.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program Files/MiKTeX 2.9/fonts
+/type1/public/amsfonts/cm/cmmi12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/p
+ublic/amsfonts/cm/cmmi8.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/ams
+fonts/cm/cmr12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/
+cmr17.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr8.pfb>
+<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Prog
+ram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti12.pfb>
+Output written on document.pdf (9 pages, 117290 bytes).
 PDF statistics:
- 54 PDF objects out of 1000 (max. 8388607)
+ 64 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

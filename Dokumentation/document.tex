@@ -10,8 +10,17 @@
 \renewcommand{\contentsname}{Inhaltsverzeichnis}
 
 \begin{document}
+\begin{titlepage}
+\title{Betriebsysteme Übung: \\
+	Dateisystem unter Linux mithilfe von FUSE}
+\author{Milan Kostic, komi1029 \and Joscha Völler, vojo1016 \and Hannes Illy, ilha1011 \and Alexander Grining, gral1025}
+\pagenumbering{gobble}
+\maketitle
+\end{titlepage}	
+\newpage 
 \tableofcontents
 \newpage
+\pagenumbering{arabic}
 \section{Einleitung}
 \subsection{Ziel}
 Als Ergänzung zu den Inhalten der Vorlesung "Betriebsysteme" und zur Vertiefung des Systemnahen Programmierens unter C++, wurde das Dateisystem MyFs erstellt.
@@ -101,7 +110,12 @@ Als terminierendes Zeichen war die -1 angedacht. Dies führte dazu, dass aus -1 i
 Als elegant und mit den wenigsten Einbußen empfanden wir die Lösung, den $uint16_t$ Adressraum zu benutzen bloß von vorne rein einen Block weniger zu verwenden und diesen dann als terminierendes Zeichen zu benutzen. Somit sinkt unser Effektiv genutzter Speicherraum um einen Block, dies ist jedoch hinzunehmen im Vergleich zu der Verschwendung der Blöcke im Falle des $uint32_t$ Adressraum.
 %TODO korrigieren
 \subsection{Valgrind Leak}
-Initial haben wir ohne groß zu Planen alles Arrays auf dem Stack gespeichert und primitiv damit gearbeitet. Beim Testen hat sich dann Herausgestellt, dass wir Segmentation Fehler bekommen, da der Stack schlichtweg zu klein für alle Array ist. Als Lösung dieses Bugs haben wir die Arrays auf den Heap Transferiert. Als Konsequentz daraus wurde beim erstellen eines Arrays mittel dem Schlüsselwort "new" nur ein Pointer auf den Array zurückgegeben. Dies haben wir nicht berücksichtigt und dadurch kam es in einer Methode die darauf ausgelegt war einen kompletten Array übergeben zu bekommen zu Fehlern. Die Lösung war ganz einfach, die Methode wurde korrigiert sodass sie nun auch mit Pointern als Übergabewert funktioniert.
+Initial haben wir ohne groß zu Planen alles Arrays auf dem Stack gespeichert und primitiv damit gearbeitet. Beim Testen hat sich dann Herausgestellt, dass wir Segmentation Fehler bekommen, da der Stack schlichtweg zu klein für alle Array ist. Als Lösung dieses Bugs haben wir die Arrays auf den Heap Transferiert. Als Konsequentz daraus wurde beim erstellen eines Arrays mittel dem Schlüsselwort "new" nur ein Pointer auf den Array zurückgegeben. Dies haben wir nicht berücksichtigt und dadurch kam es in einer Methode die darauf ausgelegt war einen kompletten Array übergeben zu bekommen, zu Fehlern. Die Lösung war ganz einfach, die Methode wurde korrigiert sodass sie nun auch mit Pointern als Übergabewert funktioniert.
+\subsection{Read / Write}
+Beim Testen fanden wir vor, dass unsere die Dateien in unserem Dateisystem teilweise zerstört werden. Unser Testvideo konnte man abspielen, jedoch wies das Video viele Pixelfehler auf. Der Fehler trat sowohl beim Lesen als auch beim Schreiben auf.
+Im Debuggen fanden wir heraus, dass in regelmäßigen Abständen ein unleserlicher Block gelesen / geschrieben wurde.  
+Als Ursache des Bugs fanden wir einen unberücksichtigten Fall in der read / write Methode, genauer gesagt beim Berechnen der Größe des letzten zu lesenden / schreibenden Blocks, dabei benutzten wir die Modulo Funktion mit unserer Block Größe. Dadurch wurde, falls der Block genau so groß war wie die vordefinierten Block Größe, nicht gelesen / geschrieben. Behoben wurde der Fehler durch hinzufügen einer extra IF-Abfrage genau zu diesem Fall, also falls das Ergebnis der Modulo Funktion gleich null ist, wird genau die Block Größe eingelesen, da wir ja durch vorige Berechnung wissen, dass da noch zu lesende / schreibende Daten sind.    
+
 \begin{comment}
 \lstinputlisting
 [caption={Superblock}
