@@ -77,10 +77,15 @@ Da die Methode generisch mit verschiedenen Datenstrukturen funktioniert, wird di
 %TODO Quellcode einfügen
 
 \newpage
-\section{Persistenz}
+\subsection{Persistenz}
 Um sicherzustellen, dass das Dateisystem Persistent ist, wird in regelmäßigen %TODO????
 Abständen das Komplette Dateisystem auf der Festplatte gesichert, für diesen Zweck wurden in den Klassen FAT, ROOT und DMAP, die Klassen "getAll" und "setAll" implementiert. Die 
 %TODO Quellcode einfügen
+\subsection{Pufferung}
+Um viele Lesevorgänge zu vermeiden wurde ein Puffer implementiert, dieser beinhaltet jeweils den zuletzt gelesenen Block einer geöffneten Datei.
+Als Puffer fungiert eine Struct welche die Blocknummer als auch die Daten selbst speichert. Dabei besitzt jede geöffnete Datei Ihren eigenen Puffer.
+Diese werden in der MyFs Klasse in einem Array verwaltet. Bei jedem Lesevorgang wird überprüft, ob der Block im Puffern ist, wenn nicht wird der Block eingelesen und der Puffer aktualisiert. 
+
 
 \section{Optimierungen}
 \subsection{FAT Performance}
@@ -88,7 +93,15 @@ Die ursprüngliche Idee für das Auslesen war es, die komplette Verkettung als Lis
 Als Lösung des Problems wurde ein anderer Ansatz gewählt. Die neue Methode bekommt den letzten bekannten Index übergeben und liefert den nächsten verketteten Index. Dieser Ansatz hat sich als deutlich Performanter herausgestellt, vor allem für größere Dateien.
 Nachdem selben Prinzip wurde auch die Methode zum hinzufügen neuer Datenblöcke der Verkettung überarbeitet. Auch dies brachte einen großen Geschwindigkeitsvorteil. 
 %TODO Quellcode einfügen
-
+\newpage
+\section{Hall of Bugs}
+\subsection{-1 = 65536?}
+Ursprünglich war es gedacht den kompletten $uint16_t$ Adressraum auszunutzen. Sprich dass die FAT / DMAP $2^16$ Adressen zur mögliche Einträge zur Verfügung haben.
+Als terminierendes Zeichen war die -1 angedacht. Dies führte dazu, dass aus -1 in der unsigned Darstellung die 65536 wurde und da wir den kompletten Adressraum ausnutzen wollten, war 65536 eine valide Adresse. Zeigen tat sich dies indem sehr oft auf den letzten Block geschrieben wurde obwohl eigentlich die Datei zu ende sein sollte. Die erste Idee war, wir vergrößern den Adressraum und benutzen $uint32_t$. Dies hatte jedoch zur Folge, dass die größe der FAT auf 512 Blöcke wuchs und somit größer war als alle andren Abschnitte zusammen. Also war das auch nicht die optimale Lösung.
+Als elegant und mit den wenigsten Einbußen empfanden wir die Lösung, den $uint16_t$ Adressraum zu benutzen bloß von vorne rein einen Block weniger zu verwenden und diesen dann als terminierendes Zeichen zu benutzen. Somit sinkt unser Effektiv genutzter Speicherraum um einen Block, dies ist jedoch hinzunehmen im Vergleich zu der Verschwendung der Blöcke im Falle des $uint32_t$ Adressraum.
+%TODO korrigieren
+\subsection{Valgrind Leak}
+Initial haben wir ohne groß zu Planen alles Arrays auf dem Stack gespeichert und primitiv damit gearbeitet. Beim Testen hat sich dann Herausgestellt, dass wir Segmentation Fehler bekommen, da der Stack schlichtweg zu klein für alle Array ist. Als Lösung dieses Bugs haben wir die Arrays auf den Heap Transferiert. Als Konsequentz daraus wurde beim erstellen eines Arrays mittel dem Schlüsselwort "new" nur ein Pointer auf den Array zurückgegeben. Dies haben wir nicht berücksichtigt und dadurch kam es in einer Methode die darauf ausgelegt war einen kompletten Array übergeben zu bekommen zu Fehlern. Die Lösung war ganz einfach, die Methode wurde korrigiert sodass sie nun auch mit Pointern als Übergabewert funktioniert.
 \begin{comment}
 \lstinputlisting
 [caption={Superblock}
@@ -101,9 +114,7 @@ captionpos=b,language=C++,firstline=29,lastline=41]
 [caption={DMAP}
 \label{lst:dmap},
 captionpos=b,language=C++, basicstyle=\ttfamily,
-keywordstyle=\color{blue}\ttfamily,
-stringstyle=\color{purple}\ttfamily,
-commentstyle=\color{gray}\ttfamily,
+keywordstyle=\color{blue}\ttfamily,  	commentstyle=\color{gray}\ttfamily,
 ]%
 {../src/dmap.cpp}
 \end{comment}
